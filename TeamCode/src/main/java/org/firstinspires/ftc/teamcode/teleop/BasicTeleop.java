@@ -1,13 +1,18 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.dashboard.message.redux.ReceiveGamepadState;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.hardware.Robot;
+import org.firstinspires.ftc.teamcode.helpers.GamepadEx;
 
 @TeleOp(name = "BasicTeleop", group = "TeleOp")
 public class BasicTeleop extends LinearOpMode {
     Robot robot = new Robot();
+    Gamepad gp1 = new Gamepad();
+    Gamepad gp2 = new Gamepad();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -16,7 +21,7 @@ public class BasicTeleop extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            robot.driveTrain.drive();
+            robot.driveTrain.drive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         }
     }
 }
