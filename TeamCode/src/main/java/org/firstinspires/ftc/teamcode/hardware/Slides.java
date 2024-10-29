@@ -1,17 +1,20 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-
+@Config
 public class Slides {
     double FIRST_POS = 1000;
     double SECOND_POS = 2000;
     double HOLD =.03;
     SlideState state = SlideState.BOTTOM;
     SlideState goalState = SlideState.BOTTOM;
+
 
     public void loop() {
         switch (state){
