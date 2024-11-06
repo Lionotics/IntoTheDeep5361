@@ -10,22 +10,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
+import org.firstinspires.ftc.teamcode.helpers.PIDController;
 
 @Config
 @TeleOp(name="Slides Testing")
 public class SlidesTesting extends LinearOpMode {
 
     //Robot robot = new Robot();
-    public static double Kp = 0;
-    public static double Ki = 0;
-    public static double Kd = 0;
-
-    static double Xi = 0;
-    public static double Xf = 0;
-
-    double integralSum = 0;
-
-    static double lastError = 0;
+    public static double kP = 0;
+    public static double kI = 0;
+    public static double kD = 0;
 
     @Override
     public void runOpMode() {
@@ -33,41 +27,24 @@ public class SlidesTesting extends LinearOpMode {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dash.getTelemetry());
 
         DcMotor slide = hardwareMap.get(DcMotor.class, "backLeft");
+        PIDController controller = new PIDController(kP, kI, kD);
+        controller.setSetPoint(1000);
 
         waitForStart();
 
 
         while (opModeIsActive()) {
-
-            // Elapsed timer class from SDK, please use it, it's epic
-            ElapsedTime timer = new ElapsedTime();
-
-            while (Xf-Xi > 0) {
-                // obtain the encoder position
-                Xi = slide.getCurrentPosition();
-                // calculate the error
-                double e = Xf - Xi;
-
-                // rate of change of the error
-                double derivative = (e - lastError) / timer.seconds();
-
-                // sum of all error over time
-                integralSum = integralSum + (e * timer.seconds());
-
-                double power = (Kp * e) + (Ki * integralSum) + (Kd * derivative);
-
+            while(!controller.atSetPoint()) {
+                controller.setPID(kP,kI,kD);
+                double power = controller.calculate(slide.getCurrentPosition());
                 slide.setPower(power);
-
-                lastError = e;
-
-                // reset the timer for next time
-                timer.reset();
-
+                telemetry.addData("Power: ", power);
+                telemetry.addData("Position: ", slide.getCurrentPosition());
+                telemetry.addData("Target: ", controller.getSetPoint());
+                telemetry.update();
             }
-
-            telemetry.addData("Position: " , Xi);
-            telemetry.addData("Target: " , Xf);
-            telemetry.update();
+            sleep(1000);
+            controller.setSetPoint(controller.getSetPoint()+1000);
         }
     }
 }
