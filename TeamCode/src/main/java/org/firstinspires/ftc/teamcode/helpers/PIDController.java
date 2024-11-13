@@ -17,7 +17,7 @@ package org.firstinspires.ftc.teamcode.helpers;
  */
 
 public class PIDController {
-    final double dF=0.010;
+    final double kF=0.010;
 
     private double kP, kI, kD;
     private double setPoint;

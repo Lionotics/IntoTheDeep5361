@@ -9,6 +9,41 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 public class Slides {
+
+    private DcMotor differentialRight, differentialLeft;
+
+    //TODO: Incorporate this into the class
+    /*
+    private DcMotor differentialRight, differentialLeft;
+
+    @Override
+    public void runOpMode() {
+        differentialRight = hardwareMap.dcMotor.get("differentialRight");
+        differentialLeft = hardwareMap.dcMotor.get("differentialLeft");
+
+        differentialLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        differentialRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+            if (gamepad1.dpad_up) {
+                differentialRight.setPower(-.7);
+                differentialLeft.setPower(.7);
+            } else if (gamepad1.dpad_down) {
+                differentialRight.setPower(.7);
+                differentialLeft.setPower(-.7);
+            } else if (gamepad1.dpad_left) {
+                differentialRight.setPower(-.7);
+                differentialLeft.setPower(-.7);
+            } else if (gamepad1.dpad_right) {
+                differentialRight.setPower(.7);
+                differentialLeft.setPower(.7);
+            } else {
+                differentialRight.setPower(-0.1);
+                differentialLeft.setPower(0.1);
+            }
+        }*/
     double FIRST_POS = 1000;
     double SECOND_POS = 2000;
     double HOLD =.03;
@@ -76,9 +111,11 @@ public class Slides {
     }
 
     DcMotor slide;
-    public  void init(HardwareMap hwMap) {
-        hwMap.get(DcMotor.class, "slide");
-        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    public void init(HardwareMap hwMap) {
+        differentialRight = hwMap.dcMotor.get("differentialRight");
+        differentialLeft = hwMap.dcMotor.get("differentialLeft");
+
+        differentialLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        differentialRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 }
