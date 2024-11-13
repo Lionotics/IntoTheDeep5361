@@ -6,16 +6,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.hardware.Robot;
-import org.firstinspires.ftc.teamcode.helpers.GamepadEx;
 
 @TeleOp(name = "BasicTeleop", group = "TeleOp")
 public class BasicTeleop extends LinearOpMode {
     Robot robot = new Robot();
     Gamepad gp1 = new Gamepad();
-    Gamepad gp2 = new Gamepad();
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         robot.init(hardwareMap);
 
         waitForStart();

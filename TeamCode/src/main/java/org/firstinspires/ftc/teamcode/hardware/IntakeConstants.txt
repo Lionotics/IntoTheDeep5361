@@ -1,0 +1,2 @@
+ClawOpen = 0.7
+ClawClose = 0.39
