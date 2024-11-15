@@ -9,7 +9,7 @@ public class Robot {
 
     public void init(HardwareMap hwMap) {
         driveTrain.init(hwMap);
-        //TODO: fix this slides.init(hwMap);
+        slides.init(hwMap);
         intake.init(hwMap);
     }
 }

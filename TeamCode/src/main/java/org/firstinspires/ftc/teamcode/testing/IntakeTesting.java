@@ -44,6 +44,12 @@ public class IntakeTesting extends LinearOpMode {
                 robot.intake.setShoulder(SHOULDER_RELEASE);
             }
 
+            if (gamepad1.dpad_left) {
+                robot.slides.horizontalSlide(.3d);
+            } else if (gamepad1.dpad_right) {
+                robot.slides.horizontalSlide(-.3d);
+            }
+
             telemetry.addData("Claw Position", robot.intake.getClawPosition());
             telemetry.addData("Elbow Position", robot.intake.getElbowPosition());
             telemetry.addData("Wrist Position", robot.intake.getWristPosition());
