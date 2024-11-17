@@ -60,12 +60,39 @@ public class DriveTrain {
         backRight.setPower(backRightPower * maxSpeed);
     }
 
+    public void driveRobotCentric(double leftStickY, double leftStickX, double rightStickX) {
+        double y = leftStickY; // Remember, Y stick value is reversed
+        double x = leftStickX * 1.1; // Counteract imperfect strafing
+        double rx = rightStickX;
+
+        // Denominator is the largest motor power (absolute value) or 1
+        // This ensures all the powers maintain the same ratio,
+        // but only if at least one is out of the range [-1, 1]
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower = (y + x + rx) / denominator;
+        double backLeftPower = (y - x + rx) / denominator;
+        double frontRightPower = (y - x - rx) / denominator;
+        double backRightPower = (y + x - rx) / denominator;
+
+        frontLeft.setPower(frontLeftPower);
+        backLeft.setPower(backLeftPower);
+        frontRight.setPower(frontRightPower);
+        backRight.setPower(backRightPower);
+    }
+
 
     public void stop() {
         frontLeft.setPower(0);
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
+    }
+
+    public void go() {
+        frontLeft.setPower(.1);
+        frontRight.setPower(.1);
+        backLeft.setPower(.1);
+        backRight.setPower(.1);
     }
 
     public void initIMU(HardwareMap hwMap){
