@@ -14,6 +14,8 @@ public class DriveTrain {
     private IMU imu;
     public double maxSpeed = 0.8;
 
+    public double offset = -Math.PI / 2;
+
     public void init(HardwareMap hwMap) {
         frontLeft = hwMap.get(DcMotor.class, "frontLeft");
         frontRight = hwMap.get(DcMotor.class, "frontRight");
@@ -30,18 +32,18 @@ public class DriveTrain {
         backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
         initIMU(hwMap);
     }
 
     public void drive(double leftStickY, double leftStickX,
                       double rightStickX){
-        double y = -leftStickY; // Remember, Y stick value is reversed
-        double x = leftStickX;
-        double rx = rightStickX;
+        double y = leftStickY; // Remember, Y stick value is reversed
+        double x = -leftStickX;
+        double rx = -rightStickX;
 
         // Read inverse IMU heading, as the IMU heading is CW positive
-        double botHeading =  -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        double botHeading =  -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + offset;
         double rotX = x * Math.cos(botHeading) - y * Math.sin(botHeading);
         double rotY = x * Math.sin(botHeading) + y * Math.cos(botHeading);
 
@@ -54,45 +56,33 @@ public class DriveTrain {
         double frontRightPower = (rotY - rotX - rx) / denominator;
         double backRightPower = (rotY + rotX - rx) / denominator;
 
-        frontLeft.setPower(frontLeftPower * maxSpeed);
-        backLeft.setPower(backLeftPower * maxSpeed);
-        frontRight.setPower(frontRightPower * maxSpeed);
-        backRight.setPower(backRightPower * maxSpeed);
+        setPower(frontLeftPower * maxSpeed, frontRightPower * maxSpeed, backLeftPower * maxSpeed, backRightPower * maxSpeed);
     }
 
     public void driveRobotCentric(double leftStickY, double leftStickX, double rightStickX) {
         double y = leftStickY; // Remember, Y stick value is reversed
-        double x = leftStickX * 1.1; // Counteract imperfect strafing
-        double rx = rightStickX;
+        double x = -leftStickX * 1.1; // Counteract imperfect strafing
+        double rx = -rightStickX;
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
         // but only if at least one is out of the range [-1, 1]
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double denominator = Math.max((Math.abs(y) + Math.abs(x) + Math.abs(rx)), 1);
         double frontLeftPower = (y + x + rx) / denominator;
         double backLeftPower = (y - x + rx) / denominator;
         double frontRightPower = (y - x - rx) / denominator;
         double backRightPower = (y + x - rx) / denominator;
 
-        frontLeft.setPower(frontLeftPower);
-        backLeft.setPower(backLeftPower);
-        frontRight.setPower(frontRightPower);
-        backRight.setPower(backRightPower);
+        setPower(frontLeftPower * maxSpeed, frontRightPower * maxSpeed, backLeftPower * maxSpeed, backRightPower * maxSpeed);
     }
 
 
     public void stop() {
-        frontLeft.setPower(0);
-        frontRight.setPower(0);
-        backLeft.setPower(0);
-        backRight.setPower(0);
+        setPower(0, 0, 0, 0);
     }
 
     public void go() {
-        frontLeft.setPower(.1);
-        frontRight.setPower(.1);
-        backLeft.setPower(.1);
-        backRight.setPower(.1);
+        setPower(.1, .1, .1, .1);
     }
 
     public void initIMU(HardwareMap hwMap){
@@ -103,6 +93,13 @@ public class DriveTrain {
                 RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
         imu.initialize(parameters);
         imu.resetYaw();
+    }
+
+    public void setPower(double frontLeftPower, double frontRightPower, double backLeftPower, double backRightPower) {
+        frontLeft.setPower(frontLeftPower);
+        frontRight.setPower(frontRightPower);
+        backLeft.setPower(backLeftPower);
+        backRight.setPower(backRightPower);
     }
 
 }
