@@ -90,7 +90,7 @@ public class Intake {
         currentState = IntakeState.BARRIER1;
     }
 
-    private void barrierToHover() {
+    private void barrier1ToHover() {
         setClaw(CLAW_HOVER);
         setWrist(WRIST_HOVER);
         setElbow(ELBOW_HOVER);
@@ -129,6 +129,22 @@ public class Intake {
         currentState = IntakeState.START;
     }
 
+    private void startToHarvest() {
+        setClaw(CLAW_HARVEST);
+        setWrist(WRIST_HARVEST);
+        setElbow(ELBOW_HARVEST);
+        setShoulder(SHOULDER_HARVEST);
+        currentState = IntakeState.HARVEST;
+    }
+
+    private void harvestToBarrier2() {
+        setClaw(CLAW_BARRIER_2);
+        setWrist(WRIST_BARRIER_2);
+        setElbow(ELBOW_BARRIER_2);
+        setShoulder(SHOULDER_BARRIER_2);
+        currentState = IntakeState.BARRIER2;
+    }
+
     private void barrier2ToGrab() {
         setClaw(CLAW_GRAB);
         setElbow(ELBOW_GRAB);
@@ -151,13 +167,21 @@ public class Intake {
         currentState = IntakeState.BARRIER1;
     }
 
+    private void barrier1ToStart() {
+        setClaw(CLAW_START);
+        setWrist(WRIST_START);
+        setElbow(ELBOW_START);
+        setShoulder(SHOULDER_START);
+        currentState = IntakeState.START;
+    }
+
     public void incrementState() {
         switch (currentState) {
             case START:
                 startToBarrier1();
                 break;
             case BARRIER1:
-                barrierToHover();
+                barrier1ToHover();
                 break;
             case HOVER:
                 hoverToGrab();
@@ -176,6 +200,12 @@ public class Intake {
 
     public void decrementState() {
         switch (currentState) {
+            case START:
+                startToHarvest();
+                break;
+            case BARRIER1:
+                barrier1ToStart();
+                break;
             case HOVER:
                 hoverToBarrier1();
                 break;
@@ -185,7 +215,8 @@ public class Intake {
             case BARRIER2:
                 barrier2ToGrab();
                 break;
-            default:
+            case HARVEST:
+                harvestToBarrier2();
                 break;
         }
     }
