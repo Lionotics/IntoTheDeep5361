@@ -13,7 +13,6 @@ public class DriveTrain {
     private DcMotor frontLeft, frontRight, backLeft, backRight;
     private IMU imu;
     public double maxSpeed = 0.8;
-
     public double offset = -Math.PI / 2;
 
     public void init(HardwareMap hwMap) {
