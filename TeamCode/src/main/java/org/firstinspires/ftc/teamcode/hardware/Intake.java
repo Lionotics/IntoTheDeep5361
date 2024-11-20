@@ -12,8 +12,8 @@ public class Intake {
                 CLAW_GRAB = 0.385, CLAW_BARRIER_2 = 0.385 , CLAW_HARVEST = 0.385;
     public static double WRIST_START = 0.685, WRIST_BARRIER_1 = 0.685, WRIST_HOVER = 0.685,
                 WRIST_BARRIER_2 = 0.685, WRIST_HARVEST = 0.685;
-    public static double ELBOW_START = 0.4, ELBOW_BARRIER_1 = 0.7, ELBOW_HOVER = 0.975,
-                ELBOW_GRAB = 0.975, ELBOW_BARRIER_2 = 0.7, ELBOW_HARVEST = 0.4;
+    public static double ELBOW_START = 0.4, ELBOW_BARRIER_1 = 0.7, ELBOW_HOVER = 0.98,
+                ELBOW_GRAB = 0.98, ELBOW_BARRIER_2 = 0.7, ELBOW_HARVEST = 0.4;
     public static double SHOULDER_START = 0.79, SHOULDER_BARRIER_1 = 0.48, SHOULDER_HOVER = 0.48,
                 SHOULDER_GRAB = 0.48, SHOULDER_BARRIER_2 = 0.48, SHOULDER_HARVEST = 0.79;
 
@@ -121,9 +121,7 @@ public class Intake {
         setWrist(WRIST_HARVEST);
         setElbow(ELBOW_HARVEST);
         setShoulder(SHOULDER_HARVEST);
-        while(ee.wrist.getPosition() >= EndEffector.ROTATE_DOWN + 0.05){
-            lom.sleep(50);
-        }
+        lom.sleep(1500);
         ee.close();
         currentState = IntakeState.HARVEST;
     }
@@ -134,9 +132,7 @@ public class Intake {
         setElbow(ELBOW_START);
         setShoulder(SHOULDER_START);
         ee.rotateUp();
-        while(ee.wrist.getPosition() <= EndEffector.ROTATE_UP - 0.05){
-            lom.sleep(50);
-        }
+        lom.sleep(1500);
         ee.open();
         currentState = IntakeState.START;
     }

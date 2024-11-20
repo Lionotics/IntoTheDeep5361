@@ -12,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class DriveTrain {
     private DcMotor frontLeft, frontRight, backLeft, backRight;
     private IMU imu;
-    public double maxSpeed = 0.8;
+    public double maxSpeed = 0.55;
     public double offset = -Math.PI / 2;
 
     public void init(HardwareMap hwMap) {
@@ -61,7 +61,7 @@ public class DriveTrain {
     public void driveRobotCentric(double leftStickY, double leftStickX, double rightStickX) {
         double y = leftStickY; // Remember, Y stick value is reversed
         double x = -leftStickX * 1.1; // Counteract imperfect strafing
-        double rx = -rightStickX;
+        double rx = -rightStickX * 7/10;
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
