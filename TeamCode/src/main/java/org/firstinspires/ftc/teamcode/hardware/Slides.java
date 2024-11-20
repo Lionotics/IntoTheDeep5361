@@ -33,4 +33,23 @@ public class Slides {
         differentialRight.setPower(-HOLD_VERTICAL_SLIDE_POWER);
         differentialLeft.setPower(HOLD_VERTICAL_SLIDE_POWER);
     }
+
+    public void setDifferentialLeft(double power) {
+        differentialLeft.setPower(power);
+    }
+    public void setDifferentialRight(double power) {
+        differentialRight.setPower(power);
+    }
+    public double getHorizontalPos() {
+        return differentialLeft.getCurrentPosition() + differentialRight.getCurrentPosition();
+    }
+
+    public double getVerticalPos() {
+        return differentialLeft.getCurrentPosition() - differentialRight.getCurrentPosition();
+    }
+
+    public String getSlidesPos() {
+        return "Left: " + differentialLeft.getCurrentPosition() + ", Right: " + differentialRight.getCurrentPosition();
+    }
+
 }

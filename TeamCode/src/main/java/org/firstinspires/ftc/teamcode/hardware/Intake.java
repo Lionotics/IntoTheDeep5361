@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -110,26 +111,39 @@ public class Intake {
         setWrist(WRIST_BARRIER_2);
         setElbow(ELBOW_BARRIER_2);
         setShoulder(SHOULDER_BARRIER_2);
+        ee.open();
         currentState = IntakeState.BARRIER2;
     }
 
-    private void barrier2ToHarvest() {
+    private void barrier2ToHarvest(LinearOpMode lom) {
+        ee.rotateDown();
         setClaw(CLAW_HARVEST);
         setWrist(WRIST_HARVEST);
         setElbow(ELBOW_HARVEST);
         setShoulder(SHOULDER_HARVEST);
+        while(ee.wrist.getPosition() >= EndEffector.ROTATE_DOWN + 0.05){
+            lom.sleep(50);
+        }
+        ee.close();
         currentState = IntakeState.HARVEST;
     }
 
-    private void harvestToStart() {
+    private void harvestToStart(LinearOpMode lom) {
         setClaw(CLAW_START);
         setWrist(WRIST_START);
         setElbow(ELBOW_START);
         setShoulder(SHOULDER_START);
+        ee.rotateUp();
+        while(ee.wrist.getPosition() <= EndEffector.ROTATE_UP - 0.05){
+            lom.sleep(50);
+        }
+        ee.open();
         currentState = IntakeState.START;
     }
 
     private void startToHarvest() {
+        ee.rotateDown();
+        ee.close();
         setClaw(CLAW_HARVEST);
         setWrist(WRIST_HARVEST);
         setElbow(ELBOW_HARVEST);
@@ -138,6 +152,8 @@ public class Intake {
     }
 
     private void harvestToBarrier2() {
+        ee.open();
+        ee.rotateUp();
         setClaw(CLAW_BARRIER_2);
         setWrist(WRIST_BARRIER_2);
         setElbow(ELBOW_BARRIER_2);
@@ -149,6 +165,7 @@ public class Intake {
         setClaw(CLAW_GRAB);
         setElbow(ELBOW_GRAB);
         setShoulder(SHOULDER_GRAB);
+        ee.close();
         currentState = IntakeState.GRAB;
     }
 
@@ -175,7 +192,7 @@ public class Intake {
         currentState = IntakeState.START;
     }
 
-    public void incrementState() {
+    public void incrementState(LinearOpMode lom) {
         switch (currentState) {
             case START:
                 startToBarrier1();
@@ -190,10 +207,10 @@ public class Intake {
                 grabToBarrier2();
                 break;
             case BARRIER2:
-                barrier2ToHarvest();
+                barrier2ToHarvest(lom);
                 break;
             case HARVEST:
-                harvestToStart();
+                harvestToStart(lom);
                 break;
         }
     }

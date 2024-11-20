@@ -38,7 +38,7 @@ public class Teleop extends LinearOpMode {
             }
 
             if (gp1.rightBumper.isNewlyPressed()) {
-                robot.intake.incrementState();
+                robot.intake.incrementState(this);
             } else if (gp1.leftBumper.isNewlyPressed()) {
                 robot.intake.decrementState();
             }
@@ -54,6 +54,9 @@ public class Teleop extends LinearOpMode {
             gp1.update(gamepad1);
 
             telemetry.addData("Index: ", robot.intake.currentState.name());
+            telemetry.addData("Horizontal: ", robot.slides.getHorizontalPos());
+            telemetry.addData("Vertical: ", robot.slides.getVerticalPos());
+            telemetry.addData("Slides: ", robot.slides.getSlidesPos());
             telemetry.update();
         }
     }
