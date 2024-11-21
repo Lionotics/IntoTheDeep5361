@@ -22,15 +22,15 @@ public class Teleop extends LinearOpMode {
         while (opModeIsActive()) {
 
             if (gamepad1.dpad_up) {
-                robot.slides.verticalSlide(1);
+                robot.slides.verticalSlide(.75);
             } else if (gamepad1.dpad_down) {
-                robot.slides.verticalSlide(-1);
+                robot.slides.verticalSlide(-.75);
             }
 
             if (gamepad1.dpad_left) {
-                robot.slides.horizontalSlide(-1);
+                robot.slides.horizontalSlide(-.5);
             } else if (gamepad1.dpad_right) {
-                robot.slides.horizontalSlide(1);
+                robot.slides.horizontalSlide(.5);
             }
 
             if (!gamepad1.dpad_up && !gamepad1.dpad_down && !gamepad1.dpad_left && !gamepad1.dpad_right) {
@@ -49,6 +49,9 @@ public class Teleop extends LinearOpMode {
                 robot.intake.turnWristLeft();
             }
 
+            if (gp1.a.isNewlyPressed()) {
+                robot.ee.open();
+            }
 
             robot.driveTrain.driveRobotCentric(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
             gp1.update(gamepad1);
