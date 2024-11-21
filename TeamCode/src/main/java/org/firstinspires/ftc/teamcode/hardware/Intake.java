@@ -121,9 +121,7 @@ public class Intake {
         setWrist(WRIST_HARVEST);
         setElbow(ELBOW_HARVEST);
         setShoulder(SHOULDER_HARVEST);
-        while(ee.wrist.getPosition() >= EndEffector.ROTATE_DOWN + 0.05){
-            lom.sleep(50);
-        }
+        lom.sleep(1000);
         ee.close();
         currentState = IntakeState.HARVEST;
     }
@@ -134,10 +132,6 @@ public class Intake {
         setElbow(ELBOW_START);
         setShoulder(SHOULDER_START);
         ee.rotateUp();
-        while(ee.wrist.getPosition() <= EndEffector.ROTATE_UP - 0.05){
-            lom.sleep(50);
-        }
-        ee.open();
         currentState = IntakeState.START;
     }
 
