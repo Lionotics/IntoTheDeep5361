@@ -14,8 +14,8 @@ public class Intake {
                 WRIST_BARRIER_2 = 0.685, WRIST_HARVEST = 0.685;
     public static double ELBOW_START = 0.4, ELBOW_BARRIER_1 = 0.7, ELBOW_HOVER = 0.975,
                 ELBOW_GRAB = 0.975, ELBOW_BARRIER_2 = 0.7, ELBOW_HARVEST = 0.4;
-    public static double SHOULDER_START = 0.79, SHOULDER_BARRIER_1 = 0.48, SHOULDER_HOVER = 0.48,
-                SHOULDER_GRAB = 0.48, SHOULDER_BARRIER_2 = 0.48, SHOULDER_HARVEST = 0.79;
+    public static double SHOULDER_START = 0.75, SHOULDER_BARRIER_1 = 0.48, SHOULDER_HOVER = 0.435,
+                SHOULDER_GRAB = 0.435, SHOULDER_BARRIER_2 = 0.48, SHOULDER_HARVEST = 0.75;
 
     public enum IntakeState {
         START, BARRIER1, HOVER, GRAB, BARRIER2, HARVEST
