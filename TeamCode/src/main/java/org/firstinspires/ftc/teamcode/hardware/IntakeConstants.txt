@@ -1,6 +1,0 @@
-ClawOpen = 0.7
-ClawClose = 0.39
-
-HOVER:
-Elbow = .525
-Shoulder = .475
