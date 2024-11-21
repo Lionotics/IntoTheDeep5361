@@ -43,9 +43,9 @@ public class Teleop extends LinearOpMode {
                 robot.intake.decrementState();
             }
 
-            if (gp1.b.isNewlyPressed()) {
+            if (gp1.x.isNewlyPressed()) {
                 robot.intake.turnWristRight();
-            } else if (gp1.x.isNewlyPressed()) {
+            } else if (gp1.b.isNewlyPressed()) {
                 robot.intake.turnWristLeft();
             }
 

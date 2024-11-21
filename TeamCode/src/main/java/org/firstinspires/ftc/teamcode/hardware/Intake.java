@@ -12,16 +12,16 @@ public class Intake {
                 CLAW_GRAB = 0.385, CLAW_BARRIER_2 = 0.385 , CLAW_HARVEST = 0.385;
     public static double WRIST_START = 0.685, WRIST_BARRIER_1 = 0.685, WRIST_HOVER = 0.685,
                 WRIST_BARRIER_2 = 0.685, WRIST_HARVEST = 0.685;
-    public static double ELBOW_START = 0.4, ELBOW_BARRIER_1 = 0.7, ELBOW_HOVER = 0.975,
-                ELBOW_GRAB = 0.975, ELBOW_BARRIER_2 = 0.7, ELBOW_HARVEST = 0.4;
-    public static double SHOULDER_START = 0.75, SHOULDER_BARRIER_1 = 0.48, SHOULDER_HOVER = 0.435,
-                SHOULDER_GRAB = 0.435, SHOULDER_BARRIER_2 = 0.48, SHOULDER_HARVEST = 0.75;
+    public static double ELBOW_START = 0.4, ELBOW_BARRIER_1 = 0.7, ELBOW_HOVER = 0.98,
+                ELBOW_GRAB = 0.98, ELBOW_BARRIER_2 = 0.7, ELBOW_HARVEST = 0.4;
+    public static double SHOULDER_START = 0.75, SHOULDER_BARRIER_1 = 0.48, SHOULDER_HOVER = 0.445,
+                SHOULDER_GRAB = 0.445, SHOULDER_BARRIER_2 = 0.48, SHOULDER_HARVEST = 0.75;
 
     public enum IntakeState {
         START, BARRIER1, HOVER, GRAB, BARRIER2, HARVEST
     }
     public static enum WristState {
-        LEFT(0.0), STRAIGHT(0.685), RIGHT(1.0);
+        WEST(0.0), NORTHWEST(0.51), NORTH(0.685), NORTHEAST(0.85), EAST(1.0);
 
         public final double pos;
         WristState(double pos) {
@@ -232,18 +232,26 @@ public class Intake {
         }
     }
 
-    private WristState currentWristState = WristState.STRAIGHT;
+    private WristState currentWristState = WristState.NORTH;
 
     public void turnWristRight() {
         if (currentState != IntakeState.HOVER && currentState != IntakeState.GRAB) return;
         switch (currentWristState) {
-            case LEFT:
-                setWrist(WristState.STRAIGHT.pos);
-                currentWristState = WristState.STRAIGHT;
+            case WEST:
+                setWrist(WristState.NORTHWEST.pos);
+                currentWristState = WristState.NORTHWEST;
                 break;
-            case STRAIGHT:
-                setWrist(WristState.RIGHT.pos);
-                currentWristState = WristState.RIGHT;
+            case NORTHWEST:
+                setWrist(WristState.NORTH.pos);
+                currentWristState = WristState.NORTH;
+                break;
+            case NORTH:
+                setWrist(WristState.NORTHEAST.pos);
+                currentWristState = WristState.NORTHEAST;
+                break;
+            case NORTHEAST:
+                setWrist(WristState.EAST.pos);
+                currentWristState = WristState.EAST;
                 break;
             default:
                 break;
@@ -253,13 +261,21 @@ public class Intake {
     public void turnWristLeft() {
         if (currentState != IntakeState.HOVER && currentState != IntakeState.GRAB) return;
         switch (currentWristState) {
-            case RIGHT:
-                setWrist(WristState.STRAIGHT.pos);
-                currentWristState = WristState.STRAIGHT;
+            case EAST:
+                setWrist(WristState.NORTHEAST.pos);
+                currentWristState = WristState.NORTHEAST;
                 break;
-            case STRAIGHT:
-                setWrist(WristState.LEFT.pos);
-                currentWristState = WristState.LEFT;
+            case NORTHEAST:
+                setWrist(WristState.NORTH.pos);
+                currentWristState = WristState.NORTH;
+                break;
+            case NORTH:
+                setWrist(WristState.NORTHWEST.pos);
+                currentWristState = WristState.NORTHWEST;
+                break;
+            case NORTHWEST:
+                setWrist(WristState.WEST.pos);
+                currentWristState = WristState.WEST;
                 break;
             default:
                 break;
