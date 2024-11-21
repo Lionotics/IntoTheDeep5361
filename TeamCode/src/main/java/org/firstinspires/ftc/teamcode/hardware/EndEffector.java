@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class EndEffector {
 
     public static double CLAW_CLOSE = 0.5, CLAW_OPEN = 0.7;
-    public static double ROTATE_UP = 0.85, ROTATE_DOWN = 0.125;
+    public static double ROTATE_UP = 0.65, ROTATE_DOWN = 0.125;
 
     Servo claw, wrist;
 
