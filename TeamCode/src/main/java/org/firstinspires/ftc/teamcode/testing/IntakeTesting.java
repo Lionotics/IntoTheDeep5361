@@ -48,9 +48,9 @@ public class IntakeTesting extends LinearOpMode {
             }
 
             if (gamepad1.dpad_left) {
-                robot.slides.horizontalSlide();
+                robot.slides.horizontalSlide(.2);
             } else if (gamepad1.dpad_right) {
-                robot.slides.horizontalSlide();
+                robot.slides.horizontalSlide(.2);
             }
 
             telemetry.addData("Claw Position", robot.intake.getClawPosition());
