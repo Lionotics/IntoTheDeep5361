@@ -27,7 +27,7 @@ public class Teleop extends LinearOpMode {
             gp2.update(gamepad2);
 
             if (gp1.rightBumper.isNewlyPressed()) {
-                robot.intake.incrementState(this);
+                robot.intake.incrementState();
             } else if (gp1.leftBumper.isNewlyPressed()) {
                 robot.intake.decrementState();
             }

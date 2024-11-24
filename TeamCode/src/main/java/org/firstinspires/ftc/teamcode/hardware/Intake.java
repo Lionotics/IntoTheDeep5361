@@ -120,29 +120,23 @@ public class Intake {
         currentState = IntakeState.BARRIER2;
     }
 
-    private Thread setTimedThread(long time, Object o, String methodName) {
-        return new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(time);
-                    Method f = o.getClass().getMethod(methodName);
-                    f.invoke(o);
-                } catch (InterruptedException | InvocationTargetException | NoSuchMethodException |
-                         IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-    }
-
     private void barrier2ToHarvest() {
         ee.rotateDown();
         setClaw(CLAW_HARVEST);
         setWrist(WRIST_HARVEST);
         setElbow(ELBOW_HARVEST);
         setShoulder(SHOULDER_HARVEST);
-        setTimedThread(1250,ee,"close").start();
+        new Thread(){
+            @Override
+            public void run(){
+                try {
+                    Thread.sleep(1250);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                ee.close(); // Close the claw after 1.25 seconds
+            }
+        }.start();
         currentState = IntakeState.HARVEST;
     }
 
@@ -157,8 +151,17 @@ public class Intake {
 
     private void startToHarvest() {
         ee.rotateDown();
-        ee.close();
-        setClaw(CLAW_HARVEST);
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1250);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                setClaw(CLAW_HARVEST); // Close the claw after 1.25 seconds
+            }
+        }.start();
         setWrist(WRIST_HARVEST);
         setElbow(ELBOW_HARVEST);
         setShoulder(SHOULDER_HARVEST);
