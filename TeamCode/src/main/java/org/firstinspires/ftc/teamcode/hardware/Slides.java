@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.helpers.PIDController;
@@ -30,9 +31,9 @@ public class Slides {
 
     public static final double MAX_SLIDE_SPEED = 1.0;
     // PID constants kP, kI, and kD
-    public static double kP = 0.1;
-    public static double kI = 0.1;
-    public static double kD = 0.1;
+    public static double kP = 0.003;
+    public static double kI = 0;
+    public static double kD = 0;
     public static int THRESHOLD = 10; // If the slides are within this threshold of the target position, they are considered to be at the target position
     public static double HOLD_POWER = 0.1; // The power needed to not move, but still counteract gravity
     private DcMotor differentialRight, differentialLeft; // The two motors that control the slides
@@ -46,7 +47,7 @@ public class Slides {
 
     // Position constants for the slides to move to (in encoder ticks)
     public enum LiftPositions {
-        TOP_BUCKET(0), BOTTOM_BUCKET(0), TOP_BAR(0), BOTTOM_BAR(0), BOTTOM(0);
+        TOP_BUCKET(2300), BOTTOM_BUCKET(900), TOP_BAR(340), TOP_HANG(0), BOTTOM(0);
 
         public final int pos;
 
@@ -130,7 +131,9 @@ public class Slides {
     }
 
     public void hold() {
-        setLiftState(LiftState.HOLDING);
+        if (controller.atSetPoint()){
+            setLiftState(LiftState.HOLDING);
+        }
     }
 
     // Set the power for the vertical slides
@@ -145,10 +148,11 @@ public class Slides {
 
     // The method that gets run each cycle in the opmode (while the slides are in AUTO_MOVE state)
     private void pidLoop() {
-        double position = getVerticalPos();
-        double power = controller.calculate(position);
+        controller.setPID(kP, kI, kD);
+        double power = getPidPower();
         power = Math.min(Math.abs(power), MAX_SLIDE_SPEED); // Limit the power to the maximum slide speed
-        verticalSlide(power);
+        power = (power > 0) ? Math.max(power,0.13) : Math.min(power,-0.13);
+        verticalSlide(Math.max(power,0.13));
     }
 
     // Sets a small power to the slides to counteract gravity
@@ -169,5 +173,20 @@ public class Slides {
     public double getVerticalPos() {
         return differentialLeft.getCurrentPosition() - differentialRight.getCurrentPosition();
     }
+    public double getVerticalVelo() {
+        DcMotorEx left = (DcMotorEx) differentialLeft;
+        DcMotorEx right = (DcMotorEx) differentialRight;
+        return left.getVelocity() - right.getVelocity();
+    }
+    public double getTargetPos() {
+        return controller.getSetPoint();
+    }
 
+    public LiftState getLiftState() {
+        return liftState;
+    }
+    public double getPidPower() {
+        double position = getVerticalPos();
+        return controller.calculate(position);
+    }
 }

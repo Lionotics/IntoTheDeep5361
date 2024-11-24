@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 @TeleOp(name = "Wheels Testing", group = "Testing")
 public class TestWheels extends LinearOpMode {
-    Robot robot = new Robot();
+    Robot robot = Robot.getInstance();
 
     @Override
     public void runOpMode() {
