@@ -120,7 +120,23 @@ public class Intake {
         currentState = IntakeState.BARRIER2;
     }
 
-    private void barrier2ToHarvest(LinearOpMode lom) {
+    private Thread setTimedThread(long time, Object o, String methodName) {
+        return new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(time);
+                    Method f = o.getClass().getMethod(methodName);
+                    f.invoke(o);
+                } catch (InterruptedException | InvocationTargetException | NoSuchMethodException |
+                         IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+    }
+
+    private void barrier2ToHarvest() {
         ee.rotateDown();
         setClaw(CLAW_HARVEST);
         setWrist(WRIST_HARVEST);
