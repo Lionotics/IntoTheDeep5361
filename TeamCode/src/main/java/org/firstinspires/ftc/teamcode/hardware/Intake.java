@@ -36,6 +36,7 @@ public class Intake {
 
     Servo claw, wrist, elbow, shoulder;
     EndEffector ee = new EndEffector();
+    Slides slides = new Slides();
 
     public void init(HardwareMap hwMap) {
         claw = hwMap.servo.get("intakeClaw");
@@ -44,6 +45,7 @@ public class Intake {
         shoulder = hwMap.servo.get("intakePivot");
 
         ee.init(hwMap);
+        slides.init(hwMap);
     }
 
     public void setClaw(double position) {
@@ -116,16 +118,28 @@ public class Intake {
         setWrist(WRIST_BARRIER_2);
         setElbow(ELBOW_BARRIER_2);
         setShoulder(SHOULDER_BARRIER_2);
+        //TODO: Maybe add a horizontal slide PID loop to pull it back for barrier
         ee.open();
         currentState = IntakeState.BARRIER2;
     }
 
     private void barrier2ToHarvest() {
+        slides.moveToPosition(Slides.LiftPositions.BOTTOM);
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                setClaw(CLAW_HARVEST);
+                setWrist(WRIST_HARVEST);
+                setElbow(ELBOW_HARVEST);
+                setShoulder(SHOULDER_HARVEST);
+            }
+        }.start();
         ee.rotateDown();
-        setClaw(CLAW_HARVEST);
-        setWrist(WRIST_HARVEST);
-        setElbow(ELBOW_HARVEST);
-        setShoulder(SHOULDER_HARVEST);
         new Thread(){
             @Override
             public void run(){

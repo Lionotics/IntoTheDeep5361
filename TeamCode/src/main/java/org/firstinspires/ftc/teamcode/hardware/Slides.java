@@ -46,7 +46,7 @@ public class Slides {
 
     // Position constants for the slides to move to (in encoder ticks)
     public enum LiftPositions {
-        TOP_BUCKET(0), BOTTOM_BUCKET(0), TOP_BAR(0), BOTTOM_BAR(0);
+        TOP_BUCKET(0), BOTTOM_BUCKET(0), TOP_BAR(0), BOTTOM_BAR(0), BOTTOM(0);
 
         public final int pos;
 
