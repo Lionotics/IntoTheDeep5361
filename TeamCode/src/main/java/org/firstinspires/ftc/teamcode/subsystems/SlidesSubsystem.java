@@ -1,19 +1,21 @@
-package org.firstinspires.ftc.teamcode.hardware;
+package org.firstinspires.ftc.teamcode.subsystems;
 
+
+import android.annotation.SuppressLint;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 @Config
-public class Slides {
+public class SlidesSubsystem extends SubsystemBase {
 
-    private DcMotor differentialRight, differentialLeft;
     private final double HOLD_VERTICAL_SLIDE_POWER = 0.1d;
+    private DcMotor differentialRight, differentialLeft;
 
-    public void init(HardwareMap hwMap) {
+    public SlidesSubsystem(HardwareMap hwMap) {
         differentialRight = hwMap.dcMotor.get("differentialRight");
         differentialLeft = hwMap.dcMotor.get("differentialLeft");
 
@@ -25,10 +27,12 @@ public class Slides {
         differentialRight.setPower(-power);
         differentialLeft.setPower(power);
     }
+
     public void horizontalSlide(double power) {
         differentialRight.setPower(power);
         differentialLeft.setPower(power);
     }
+
     public void hold() {
         differentialRight.setPower(-HOLD_VERTICAL_SLIDE_POWER);
         differentialLeft.setPower(HOLD_VERTICAL_SLIDE_POWER);
@@ -37,19 +41,17 @@ public class Slides {
     public void setDifferentialLeft(double power) {
         differentialLeft.setPower(power);
     }
+
     public void setDifferentialRight(double power) {
         differentialRight.setPower(power);
     }
+
     public double getHorizontalPos() {
         return differentialLeft.getCurrentPosition() + differentialRight.getCurrentPosition();
     }
 
     public double getVerticalPos() {
         return differentialLeft.getCurrentPosition() - differentialRight.getCurrentPosition();
-    }
-
-    public String getSlidesPos() {
-        return "Left: " + differentialLeft.getCurrentPosition() + ", Right: " + differentialRight.getCurrentPosition();
     }
 
 }
