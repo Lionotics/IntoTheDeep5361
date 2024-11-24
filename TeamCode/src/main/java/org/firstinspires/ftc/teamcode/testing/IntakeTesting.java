@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.testing;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -19,6 +21,7 @@ public class IntakeTesting extends LinearOpMode {
     Robot robot = new Robot();
     @Override
     public void runOpMode(){
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         robot.init(hardwareMap);
         waitForStart();
         while(opModeIsActive()){
@@ -45,9 +48,9 @@ public class IntakeTesting extends LinearOpMode {
             }
 
             if (gamepad1.dpad_left) {
-                robot.slides.horizontalSlide(.3d);
+                robot.slides.horizontalSlide();
             } else if (gamepad1.dpad_right) {
-                robot.slides.horizontalSlide(-.3d);
+                robot.slides.horizontalSlide();
             }
 
             telemetry.addData("Claw Position", robot.intake.getClawPosition());

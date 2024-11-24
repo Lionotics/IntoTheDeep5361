@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,31 +13,18 @@ import org.firstinspires.ftc.teamcode.helpers.GamepadEx;
 public class Teleop extends LinearOpMode {
 
     Robot robot = new Robot();
-    GamepadEx gp1 = new GamepadEx();
+    GamepadEx gp1, gp2;
 
 
     @Override
     public void runOpMode() {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         waitForStart();
         robot.init(hardwareMap);
         robot.intake.init(); //TODO: Add at the end of auton, remove this later
         while (opModeIsActive()) {
-
-            if (gamepad1.dpad_up) {
-                robot.slides.verticalSlide(.75);
-            } else if (gamepad1.dpad_down) {
-                robot.slides.verticalSlide(-.75);
-            }
-
-            if (gamepad1.dpad_left) {
-                robot.slides.horizontalSlide(-.5);
-            } else if (gamepad1.dpad_right) {
-                robot.slides.horizontalSlide(.5);
-            }
-
-            if (!gamepad1.dpad_up && !gamepad1.dpad_down && !gamepad1.dpad_left && !gamepad1.dpad_right) {
-                robot.slides.hold();
-            }
+            gp1.update(gamepad1);
+            gp2.update(gamepad2);
 
             if (gp1.rightBumper.isNewlyPressed()) {
                 robot.intake.incrementState(this);
@@ -59,7 +48,6 @@ public class Teleop extends LinearOpMode {
             telemetry.addData("Index: ", robot.intake.currentState.name());
             telemetry.addData("Horizontal: ", robot.slides.getHorizontalPos());
             telemetry.addData("Vertical: ", robot.slides.getVerticalPos());
-            telemetry.addData("Slides: ", robot.slides.getSlidesPos());
             telemetry.update();
         }
     }
