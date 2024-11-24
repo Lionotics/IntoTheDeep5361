@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.helpers.GamepadEx;
 
 @TeleOp(name="End Effector Testing", group = "Testing")
 public class EndEffectorTesting extends LinearOpMode {
-    Robot robot = new Robot();
+    Robot robot = Robot.getInstance();
     GamepadEx gp1 = new GamepadEx();
     @Override
     public void runOpMode() {

@@ -6,15 +6,11 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Slides;
 import org.firstinspires.ftc.teamcode.helpers.GamepadEx;
-import org.firstinspires.ftc.teamcode.helpers.PIDController;
 
 
 @Config
@@ -22,8 +18,8 @@ import org.firstinspires.ftc.teamcode.helpers.PIDController;
 public class SlidesTesting extends LinearOpMode {
 
 
-    Robot robot = new Robot();
-    GamepadEx gp1, gp2;
+    Robot robot = Robot.getInstance();
+    GamepadEx gp1 = new GamepadEx(), gp2 = new GamepadEx();
 
 
     @Override
@@ -38,7 +34,6 @@ public class SlidesTesting extends LinearOpMode {
         telemetry.addData("Press b (on gp1) to move the vertical slides to the bottom bucket", "");
         telemetry.addData("Press x (on gp1) to move the vertical slides to the top bar", "");
         telemetry.addData("Press y (on gp1) to move the vertical slides to the bottom bar", "");
-
 
         robot.init(hardwareMap);
 
@@ -68,7 +63,7 @@ public class SlidesTesting extends LinearOpMode {
             } else if (gp1.x.isNewlyPressed()) {
                 robot.slides.moveToPosition(Slides.LiftPositions.TOP_BAR);
             } else if (gp1.y.isNewlyPressed()) {
-                robot.slides.moveToPosition(Slides.LiftPositions.BOTTOM_BAR);
+                robot.slides.moveToPosition(Slides.LiftPositions.TOP_HANG);
             }
 
             if (isNoButtonPressed()) {
@@ -77,9 +72,12 @@ public class SlidesTesting extends LinearOpMode {
 
             robot.slides.loop();
 
-            telemetry.addData("Index: ", robot.intake.currentState.name());
-            telemetry.addData("Horizontal: ", robot.slides.getHorizontalPos());
-            telemetry.addData("Vertical: ", robot.slides.getVerticalPos());
+            telemetry.addData("Slide Mode",robot.slides.getLiftState().name());
+            telemetry.addData("Horizontal Pos: ", robot.slides.getHorizontalPos());
+            telemetry.addData("Vertical Pos: ", robot.slides.getVerticalPos());
+            telemetry.addData("Vertical Target: ", robot.slides.getTargetPos());
+            telemetry.addData("Vertical Velocity: ", robot.slides.getVerticalVelo());
+            telemetry.addData("PID Output: ", robot.slides.getPidPower());
             telemetry.update();
         }
     }

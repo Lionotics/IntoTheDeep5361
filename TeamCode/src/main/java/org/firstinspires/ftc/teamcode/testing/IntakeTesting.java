@@ -18,7 +18,7 @@ public class IntakeTesting extends LinearOpMode {
     public static double ELBOW_PRESS = 0, ELBOW_RELEASE = 0;
     public static double WRIST_PRESS = 0, WRIST_RELEASE = 0;
     public static double CLAW_PRESS = 0, CLAW_RELEASE = 0;
-    Robot robot = new Robot();
+    Robot robot = Robot.getInstance();
     @Override
     public void runOpMode(){
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());

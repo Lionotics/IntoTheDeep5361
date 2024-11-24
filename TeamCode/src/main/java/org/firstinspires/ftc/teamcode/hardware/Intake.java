@@ -35,17 +35,13 @@ public class Intake {
     }
 
     Servo claw, wrist, elbow, shoulder;
-    EndEffector ee = new EndEffector();
-    Slides slides = new Slides();
+    Robot robot;
 
     public void init(HardwareMap hwMap) {
         claw = hwMap.servo.get("intakeClaw");
         wrist = hwMap.servo.get("clawRotate");
         elbow = hwMap.servo.get("intakeRotate");
         shoulder = hwMap.servo.get("intakePivot");
-
-        ee.init(hwMap);
-        slides.init(hwMap);
     }
 
     public void setClaw(double position) {
@@ -83,6 +79,7 @@ public class Intake {
     public IntakeState currentState;
 
     public void init() {
+        robot = Robot.getInstance();
         setClaw(CLAW_START);
         setWrist(WRIST_START);
         setElbow(ELBOW_START);
@@ -119,12 +116,12 @@ public class Intake {
         setElbow(ELBOW_BARRIER_2);
         setShoulder(SHOULDER_BARRIER_2);
         //TODO: Maybe add a horizontal slide PID loop to pull it back for barrier
-        ee.open();
+        robot.ee.open();
         currentState = IntakeState.BARRIER2;
     }
 
     private void barrier2ToHarvest() {
-        slides.moveToPosition(Slides.LiftPositions.BOTTOM);
+        robot.slides.moveToPosition(Slides.LiftPositions.BOTTOM);
         new Thread() {
             @Override
             public void run() {
@@ -139,7 +136,7 @@ public class Intake {
                 setShoulder(SHOULDER_HARVEST);
             }
         }.start();
-        ee.rotateDown();
+        robot.ee.rotateDown();
         new Thread(){
             @Override
             public void run(){
@@ -148,7 +145,7 @@ public class Intake {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                ee.close(); // Close the claw after 1.25 seconds
+                robot.ee.close(); // Close the claw after 1.25 seconds
             }
         }.start();
         currentState = IntakeState.HARVEST;
@@ -159,12 +156,12 @@ public class Intake {
         setWrist(WRIST_START);
         setElbow(ELBOW_START);
         setShoulder(SHOULDER_START);
-        ee.rotateUp();
+        robot.ee.rotateUp();
         currentState = IntakeState.START;
     }
 
     private void startToHarvest() {
-        ee.rotateDown();
+        robot.ee.rotateDown();
         new Thread() {
             @Override
             public void run() {
@@ -183,8 +180,8 @@ public class Intake {
     }
 
     private void harvestToBarrier2() {
-        ee.open();
-        ee.rotateUp();
+        robot.ee.open();
+        robot.ee.rotateUp();
         setClaw(CLAW_BARRIER_2);
         setWrist(WRIST_BARRIER_2);
         setElbow(ELBOW_BARRIER_2);
@@ -196,7 +193,7 @@ public class Intake {
         setClaw(CLAW_GRAB);
         setElbow(ELBOW_GRAB);
         setShoulder(SHOULDER_GRAB);
-        ee.close();
+        robot.ee.close();
         currentState = IntakeState.GRAB;
     }
 

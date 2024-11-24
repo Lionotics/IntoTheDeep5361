@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 
 @TeleOp(name = "DriveTrainTesting", group = "Testing")
 public class DriveTrainTesting extends LinearOpMode {
-    Robot robot = new Robot();
+    Robot robot = Robot.getInstance();
     @Override
     public void runOpMode() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
