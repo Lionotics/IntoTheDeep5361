@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.helpers.PIDController;
 @Config
 public class Slides {
 
-    public static final double MAX_SLIDE_SPEED = 1.0;
+    public static final double MAX_SLIDE_SPEED = .6;
     // PID constants kP, kI, and kD
     public static double kP = 0.003;
     public static double kI = 0;
@@ -77,10 +77,10 @@ public class Slides {
 
     // Setter for the horizontal slides
     // Public because we should should be setting the power of the vertical slides directly
-    public void horizontalSlide() {
+    public void horizontalSlide(double power) {
         setLiftState(LiftState.FREE_FALL);
-        differentialRight.setPower(-MAX_SLIDE_SPEED);
-        differentialLeft.setPower(MAX_SLIDE_SPEED);
+        differentialRight.setPower(Math.min(-MAX_SLIDE_SPEED,-power));
+        differentialLeft.setPower(Math.min(MAX_SLIDE_SPEED,power));
     }
 
     // A method that gets run each cycle in the opmode

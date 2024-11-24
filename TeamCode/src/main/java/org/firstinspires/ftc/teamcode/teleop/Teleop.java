@@ -40,6 +40,18 @@ public class Teleop extends LinearOpMode {
                 robot.ee.open();
             }
 
+//            if (gp1.dpad_left.isCurrentlyPressed()) {
+//                robot.slides.horizontalSlide(.2);
+//            } else if (gp1.dpad_right.isCurrentlyPressed()) {
+//                robot.slides.horizontalSlide(-.2);
+//            }
+//
+//            if (gp1.dpad_up.isCurrentlyPressed()) {
+//                robot.slides.manualUp();
+//            } else if (gp1.dpad_down.isCurrentlyPressed()) {
+//                robot.slides.manualDown();
+//            }
+
             robot.driveTrain.driveRobotCentric(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
             gp1.update(gamepad1);
             gp2.update(gamepad2);
