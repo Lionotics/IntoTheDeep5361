@@ -5,6 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.internal.ui.ThemedActivity;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 @Config
 public class Intake {
 
@@ -121,12 +126,11 @@ public class Intake {
         setWrist(WRIST_HARVEST);
         setElbow(ELBOW_HARVEST);
         setShoulder(SHOULDER_HARVEST);
-        lom.sleep(1000);
-        ee.close();
+        setTimedThread(1250,ee,"close").start();
         currentState = IntakeState.HARVEST;
     }
 
-    private void harvestToStart(LinearOpMode lom) {
+    private void harvestToStart() {
         setClaw(CLAW_START);
         setWrist(WRIST_START);
         setElbow(ELBOW_START);
@@ -186,7 +190,7 @@ public class Intake {
         currentState = IntakeState.START;
     }
 
-    public void incrementState(LinearOpMode lom) {
+    public void incrementState() {
         switch (currentState) {
             case START:
                 startToBarrier1();
@@ -201,10 +205,10 @@ public class Intake {
                 grabToBarrier2();
                 break;
             case BARRIER2:
-                barrier2ToHarvest(lom);
+                barrier2ToHarvest();
                 break;
             case HARVEST:
-                harvestToStart(lom);
+                harvestToStart();
                 break;
         }
     }
