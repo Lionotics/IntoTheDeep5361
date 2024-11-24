@@ -71,7 +71,7 @@ public class SlidesTesting extends LinearOpMode {
                 robot.slides.moveToPosition(Slides.LiftPositions.BOTTOM_BAR);
             }
 
-            if (isNoButtonIsPressed()) {
+            if (isNoButtonPressed()) {
                 robot.slides.hold();
             }
 
@@ -93,7 +93,7 @@ public class SlidesTesting extends LinearOpMode {
         return gp1.a.isCurrentlyPressed() || gp1.b.isCurrentlyPressed() || gp1.x.isCurrentlyPressed() || gp1.y.isCurrentlyPressed();
     }
 
-    private boolean isNoButtonIsPressed() {
+    private boolean isNoButtonPressed() {
        return !isAnyButtonPressed() && !isEitherLeft() && !isEitherRight() && !gp2.dpad_up.isCurrentlyPressed() && !gp2.dpad_down.isCurrentlyPressed();
     }
 }
