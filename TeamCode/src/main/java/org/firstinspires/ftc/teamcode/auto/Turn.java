@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name = "Turn", group = "Auto")
+@Autonomous(name = "Turn", group = "Testing")
 @Config
 public class Turn extends LinearOpMode {
     public static double initialDeg = 57;
@@ -21,9 +21,7 @@ public class Turn extends LinearOpMode {
     public void runOpMode() {
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         waitForStart();
-        Action trajectoryAction1 = drive.actionBuilder(drive.pose)
-                .turn(Math.toRadians(distance))
-                .build();
+        Action trajectoryAction1 = drive.actionBuilder(drive.pose).turn(Math.toRadians(distance)).build();
         Actions.runBlocking(trajectoryAction1);
     }
 }

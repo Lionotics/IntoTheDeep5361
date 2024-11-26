@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.hardware;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -29,7 +31,9 @@ import org.firstinspires.ftc.teamcode.helpers.PIDController;
 @Config
 public class Slides {
 
-    public static final double MAX_SLIDE_SPEED = .6;
+    public static final double MAX_SLIDE_UP_SPEED = 1;
+    public static final double MAX_SLIDE_DOWN_SPEED = .5;
+    public static final double MAX_SLIDE_HEIGHT = 2225;
     // PID constants kP, kI, and kD
     public static double kP = 0.003;
     public static double kI = 0;
@@ -39,22 +43,6 @@ public class Slides {
     private DcMotor differentialRight, differentialLeft; // The two motors that control the slides
     private PIDController controller; // The PID controller for the slides
     private LiftState liftState = LiftState.HOLDING; // The current state of the slides
-
-    // Possible states for the vertical slides
-    public enum LiftState {
-        AUTO_MOVE, MANUAL_UP, MANUAL_DOWN, HOLDING, FREE_FALL
-    }
-
-    // Position constants for the slides to move to (in encoder ticks)
-    public enum LiftPositions {
-        TOP_BUCKET(2300), BOTTOM_BUCKET(900), TOP_BAR(340), TOP_HANG(0), BOTTOM(0);
-
-        public final int pos;
-
-        LiftPositions(int pos) {
-            this.pos = pos;
-        }
-    }
 
     // Initializes the hardware and sets the PID controller
     public void init(@NonNull HardwareMap hwMap) {
@@ -79,8 +67,8 @@ public class Slides {
     // Public because we should should be setting the power of the vertical slides directly
     public void horizontalSlide(double power) {
         setLiftState(LiftState.FREE_FALL);
-        differentialRight.setPower(Math.min(-MAX_SLIDE_SPEED,-power));
-        differentialLeft.setPower(Math.min(MAX_SLIDE_SPEED,power));
+        differentialRight.setPower(power);
+        differentialLeft.setPower(power);
     }
 
     // A method that gets run each cycle in the opmode
@@ -105,12 +93,6 @@ public class Slides {
         }
     }
 
-    // Setter for the liftState
-    // Private because no other class should be setting the liftState directly
-    private void setLiftState(LiftState state) {
-        liftState = state;
-    }
-
     // Sets a target position for the vertical slides to move to
     // Public because we should be able to move the slides to a target position from other classes
     public void moveToPosition(LiftPositions position) {
@@ -131,7 +113,7 @@ public class Slides {
     }
 
     public void hold() {
-        if (controller.atSetPoint()){
+        if (liftState != LiftState.AUTO_MOVE || controller.atSetPoint()) {
             setLiftState(LiftState.HOLDING);
         }
     }
@@ -139,20 +121,22 @@ public class Slides {
     // Set the power for the vertical slides
     // Private because this should only be called by loop method
     private void slideDown() {
-        verticalSlide(-MAX_SLIDE_SPEED);
+        verticalSlide(-MAX_SLIDE_DOWN_SPEED);
     }
 
     private void slideUp() {
-        verticalSlide(MAX_SLIDE_SPEED);
+        if (getVerticalPos() < MAX_SLIDE_HEIGHT - THRESHOLD) {
+            verticalSlide(MAX_SLIDE_UP_SPEED);
+        }
     }
 
     // The method that gets run each cycle in the opmode (while the slides are in AUTO_MOVE state)
     private void pidLoop() {
         controller.setPID(kP, kI, kD);
         double power = getPidPower();
-        power = Math.min(Math.abs(power), MAX_SLIDE_SPEED); // Limit the power to the maximum slide speed
-        power = (power > 0) ? Math.max(power,0.13) : Math.min(power,-0.13);
-        verticalSlide(Math.max(power,0.13));
+        power = Math.min(Math.abs(power), MAX_SLIDE_UP_SPEED); // Limit the power to the maximum slide speed
+        power = (power > 0) ? Math.max(power, 0.13) : Math.min(power, -0.13);
+        verticalSlide(Math.max(power, 0.13));
     }
 
     // Sets a small power to the slides to counteract gravity
@@ -173,11 +157,13 @@ public class Slides {
     public double getVerticalPos() {
         return differentialLeft.getCurrentPosition() - differentialRight.getCurrentPosition();
     }
+
     public double getVerticalVelo() {
         DcMotorEx left = (DcMotorEx) differentialLeft;
         DcMotorEx right = (DcMotorEx) differentialRight;
         return left.getVelocity() - right.getVelocity();
     }
+
     public double getTargetPos() {
         return controller.getSetPoint();
     }
@@ -185,8 +171,47 @@ public class Slides {
     public LiftState getLiftState() {
         return liftState;
     }
+
+    // Setter for the liftState
+    // Private because no other class should be setting the liftState directly
+    private void setLiftState(LiftState state) {
+        liftState = state;
+    }
+
     public double getPidPower() {
         double position = getVerticalPos();
         return controller.calculate(position);
+    }
+
+    public Action slidesMoveTo(LiftPositions position) {
+        return new Action() {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    moveToPosition(position);
+                    initialized = true;
+                }
+                packet.put("Distance Left: ", controller.getPositionError());
+                return controller.atSetPoint();
+            }
+        };
+    }
+
+    // Possible states for the vertical slides
+    public enum LiftState {
+        AUTO_MOVE, MANUAL_UP, MANUAL_DOWN, HOLDING, FREE_FALL
+    }
+
+    // Position constants for the slides to move to (in encoder ticks)
+    public enum LiftPositions {
+        TOP_BUCKET(2300), BOTTOM_BUCKET(900), TOP_BAR(340), TOP_HANG(0), BOTTOM(0);
+
+        public final int pos;
+
+        LiftPositions(int pos) {
+            this.pos = pos;
+        }
     }
 }

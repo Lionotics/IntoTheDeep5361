@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name = "Vertical", group = "Auto")
+@Autonomous(name = "Vertical", group = "Testing")
 @Config
 public class StraightVertical extends LinearOpMode {
     public static double initialY = 62;
@@ -21,7 +21,7 @@ public class StraightVertical extends LinearOpMode {
     public void runOpMode() {
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         waitForStart();
-        Action trajectoryAction1 = drive.actionBuilder(drive.pose).strafeTo(new Vector2d(57, initialY-distance)).build();
+        Action trajectoryAction1 = drive.actionBuilder(drive.pose).strafeTo(new Vector2d(57, initialY - distance)).build();
         Actions.runBlocking(trajectoryAction1);
     }
 }
