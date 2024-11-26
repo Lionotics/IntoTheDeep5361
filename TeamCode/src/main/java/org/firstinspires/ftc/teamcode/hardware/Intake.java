@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -13,29 +17,14 @@ import java.lang.reflect.Method;
 @Config
 public class Intake {
 
-    public static double CLAW_START = 0.49, CLAW_BARRIER_1 = 0.49, CLAW_HOVER = 0.49,
-                CLAW_GRAB = 0.385, CLAW_BARRIER_2 = 0.385 , CLAW_HARVEST = 0.385;
-    public static double WRIST_START = 0.685, WRIST_BARRIER_1 = 0.685, WRIST_HOVER = 0.685,
-                WRIST_BARRIER_2 = 0.685, WRIST_HARVEST = 0.685;
-    public static double ELBOW_START = 0.4, ELBOW_BARRIER_1 = 0.7, ELBOW_HOVER = 0.98,
-                ELBOW_GRAB = 0.98, ELBOW_BARRIER_2 = 0.7, ELBOW_HARVEST = 0.4;
-    public static double SHOULDER_START = 0.75, SHOULDER_BARRIER_1 = 0.48, SHOULDER_HOVER = 0.445,
-                SHOULDER_GRAB = 0.445, SHOULDER_BARRIER_2 = 0.48, SHOULDER_HARVEST = 0.75;
-
-    public enum IntakeState {
-        START, BARRIER1, HOVER, GRAB, BARRIER2, HARVEST
-    }
-    public static enum WristState {
-        WEST(0.0), NORTHWEST(0.51), NORTH(0.685), NORTHEAST(0.85), EAST(1.0);
-
-        public final double pos;
-        WristState(double pos) {
-            this.pos = pos;
-        }
-    }
-
+    public static double CLAW_START = 0.49, CLAW_BARRIER_1 = 0.49, CLAW_HOVER = 0.49, CLAW_GRAB = 0.385, CLAW_BARRIER_2 = 0.385, CLAW_HARVEST = 0.385;
+    public static double WRIST_START = 0.685, WRIST_BARRIER_1 = 0.685, WRIST_HOVER = 0.685, WRIST_BARRIER_2 = 0.685, WRIST_HARVEST = 0.685;
+    public static double ELBOW_START = 0.4, ELBOW_BARRIER_1 = 0.7, ELBOW_HOVER = 0.98, ELBOW_GRAB = 0.98, ELBOW_BARRIER_2 = 0.7, ELBOW_HARVEST = 0.4;
+    public static double SHOULDER_START = 0.75, SHOULDER_BARRIER_1 = 0.48, SHOULDER_HOVER = 0.445, SHOULDER_GRAB = 0.445, SHOULDER_BARRIER_2 = 0.48, SHOULDER_HARVEST = 0.75;
+    public IntakeState currentState;
     Servo claw, wrist, elbow, shoulder;
     Robot robot;
+    private WristState currentWristState = WristState.NORTH;
 
     public void init(HardwareMap hwMap) {
         claw = hwMap.servo.get("intakeClaw");
@@ -76,8 +65,6 @@ public class Intake {
         return shoulder.getPosition();
     }
 
-    public IntakeState currentState;
-
     public void init() {
         robot = Robot.getInstance();
         setClaw(CLAW_START);
@@ -103,11 +90,33 @@ public class Intake {
         currentState = IntakeState.HOVER;
     }
 
+    public Action hoverIntake() {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                barrier1ToHover();
+                packet.put("Intake State: ", "Hover");
+                return false;
+            }
+        };
+    }
+
     private void hoverToGrab() {
         setClaw(CLAW_GRAB);
         setElbow(ELBOW_GRAB);
         setShoulder(SHOULDER_GRAB);
         currentState = IntakeState.GRAB;
+    }
+
+    public Action grabIntake() {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                hoverToGrab();
+                packet.put("Intake State: ", "Grab");
+                return false;
+            }
+        };
     }
 
     private void grabToBarrier2() {
@@ -137,9 +146,9 @@ public class Intake {
             }
         }.start();
         robot.ee.rotateDown();
-        new Thread(){
+        new Thread() {
             @Override
-            public void run(){
+            public void run() {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
@@ -151,6 +160,17 @@ public class Intake {
         currentState = IntakeState.HARVEST;
     }
 
+    public Action harvestIntake() {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                barrier2ToHarvest();
+                packet.put("Intake State: ", "Harvest");
+                return false;
+            }
+        };
+    }
+
     private void harvestToStart() {
         setClaw(CLAW_START);
         setWrist(WRIST_START);
@@ -158,6 +178,17 @@ public class Intake {
         setShoulder(SHOULDER_START);
         robot.ee.rotateUp();
         currentState = IntakeState.START;
+    }
+
+    public Action transferIntake() {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                harvestToStart();
+                packet.put("Intake State: ", "Start");
+                return false;
+            }
+        };
     }
 
     private void startToHarvest() {
@@ -266,8 +297,6 @@ public class Intake {
         }
     }
 
-    private WristState currentWristState = WristState.NORTH;
-
     public void turnWristRight() {
         if (currentState != IntakeState.HOVER && currentState != IntakeState.GRAB) return;
         switch (currentWristState) {
@@ -313,6 +342,36 @@ public class Intake {
                 break;
             default:
                 break;
+        }
+    }
+
+    public void turn(WristState state) {
+        setWrist(state.pos);
+        currentWristState = state;
+    }
+
+    public Action turnWrist(WristState state) {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                turn(state);
+                packet.put("Wrist State: ", state.name());
+                return false;
+            }
+        };
+    }
+
+    public enum IntakeState {
+        START, BARRIER1, HOVER, GRAB, BARRIER2, HARVEST
+    }
+
+    public enum WristState {
+        WEST(0.0), NORTHWEST(0.51), NORTH(0.685), NORTHEAST(0.85), EAST(1.0);
+
+        public final double pos;
+
+        WristState(double pos) {
+            this.pos = pos;
         }
     }
 }

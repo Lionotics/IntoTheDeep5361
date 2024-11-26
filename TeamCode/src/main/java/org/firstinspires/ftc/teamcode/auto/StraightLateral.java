@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name = "Lateral", group = "Auto")
+@Autonomous(name = "Lateral", group = "Testing")
 @Config
 public class StraightLateral extends LinearOpMode {
     public static double initialX = 57;
@@ -21,9 +21,7 @@ public class StraightLateral extends LinearOpMode {
     public void runOpMode() {
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         waitForStart();
-        Action trajectoryAction1 = drive.actionBuilder(drive.pose)
-                .strafeTo(new Vector2d(initialX-distance, 62))
-                .build();
+        Action trajectoryAction1 = drive.actionBuilder(drive.pose).strafeTo(new Vector2d(initialX - distance, 62)).build();
         Actions.runBlocking(trajectoryAction1);
     }
 }
