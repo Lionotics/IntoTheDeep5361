@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -35,14 +36,14 @@ public class Slides {
     public static final double MAX_SLIDE_DOWN_SPEED = .5;
     public static final double MAX_SLIDE_HEIGHT = 2225;
     // PID constants kP, kI, and kD
-    public static double kP = 0.003;
-    public static double kI = 0;
+    public static double kP = 0.001;
+    public static double kI = 0.55;
     public static double kD = 0;
-    public static int THRESHOLD = 10; // If the slides are within this threshold of the target position, they are considered to be at the target position
+    public static int THRESHOLD = 25; // If the slides are within this threshold of the target position, they are considered to be at the target position
     public static double HOLD_POWER = 0.1; // The power needed to not move, but still counteract gravity
     private DcMotor differentialRight, differentialLeft; // The two motors that control the slides
     private PIDController controller; // The PID controller for the slides
-    private LiftState liftState = LiftState.HOLDING; // The current state of the slides
+    public static LiftState liftState = LiftState.HOLDING; // The current state of the slides
 
     // Initializes the hardware and sets the PID controller
     public void init(@NonNull HardwareMap hwMap) {
@@ -58,7 +59,7 @@ public class Slides {
 
     // Setter for the vertical slides
     // Private because no other class should be setting the power of the vertical slides directly
-    private void verticalSlide(double power) {
+    public void verticalSlide(double power) { //TODO: Make this private
         differentialRight.setPower(-power);
         differentialLeft.setPower(power);
     }
@@ -133,10 +134,9 @@ public class Slides {
     // The method that gets run each cycle in the opmode (while the slides are in AUTO_MOVE state)
     private void pidLoop() {
         controller.setPID(kP, kI, kD);
-        double power = getPidPower();
-        power = Math.min(Math.abs(power), MAX_SLIDE_UP_SPEED); // Limit the power to the maximum slide speed
-        power = (power > 0) ? Math.max(power, 0.13) : Math.min(power, -0.13);
-        verticalSlide(Math.max(power, 0.13));
+        controller.setTolerance(THRESHOLD);
+        double pow = getPidPower();
+        verticalSlide(pow);
     }
 
     // Sets a small power to the slides to counteract gravity
@@ -145,7 +145,6 @@ public class Slides {
         differentialRight.setPower(-HOLD_POWER);
         differentialLeft.setPower(HOLD_POWER);
     }
-
     // Getters for slide positions
     // Uses the differential formula:
     // horizontal slides position = left motor position + right motor position
@@ -180,7 +179,9 @@ public class Slides {
 
     public double getPidPower() {
         double position = getVerticalPos();
-        return controller.calculate(position);
+        double pow = controller.calculate(position);
+        pow = (pow < 0) ? pow * .5 : pow;
+        return pow;
     }
 
     public Action slidesMoveTo(LiftPositions position) {
@@ -193,8 +194,9 @@ public class Slides {
                     moveToPosition(position);
                     initialized = true;
                 }
+                loop();
                 packet.put("Distance Left: ", controller.getPositionError());
-                return controller.atSetPoint();
+                return !controller.atSetPoint();
             }
         };
     }
