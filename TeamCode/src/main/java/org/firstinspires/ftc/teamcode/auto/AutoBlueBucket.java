@@ -31,38 +31,38 @@ public class AutoBlueBucket extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        drive = new MecanumDrive(hardwareMap, initialPose);
-        TrajectoryActionBuilder path1 = drive.actionBuilder(initialPose)
-                .strafeToConstantHeading(new Vector2d(46, 57))
-                .splineToSplineHeading(new Pose2d(51.5, 51.5, Math.toRadians(225)), Math.toRadians(0));
-        Action startToBucket = path1.build();
+
         robot.init(hardwareMap);
+        robot.slides.moveToPosition(Slides.LiftPositions.BOTTOM);
+        robot.ee.rotateDown();
         robot.ee.close();
-        // TODO: Read inputs from gamepad 1
+
+        // TODO: Read inputs from gamepad 1 while(opModeIsInit())
         waitForStart();
-        Actions.runBlocking(
-                new SequentialAction(
-                        new SleepAction(delay),
-                        new InstantAction(() -> {
-                            telemetry.addData("RR IMU", Math.toDegrees(drive.pose.heading.toDouble()));
-                            telemetry.addData("RR X", drive.pose.position.x);
-                            telemetry.addData("RR Y", drive.pose.position.y);
-                        }),
-                        startToBucket, //TODO: Why does it turn ccw before moving?
-                        new InstantAction(() -> {
-                            telemetry.addData("RR IMU", Math.toDegrees(drive.pose.heading.toDouble()));
-                            telemetry.addData("RR X", drive.pose.position.x);
-                            telemetry.addData("RR Y", drive.pose.position.y);
-                        }),
-                        robot.slides.slidesMoveTo(Slides.LiftPositions.TOP_BUCKET),
-                        robot.ee.rotateUpWrist(),
-                        new SleepAction(1),
-                        robot.ee.openClaw(),
-                        new SleepAction(.5),
-                        robot.ee.rotateDownWrist(),
-                        new SleepAction(.5),
-                        robot.slides.slidesMoveTo(Slides.LiftPositions.BOTTOM)
-                )
-        );
+        while (opModeIsActive()) {
+            Actions.runBlocking(
+                    new SequentialAction(
+                            //new SleepAction(delay),
+                            new ParallelAction(
+                                    robot.slides.slidesMoveTo(Slides.LiftPositions.TOP_BUCKET),
+                                    robot.ee.rotateUpWrist()
+                            ),
+                            new SequentialAction(
+                                    robot.driveTrain.drive(2.5),
+                                    new InstantAction(() -> {
+                                        robot.driveTrain.stop();
+                                    }),
+                                    new SleepAction(2),
+                                    robot.ee.openClaw(),
+                                    new SleepAction(2),
+                                    robot.ee.rotateDownWrist(),
+                                    robot.slides.slidesMoveTo(Slides.LiftPositions.BOTTOM)
+                            )
+                    )
+            );
+            // Setup for teleop
+            robot.intake.init();
+            break;
+        }
     }
 }

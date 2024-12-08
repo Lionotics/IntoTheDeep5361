@@ -39,7 +39,7 @@ public class Slides {
     public static double kP = 0.001;
     public static double kI = 0.55;
     public static double kD = 0;
-    public static int THRESHOLD = 25; // If the slides are within this threshold of the target position, they are considered to be at the target position
+    public static int THRESHOLD = 50; // If the slides are within this threshold of the target position, they are considered to be at the target position
     public static double HOLD_POWER = 0.1; // The power needed to not move, but still counteract gravity
     private DcMotor differentialRight, differentialLeft; // The two motors that control the slides
     private PIDController controller; // The PID controller for the slides
@@ -52,6 +52,12 @@ public class Slides {
 
         differentialLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         differentialRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        differentialRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        differentialLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        differentialRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        differentialLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         controller = new PIDController(kP, kI, kD);
         controller.setTolerance(THRESHOLD);
@@ -197,6 +203,16 @@ public class Slides {
                 loop();
                 packet.put("Distance Left: ", controller.getPositionError());
                 return !controller.atSetPoint();
+            }
+        };
+    }
+    public Action slidesHold(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                setLiftState(LiftState.HOLDING);
+                loop();
+                return false;
             }
         };
     }

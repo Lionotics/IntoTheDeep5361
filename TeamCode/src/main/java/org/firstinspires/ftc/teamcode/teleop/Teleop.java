@@ -22,7 +22,6 @@ public class Teleop extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         waitForStart();
         robot.init(hardwareMap);
-        robot.intake.init(); //TODO: Add at the end of auton, remove this later
         while (opModeIsActive()) {
             telemetry.addData("Press dpad up (on gp2) to move the vertical slides up", "");
             telemetry.addData("Press dpad down (on gp2) to move the vertical slides down", "");
