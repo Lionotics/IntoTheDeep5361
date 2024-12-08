@@ -20,8 +20,8 @@ public class Intake {
     public static double CLAW_START = 0.49, CLAW_BARRIER_1 = 0.49, CLAW_HOVER = 0.49, CLAW_GRAB = 0.385, CLAW_BARRIER_2 = 0.385, CLAW_HARVEST = 0.385;
     public static double WRIST_START = 0.685, WRIST_BARRIER_1 = 0.685, WRIST_HOVER = 0.685, WRIST_BARRIER_2 = 0.685, WRIST_HARVEST = 0.685;
     public static double ELBOW_START = 0.4, ELBOW_BARRIER_1 = 0.7, ELBOW_HOVER = 0.98, ELBOW_GRAB = 0.98, ELBOW_BARRIER_2 = 0.7, ELBOW_HARVEST = 0.4;
-    public static double SHOULDER_START = 0.75, SHOULDER_BARRIER_1 = 0.48, SHOULDER_HOVER = 0.445, SHOULDER_GRAB = 0.445, SHOULDER_BARRIER_2 = 0.48, SHOULDER_HARVEST = 0.75;
-    public IntakeState currentState;
+    public static double SHOULDER_START = 1, SHOULDER_BARRIER_1 = .6, SHOULDER_HOVER = .525, SHOULDER_GRAB = .525, SHOULDER_BARRIER_2 = .6, SHOULDER_HARVEST = 1;
+    public IntakeState currentState = IntakeState.START;
     Servo claw, wrist, elbow, shoulder;
     Robot robot;
     private WristState currentWristState = WristState.NORTH;

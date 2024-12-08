@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -10,10 +14,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 
 public class DriveTrain {
-    private DcMotor frontLeft, frontRight, backLeft, backRight;
-    private IMU imu;
+    static final double INCHES_PER_TICK = 340.136;
     public double maxSpeed = 0.8;
     public double offset = -Math.PI / 2;
+    private DcMotor frontLeft, frontRight, backLeft, backRight;
+    private IMU imu;
 
     public void init(HardwareMap hwMap) {
         frontLeft = hwMap.get(DcMotor.class, "frontLeft");
@@ -35,14 +40,13 @@ public class DriveTrain {
         initIMU(hwMap);
     }
 
-    public void drive(double leftStickY, double leftStickX,
-                      double rightStickX){
+    public void drive(double leftStickY, double leftStickX, double rightStickX) {
         double y = leftStickY; // Remember, Y stick value is reversed
         double x = -leftStickX;
         double rx = -rightStickX;
 
         // Read inverse IMU heading, as the IMU heading is CW positive
-        double botHeading =  -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + offset;
+        double botHeading = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + offset;
         double rotX = x * Math.cos(botHeading) - y * Math.sin(botHeading);
         double rotY = x * Math.sin(botHeading) + y * Math.cos(botHeading);
 
@@ -75,7 +79,6 @@ public class DriveTrain {
         setPower(frontLeftPower * maxSpeed, frontRightPower * maxSpeed, backLeftPower * maxSpeed, backRightPower * maxSpeed);
     }
 
-
     public void stop() {
         setPower(0, 0, 0, 0);
     }
@@ -84,12 +87,10 @@ public class DriveTrain {
         setPower(.1, .1, .1, .1);
     }
 
-    public void initIMU(HardwareMap hwMap){
+    public void initIMU(HardwareMap hwMap) {
         // Retrieve the IMU from the hardware map
         imu = hwMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
         imu.initialize(parameters);
         imu.resetYaw();
     }
@@ -101,4 +102,22 @@ public class DriveTrain {
         backRight.setPower(backRightPower);
     }
 
+    public Action drive(double time){
+        return new Action() {
+            private boolean initialized = false;
+            private double startTime;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    startTime = System.currentTimeMillis();
+                    setPower(0,.5,.5,0);
+                    initialized = true;
+                }
+                double timeLeft = startTime + (time * 1000) - System.currentTimeMillis();
+                packet.put("Distance Left: ", timeLeft);
+                return timeLeft>0;
+            }
+        };
+    }
 }

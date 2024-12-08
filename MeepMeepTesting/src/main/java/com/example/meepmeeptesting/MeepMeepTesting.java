@@ -18,8 +18,7 @@ public class MeepMeepTesting {
                 .build();
 
         myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(38, 63, Math.toRadians(180)))
-                .strafeToConstantHeading(new Vector2d(46, 60))
-                .splineToSplineHeading(new Pose2d(54.5, 51.5, Math.toRadians(225)), Math.toRadians(0))
+                .strafeToConstantHeading(new Vector2d(65, 63))
                 /*.stopAndAdd(new SleepAction(4)) // Raise the slides, open the claw
                 .splineToSplineHeading(new Pose2d(58.4, 35.5, Math.toRadians(-90)), Math.toRadians(0))
                 .stopAndAdd(new SleepAction(1)) // Pick up middle sample
