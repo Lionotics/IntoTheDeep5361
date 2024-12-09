@@ -193,15 +193,26 @@ public class Slides {
     public Action slidesMoveTo(LiftPositions position) {
         return new Action() {
             private boolean initialized = false;
+            private double startTime;
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
                     moveToPosition(position);
+                    startTime = System.currentTimeMillis();
                     initialized = true;
                 }
                 loop();
                 packet.put("Distance Left: ", controller.getPositionError());
+                double timeLeft = startTime + (2.5 * 1000) - System.currentTimeMillis();
+                if (!controller.atSetPoint() && timeLeft < 0){
+                    double e = controller.getPositionError();
+                    if (e > 0){
+                        manualUp();
+                    } else {
+                        manualDown();
+                    }
+                }
                 return !controller.atSetPoint();
             }
         };
