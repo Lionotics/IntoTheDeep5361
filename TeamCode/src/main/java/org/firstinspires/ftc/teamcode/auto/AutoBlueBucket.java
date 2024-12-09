@@ -48,7 +48,7 @@ public class AutoBlueBucket extends LinearOpMode {
                                     robot.ee.rotateUpWrist()
                             ),
                             new SequentialAction(
-                                    robot.driveTrain.drive(2.5),
+                                    robot.driveTrain.drive(2.75),
                                     new InstantAction(() -> {
                                         robot.driveTrain.stop();
                                     }),
