@@ -26,6 +26,12 @@ public class BrickAngleDetector {
         Core.inRange(frame,hsvLowerYellow,hsvUpperYellow,maskYellow);
         Core.inRange(frame,hsvLowerTeam,hsvUpperTeam,maskTeam);
         Core.bitwise_or(maskYellow,maskTeam,returnee);
+
+        //Memory management for the cool kids
+        maskYellow.release();
+        maskTeam.release();
+
+        
         return returnee;
     }
 
@@ -77,6 +83,13 @@ public class BrickAngleDetector {
 
         double slope = bestFitLineSlope(x,y); // Get the slope of the best fit line
         // NGL, ChatGPT wrote the formula for the slope, don't question it
+
+        //Memory management for the cool kids
+        mask.release();
+        result.release();
+        gray.release();
+        nonZero.release();
+
         return Math.atan(slope) * 180 / Math.PI;
         // Since slope = dy/dx, and theta = arctan(dy/dx), we can find the angle from the slope
         // We convert the angle from radians to degrees and return it
