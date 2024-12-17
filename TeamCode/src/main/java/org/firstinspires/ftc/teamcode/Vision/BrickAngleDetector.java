@@ -13,11 +13,11 @@ import org.opencv.imgproc.Imgproc;
 
 public class BrickAngleDetector implements VisionProcessor {
     public boolean isBlue;
-    public Scalar hsvLowerYellow = new Scalar(20,100,100),
+    public static Scalar hsvLowerYellow = new Scalar(20,100,100),
             hsvUpperYellow = new Scalar(30,255,255);
-    public Scalar hsvLowerBlue = new Scalar(110,50,50),
+    public static Scalar hsvLowerBlue = new Scalar(110,50,50),
            hsvUpperBlue = new Scalar(130,255,255);
-    public Scalar hsvLowerRed = new Scalar(90,100,100),
+    public static Scalar hsvLowerRed = new Scalar(90,100,100),
             hsvUpperRed = new Scalar(180,255,255);
     public Scalar hsvLowerTeam, hsvUpperTeam;
     public BrickAngleDetector(boolean isBlue) {
@@ -43,7 +43,7 @@ public class BrickAngleDetector implements VisionProcessor {
 
     private Mat generateResult(Mat frame, Mat mask) {
         Mat result = new Mat();
-        Core.bitwise_and(frame,frame,result,mask);
+        Core.bitwise_and(frame,mask,result);
         return result;
     }
 
