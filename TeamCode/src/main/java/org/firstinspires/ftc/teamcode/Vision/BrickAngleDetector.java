@@ -2,16 +2,18 @@ package org.firstinspires.ftc.teamcode.Vision;
 
 import android.graphics.Canvas;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
-import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-
+@Config
 public class BrickAngleDetector implements VisionProcessor {
+    private double angle;
     public boolean isBlue;
     public static Scalar hsvLowerYellow = new Scalar(20,100,100),
             hsvUpperYellow = new Scalar(30,255,255);
@@ -25,7 +27,6 @@ public class BrickAngleDetector implements VisionProcessor {
         hsvLowerTeam = isBlue ? hsvLowerBlue : hsvLowerRed;
         hsvUpperTeam = isBlue ? hsvUpperBlue : hsvUpperRed;
     }
-    private double angle;
 
     private Mat generateMask(Mat frame) {
         Mat maskYellow = new Mat(), maskTeam = new Mat(), returnee = new Mat();
@@ -36,7 +37,6 @@ public class BrickAngleDetector implements VisionProcessor {
         //Memory management for the cool kids
         maskYellow.release();
         maskTeam.release();
-
 
         return returnee;
     }
