@@ -1,12 +1,17 @@
 package org.firstinspires.ftc.teamcode.Vision;
 
+import android.graphics.Canvas;
+
+import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 
-public class BrickAngleDetector {
+public class BrickAngleDetector implements VisionProcessor {
     public boolean isBlue;
     public Scalar hsvLowerYellow = new Scalar(20,100,100),
             hsvUpperYellow = new Scalar(30,255,255);
@@ -20,6 +25,7 @@ public class BrickAngleDetector {
         hsvLowerTeam = isBlue ? hsvLowerBlue : hsvLowerRed;
         hsvUpperTeam = isBlue ? hsvUpperBlue : hsvUpperRed;
     }
+    private double angle;
 
     private Mat generateMask(Mat frame) {
         Mat maskYellow = new Mat(), maskTeam = new Mat(), returnee = new Mat();
@@ -31,7 +37,7 @@ public class BrickAngleDetector {
         maskYellow.release();
         maskTeam.release();
 
-        
+
         return returnee;
     }
 
@@ -55,7 +61,13 @@ public class BrickAngleDetector {
         return (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
     }
 
-    public double getAngleFromFrame(Mat frame) {
+    @Override
+    public void init(int use, int less, CameraCalibration useless) {
+        // We don't need to initialize anything, so this method is empty
+    }
+
+    @Override
+    public Object processFrame(Mat frame, long useless) {
         // Separate out the colored pixels and set them aside
         Imgproc.cvtColor(frame,frame,Imgproc.COLOR_RGB2HSV);
         Mat mask = generateMask(frame);
@@ -90,8 +102,21 @@ public class BrickAngleDetector {
         gray.release();
         nonZero.release();
 
-        return Math.atan(slope) * 180 / Math.PI;
+        angle = Math.atan(slope) * 180 / Math.PI;
         // Since slope = dy/dx, and theta = arctan(dy/dx), we can find the angle from the slope
         // We convert the angle from radians to degrees and return it
+
+        return null;
     }
+
+    @Override
+    public void onDrawFrame(Canvas b, int r, int u, float h, float w, Object ot) {
+        // We don't need to draw anything, so this method is empty
+    }
+
+    public double getAngle() {
+        return angle;
+    }
+
+
 }
