@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Robot {
     private static Robot instance = new Robot();
     public DriveTrain driveTrain = new DriveTrain();
-    public Slides slides = new Slides();
-    public Intake intake = new Intake();
-    public EndEffector ee = new EndEffector();
+    public HSlides hSlides = new HSlides();
+    public VSlides vSlides = new VSlides();
+    public Transfer transfer = new Transfer();
 
     private Robot() {
         // Private to prevent instantiation
@@ -25,8 +25,8 @@ public class Robot {
 
     public void init(HardwareMap hwMap) {
         driveTrain.init(hwMap);
-        slides.init(hwMap);
-        intake.init(hwMap);
-        ee.init(hwMap);
+        vSlides.init(hwMap);
+        transfer.init(hwMap);
+        hSlides.init(hwMap);
     }
 }

@@ -22,7 +22,7 @@ public class PIDTesting extends LinearOpMode {
         PIDController controller = new PIDController(kP, kI, kD);
 
         waitForStart();
-        while (opModeIsActive()){
+        /*while (opModeIsActive()){
             controller.setPID(kP, kI, kD);
             controller.setTolerance(THRESHOLD);
             controller.setSetPoint(setPoint);
@@ -37,6 +37,6 @@ public class PIDTesting extends LinearOpMode {
             telemetry.addData("Position", robot.slides.getVerticalPos());
             telemetry.addData("Velocity", robot.slides.getVerticalVelo());
             telemetry.update();
-        }
+        }*/
     }
 }
