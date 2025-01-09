@@ -8,19 +8,24 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 @Config
 public class BrickAngleDetector implements VisionProcessor {
     private double angle;
     public boolean isBlue;
     public Telemetry telemetry;
-    public Exception e;
     public static Scalar hsvLowerYellow = new Scalar(20,100,100),
             hsvUpperYellow = new Scalar(30,255,255);
     public static Scalar hsvLowerBlue = new Scalar(110,50,50),
@@ -35,6 +40,7 @@ public class BrickAngleDetector implements VisionProcessor {
         this.telemetry = telemetry;
     }
 
+    @Deprecated
     private Mat generateMask(Mat frame) {
         Mat maskYellow = new Mat(), maskTeam = new Mat(), returnee = new Mat();
         Core.inRange(frame,hsvLowerYellow,hsvUpperYellow,maskYellow);
@@ -48,13 +54,33 @@ public class BrickAngleDetector implements VisionProcessor {
         return returnee;
     }
 
-    private Mat generateResult(Mat frame, Mat mask) {
-        Mat result = new Mat();
-        Core.bitwise_and(frame,frame,result,mask);
-        return result;
+    @Deprecated
+    public List<MatOfPoint> findContours(Mat frame) {
+        Mat gray = new Mat();
+        Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGB2GRAY);
+
+        // Apply Gaussian Blurring to enhance the contours
+        Mat blurred = new Mat();
+        Imgproc.GaussianBlur(gray, blurred, new Size(15,15),0);
+
+        // Find edges
+        Mat edges = new Mat();
+        Imgproc.Canny(blurred, edges, 50, 150);
+
+        // Find contours
+        List<MatOfPoint> contours = new ArrayList<>();
+        Imgproc.findContours(edges, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+        // Memory management for the cool kids
+        gray.release();
+        blurred.release();
+        edges.release();
+
+        return contours;
     }
 
     // Returns in format y=mx+b
+    @Deprecated
     private double[] bestFitLineSlope(double[] x, double[] y) {
         int n = x.length;
         double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
@@ -78,54 +104,72 @@ public class BrickAngleDetector implements VisionProcessor {
 
     }
 
+    // Moreinu Ve'Rabeinu Ma'ara De'Asra ChatGPT found this answer online, and it is cracked
+    // Don't question its methods
     @Override
     public Object processFrame(Mat frame, long useless) {
-        // Separate out the colored pixels and set them aside
-        Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGB2HSV);
-        Mat mask = generateMask(frame);
-        Mat result = generateResult(frame, mask);
+        Mat hsv = new Mat();
+        Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_RGB2HSV);
 
-        Mat gray = new Mat();
-        Imgproc.cvtColor(result, gray, Imgproc.COLOR_HSV2RGB);
-        Imgproc.cvtColor(gray, gray, Imgproc.COLOR_RGB2GRAY); //Convert to grayscale for convenience
+        // Define yellow color range in HSV
 
-        // Find all non-black pixels
-        Mat nonZero = new Mat();
-        Core.findNonZero(gray, nonZero);
+        // Create a mask for yellow color
+        Mat yelMask = new Mat(), teamMask = new Mat(), mask = new Mat();
+        Core.inRange(hsv, hsvLowerYellow, hsvUpperYellow, yelMask);
+        Core.inRange(hsv, hsvLowerTeam, hsvUpperTeam, teamMask);
+        Core.bitwise_or(yelMask,teamMask,mask);
 
-        // Extract the x and y coordinates of the colored pixels
-        int totalPoints = nonZero.rows();
-        double[] x = new double[totalPoints];
-        double[] y = new double[totalPoints];
+        // Perform morphological operations to remove noise
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+        Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
+        Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel);
 
-        // Get the x and y coordinates from the screen
-        for (int i = 0; i < totalPoints; i++) {
-            double[] point = nonZero.get(i, 0); // Each row contains (x, y)
-            x[i] = point[0]; // x-coordinate
-            y[i] = point[1]; // y-coordinate
+        // Find contours
+        List<MatOfPoint> contours = new ArrayList<>();
+        Imgproc.findContours(mask, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+        double angle = Double.NaN; // Default angle if no valid contour is found
+
+        for (MatOfPoint contour : contours) {
+            // Approximate the contour to a polygon
+            MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
+
+            // Fit a bounding rectangle to the contour
+            RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
+
+            // Reject rectangles that are too small
+            if (rotatedRect.size.height * rotatedRect.size.width < 50) {
+                Imgproc.putText(frame, "Rect not found", new Point(50,50), Imgproc.FONT_HERSHEY_SCRIPT_COMPLEX, 1.0, new Scalar(0,0,255), 2);
+                return null;
+            }
+
+            // Assume rotatedRect is a valid RotatedRect object and frame is the Mat on which you want to draw
+            Point[] vertices = new Point[4];
+            rotatedRect.points(vertices);
+
+            // Draw lines between the vertices
+            for (int i = 0; i < 4; i++) {
+                Imgproc.line(frame, vertices[i], vertices[(i + 1) % 4], new Scalar(0, 255, 0), 2);
+            }
+
+            // Calculate the angle of rotation
+            angle = rotatedRect.angle;
+
+            // Adjust angle for consistent orientation
+            if (rotatedRect.size.width < rotatedRect.size.height) {
+                angle += 90;
+            }
+
+            contour2f.release();
         }
 
-        double[] BestFitLineCoefficients = bestFitLineSlope(x, y); // Get the slope of the best fit line
-        // NGL, ChatGPT wrote the formula for the slope, don't question it
-        double m = BestFitLineCoefficients[0], b = BestFitLineCoefficients[1];
-
-        // Calculate a line using two random points on the line
-
-        int x1 = 50, y1 = (int) (m * x1 + b);
-        int x2 = 250, y2 = (int) (m * x2 + b);
-
-        Imgproc.cvtColor(frame, frame, Imgproc.COLOR_HSV2RGB);
-
-        Imgproc.line(frame,new Point(x1,y1),new Point(x2,y2),new Scalar(0,255,0),2);
-        //Memory management for the cool kids
+        // Release resources
+        hsv.release();
         mask.release();
-        result.release();
-        gray.release();
-        nonZero.release();
+        kernel.release();
 
-        angle = Math.toDegrees(Math.atan(m));
-        // Since slope = dy/dx, and theta = arctan(dy/dx), we can find the angle from the slope
-        // We convert the angle from radians to degrees and return it
+
+        Imgproc.putText(frame, "Angle: " + angle, new Point(50,50), Imgproc.FONT_HERSHEY_SCRIPT_COMPLEX, 1.0, new Scalar(0,0,255), 2);
         return null;
     }
 
