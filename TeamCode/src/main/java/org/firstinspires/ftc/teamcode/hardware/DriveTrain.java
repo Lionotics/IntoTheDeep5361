@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class DriveTrain {
     static final double INCHES_PER_TICK = 340.136;
-    public double maxSpeed = 0.8;
+    public double maxSpeed = 1;
     public double offset = -Math.PI / 2;
     private DcMotor frontLeft, frontRight, backLeft, backRight;
     private IMU imu;

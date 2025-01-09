@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
 import org.firstinspires.ftc.teamcode.hardware.Robot;
-import org.firstinspires.ftc.teamcode.hardware.Slides;
+import org.firstinspires.ftc.teamcode.hardware.VSlides;
 import org.firstinspires.ftc.teamcode.helpers.GamepadEx;
 
 
@@ -44,40 +44,40 @@ public class SlidesTesting extends LinearOpMode {
             gp1.update(gamepad1);
             gp2.update(gamepad2);
 
-            if (isEitherLeft()) {
-                robot.slides.horizontalSlide(0.5);
-            } else if (isEitherRight()) {
-                robot.slides.horizontalSlide(0.5);
+            if (gp1.dpad_left.isCurrentlyPressed()) {
+                robot.hSlides.slide(true);
+            } else if (gp1.dpad_right.isCurrentlyPressed()){
+                robot.hSlides.slide(false);
+            } else {
+                robot.hSlides.hold();
             }
 
             if (gp2.dpad_up.isCurrentlyPressed()) {
-                robot.slides.manualUp();
+                robot.vSlides.manualUp();
             } else if (gp2.dpad_down.isCurrentlyPressed()) {
-                robot.slides.manualDown();
+                robot.vSlides.manualDown();
             }
 
             if (gp1.a.isNewlyPressed()) {
-               robot.slides.moveToPosition(Slides.LiftPositions.TOP_BUCKET);
+               robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
             } else if (gp1.b.isNewlyPressed()) {
-                robot.slides.moveToPosition(Slides.LiftPositions.BOTTOM_BUCKET);
+                robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_BUCKET);
             } else if (gp1.x.isNewlyPressed()) {
-                robot.slides.moveToPosition(Slides.LiftPositions.TOP_BAR);
+                robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BAR);
             } else if (gp1.y.isNewlyPressed()) {
-                robot.slides.moveToPosition(Slides.LiftPositions.TOP_HANG);
+                robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_HANG);
             }
 
             if (isNoButtonPressed()) {
-                robot.slides.hold();
+                robot.vSlides.hold();
             }
 
-            robot.slides.loop();
+            robot.vSlides.loop();
 
-            telemetry.addData("Slide Mode",robot.slides.getLiftState().name());
-            telemetry.addData("Horizontal Pos: ", robot.slides.getHorizontalPos());
-            telemetry.addData("Vertical Pos: ", robot.slides.getVerticalPos());
-            telemetry.addData("Vertical Target: ", robot.slides.getTargetPos());
-            telemetry.addData("Vertical Velocity: ", robot.slides.getVerticalVelo());
-            telemetry.addData("PID Output: ", robot.slides.getPidPower());
+            telemetry.addData("Slide Mode",robot.vSlides.getLiftState().name());
+            telemetry.addData("Vertical Pos", robot.vSlides.getPos());
+            telemetry.addData("Vertical Target", robot.vSlides.getTargetPos());
+            telemetry.addData("PID Output", robot.vSlides.getPidPower());
             telemetry.update();
         }
     }

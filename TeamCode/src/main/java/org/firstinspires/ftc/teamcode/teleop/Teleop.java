@@ -1,20 +1,24 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.hardware.EndEffector;
+import org.firstinspires.ftc.teamcode.hardware.Intake;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
-import org.firstinspires.ftc.teamcode.hardware.Slides;
 import org.firstinspires.ftc.teamcode.helpers.GamepadEx;
 
+@Config
 @TeleOp(name = "Teleop", group = "Teleop")
 public class Teleop extends LinearOpMode {
 
     Robot robot = Robot.getInstance();
     GamepadEx gp1 = new GamepadEx(), gp2 = new GamepadEx();
+    public static double big = 0;
+    public static double small = 0;
 
 
     @Override
@@ -28,25 +32,39 @@ public class Teleop extends LinearOpMode {
             telemetry.addData("Press dpad left (on gp2) to move the horizontal slides left", "");
             telemetry.addData("Press dpad right (on gp2) to move the horizontal slides right", "");
 
-            if (gp1.rightBumper.isNewlyPressed()) {
-                robot.intake.incrementState();
+            /*if (gp1.rightBumper.isNewlyPressed()) {
+                robot.transfer.incrementState();
             } else if (gp1.leftBumper.isNewlyPressed()) {
-                robot.intake.decrementState();
+                robot.transfer.decrementState();
             }
 
             if (gp1.x.isNewlyPressed()) {
-                robot.intake.turnWristRight();
+                robot.transfer.turnWristRight();
             } else if (gp1.b.isNewlyPressed()) {
-                robot.intake.turnWristLeft();
-            }
+                robot.transfer.turnWristLeft();
+            }*/
 
             if (gp1.a.isNewlyPressed()) {
-                robot.ee.open();
+                robot.transfer.ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                robot.transfer.ee.littlePivot.setPosition(small);
+                robot.transfer.ee.bigPivot.setPosition(big);
             } else if (gp1.y.isNewlyPressed()) {
-                robot.ee.close();
+                robot.transfer.ee.setClaw(EndEffector.Consts.CLAW_CLOSE);
+                robot.transfer.ee.setLittlePivot(EndEffector.Consts.LITTLE_DROP);
+                robot.transfer.ee.setBigPivot(EndEffector.Consts.BIG_DROP);
             }
 
-            if (gp2.dpad_left.isCurrentlyPressed() || gp1.dpad_left.isCurrentlyPressed()) {
+            if (gp1.x.isNewlyPressed()) {
+                robot.transfer.intake.setClaw(Intake.Consts.CLAW_CLOSE);
+                robot.transfer.intake.setPivot(Intake.Consts.PIVOT_TRANSFER);
+                robot.transfer.intake.setWrist(Intake.Consts.WRIST_UP);
+            } else if (gp1.b.isNewlyPressed()) {
+                robot.transfer.intake.setClaw(Intake.Consts.CLAW_OPEN);
+                robot.transfer.intake.setPivot(Intake.Consts.PIVOT_GRAB);
+                robot.transfer.intake.setWrist(Intake.Consts.WRIST_DOWN);
+            }
+
+            /*if (gp2.dpad_left.isCurrentlyPressed() || gp1.dpad_left.isCurrentlyPressed()) {
                 robot.slides.horizontalSlide(-.5);
             } else if (gp2.dpad_right.isCurrentlyPressed() || gp1.dpad_right.isCurrentlyPressed()) {
                 robot.slides.horizontalSlide(.5);
@@ -60,13 +78,13 @@ public class Teleop extends LinearOpMode {
             }
 
             if (gp2.y.isNewlyPressed()) {
-                robot.slides.moveToPosition(Slides.LiftPositions.TOP_BUCKET);
+                robot.slides.moveToPosition(RSlides.LiftPositions.TOP_BUCKET);
             } else if (gp2.x.isNewlyPressed()) {
-                robot.slides.moveToPosition(Slides.LiftPositions.BOTTOM_BUCKET);
+                robot.slides.moveToPosition(RSlides.LiftPositions.BOTTOM_BUCKET);
             } else if (gp2.b.isNewlyPressed()) {
-                robot.slides.moveToPosition(Slides.LiftPositions.TOP_BAR);
+                robot.slides.moveToPosition(RSlides.LiftPositions.TOP_BAR);
             } else if (gp2.a.isNewlyPressed()) {
-                robot.slides.moveToPosition(Slides.LiftPositions.BOTTOM);
+                robot.slides.moveToPosition(RSlides.LiftPositions.BOTTOM);
             } // else if (gp2.back.isNewlyPressed()) {
             // robot.slides.moveToPosition(Slides.LiftPositions.TOP_HANG);
             // }
@@ -82,16 +100,16 @@ public class Teleop extends LinearOpMode {
             telemetry.addData("Vertical Pos", robot.slides.getVerticalPos());
             telemetry.addData("Vertical Target", robot.slides.getTargetPos());
             telemetry.addData("Vertical Velocity", robot.slides.getVerticalVelo());
-            telemetry.addData("PID Output", robot.slides.getPidPower());
+            telemetry.addData("PID Output", robot.slides.getPidPower());*/
             telemetry.update();
 
             robot.driveTrain.driveRobotCentric(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
             gp1.update(gamepad1);
             gp2.update(gamepad2);
 
-            telemetry.addData("Index: ", robot.intake.currentState.name());
-            telemetry.addData("Horizontal: ", robot.slides.getHorizontalPos());
-            telemetry.addData("Vertical: ", robot.slides.getVerticalPos());
+            telemetry.addData("Index: ", robot.transfer.currentState.name());
+//            telemetry.addData("Horizontal: ", robot.slides.getHorizontalPos());
+//            telemetry.addData("Vertical: ", robot.slides.getVerticalPos());
             telemetry.update();
         }
     }
