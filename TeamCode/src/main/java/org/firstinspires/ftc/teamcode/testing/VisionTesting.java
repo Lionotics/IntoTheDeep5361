@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.testing;
 
 import android.util.Size;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -13,35 +15,30 @@ import org.firstinspires.ftc.vision.VisionPortal;
 @TeleOp(name="Vision Testing")
 public class VisionTesting extends LinearOpMode {
 
-    private VisionPortal visionPortal;
+    public VisionPortal visionPortal;
     private BrickAngleDetector bad;
+    public VisionPortal.CameraState cs;
 
     private GamepadEx gp1 = new GamepadEx();
     @Override
     public void runOpMode() throws InterruptedException {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         boolean isBlue = true;
-        while (!gp1.a.isNewlyPressed()) {
-            telemetry.addData("Press X for Blue, B for Red", "");
-            if (gp1.x.isNewlyPressed()) {
-                isBlue = true;
-                telemetry.addData("Selected", "Blue");
-            } else if (gp1.b.isNewlyPressed()) {
-                isBlue = false;
-                telemetry.addData("Selected", "Red");
-            }
-            telemetry.update();
-            wait(50);
-            gp1.update(gamepad1);
-        }
-        bad = new BrickAngleDetector(isBlue);
+        telemetry.addData("Press X for Blue, B for Red", "");
+        telemetry.update();
+        bad = new BrickAngleDetector(isBlue,telemetry);
 
         initVision();
+
         waitForStart();
         while (opModeIsActive()) {
+            cs = visionPortal.getCameraState();
             telemetry.addData("Brick Angle", bad.getAngle());
             telemetry.update();
         }
-        visionPortal.close();
+
+
+//        visionPortal.close();
     }
 
     private void initVision() {
@@ -53,5 +50,6 @@ public class VisionTesting extends LinearOpMode {
         builder.addProcessor(bad);
         visionPortal = builder.build();
         visionPortal.setProcessorEnabled(bad, true);
+        cs = visionPortal.getCameraState();
     }
 }
