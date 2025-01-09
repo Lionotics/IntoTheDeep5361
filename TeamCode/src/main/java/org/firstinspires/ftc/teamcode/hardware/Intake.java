@@ -42,6 +42,7 @@ public class Intake {
     public void setWrist(Consts pos) {
         wrist.setPosition(pos.pos);
     }
+    public void setWrist(double pos) {claw.setPosition(pos);}
 
    /* public Action openClaw() {
         return new Action() {

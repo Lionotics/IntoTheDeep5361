@@ -9,28 +9,31 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Vision.BrickAngleDetector;
-import org.firstinspires.ftc.teamcode.helpers.GamepadEx;
+import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-@TeleOp(name="Vision Testing")
-public class VisionTesting extends LinearOpMode {
+@TeleOp(name = "Auto Wrist Testing", group = "Testing")
+public class AutoWristTesting extends LinearOpMode {
+    VisionPortal visionPortal;
+    BrickAngleDetector bad;
+    double prevAngle = 90;
 
-    public VisionPortal visionPortal;
-    private BrickAngleDetector bad;
-    public VisionPortal.CameraState cs;
-
-    private GamepadEx gp1 = new GamepadEx();
-    @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        boolean isBlue = true;
-        bad = new BrickAngleDetector(isBlue,telemetry);
+        bad = new BrickAngleDetector(true,telemetry);
 
         initVision();
 
         waitForStart();
+        Robot robot = Robot.getInstance();
+        robot.init(hardwareMap);
+
+
         while (opModeIsActive()) {
-            cs = visionPortal.getCameraState();
+            double angle = bad.getAngle();
+            if (angle == Double.NaN || angle == 0 || angle == 90 || angle == 180) {continue;}
+            robot.transfer.intake.setWrist(angle/90 - 1);
+            prevAngle = angle;
             telemetry.addData("Brick Angle", bad.getAngle());
             telemetry.update();
         }
@@ -48,6 +51,5 @@ public class VisionTesting extends LinearOpMode {
         builder.addProcessor(bad);
         visionPortal = builder.build();
         visionPortal.setProcessorEnabled(bad, true);
-        cs = visionPortal.getCameraState();
     }
 }
