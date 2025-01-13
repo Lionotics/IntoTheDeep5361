@@ -107,7 +107,7 @@ public class Teleop extends LinearOpMode {
             gp1.update(gamepad1);
             gp2.update(gamepad2);
 
-            telemetry.addData("Index: ", robot.transfer.currentState.name());
+//            telemetry.addData("Index: ", robot.transfer.currentState.name());
 //            telemetry.addData("Horizontal: ", robot.slides.getHorizontalPos());
 //            telemetry.addData("Vertical: ", robot.slides.getVerticalPos());
             telemetry.update();
