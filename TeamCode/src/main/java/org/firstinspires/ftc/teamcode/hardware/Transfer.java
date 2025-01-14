@@ -22,97 +22,277 @@ public class Transfer {
             case BARRIER1:
                 switch (fromState) {
                     case START:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case SAMPLESCORE:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case DROP:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case HOVERW:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case GRABW:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case SPECIMENSCORE:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case HOVERG:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                 }
                 break;
             case HOVERG:
                 switch (fromState) {
                     case BARRIER1:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case GRABG:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                 }
                 break;
             case GRABG:
                 switch (fromState) {
                     case HOVERG:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case BARRIER2:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                 }
                 break;
             case BARRIER2:
                 switch (fromState) {
                     case GRABG:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case TRANSFER:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                 }
                 break;
             case TRANSFER:
                 switch (fromState) {
                     case BARRIER2:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case SAMPLESCORE:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case DROP:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case HOVERW:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                 }
                 break;
             case SAMPLESCORE:
                 switch (fromState) {
                     case TRANSFER:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case BARRIER1:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                 }
                 break;
             case DROP:
                 // Can only come from TRANSFER
+                ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                intake.setWrist(Intake.Consts.WRIST_UP);
+                intake.setClaw(Intake.Consts.CLAW_OPEN);
+                intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                 break;
             case HOVERW:
                 switch (fromState) {
                     case DROP:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case BARRIER1:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case HOVERG:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case GRABG:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case BARRIER2:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     // Can't come from transfer; goto drop instead
                     case SAMPLESCORE:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case GRABW:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                 }
                 break;
             case GRABW:
                 switch (fromState) {
                     case HOVERW:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                     case SPECIMENSCORE:
+                        ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                        ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                        ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                        intake.setWrist(Intake.Consts.WRIST_UP);
+                        intake.setClaw(Intake.Consts.CLAW_OPEN);
+                        intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                         break;
                 }
                 break;
             case SPECIMENSCORE:
                 // Can only come from GRABW
+                ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
+                ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
+                intake.setWrist(Intake.Consts.WRIST_UP);
+                intake.setClaw(Intake.Consts.CLAW_OPEN);
+                intake.setPivot(Intake.Consts.PIVOT_BARRIER);
                 break;
         }
     }
