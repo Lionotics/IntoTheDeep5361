@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.helpers.GamepadEx;
 import java.util.List;
 
 @Config
-@TeleOp(name = "Intake Testing", group = "Testing")
+@TeleOp(name = "Transfer Testing", group = "Testing")
 public class TransferTesting extends LinearOpMode {
     Robot robot = Robot.getInstance();
     StateMachine.State state;
