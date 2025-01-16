@@ -20,10 +20,14 @@ public class HSlides {
 
     }
 
-    public void slide(boolean in){
-        int multiplier = in ? 1 : -1;
-        hSlideLeft.setPower(-multiplier * MAX_SPEED);
-        hSlideRight.setPower(multiplier * MAX_SPEED);
+    public void slideExtend() {
+        hSlideLeft.setPower(MAX_SPEED);
+        hSlideRight.setPower(-MAX_SPEED);
+    }
+
+    public void slideRetract() {
+        hSlideLeft.setPower(-MAX_SPEED);
+        hSlideRight.setPower(MAX_SPEED);
     }
 
     public void hold() {

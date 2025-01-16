@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.hardware;
 import java.util.List;
 
 public class StateMachine {
-    private final List<State> sampleLine = List.of(State.BARRIER1, State.HOVERG, State.GRAB, State.BARRIER2, State.TRANSFER, State.SAMPLESCORE);
-    private final List<State> specimenLine = List.of(State.DROP, State.HOVERW, State.SPECIMENSCORE);
+    private final List<State> sampleLine = List.of(State.BARRIER1, State.HOVERG, State.GRABG, State.BARRIER2, State.TRANSFER, State.SAMPLESCORE);
+    private final List<State> specimenLine = List.of(State.DROP, State.HOVERW, State.GRABW, State.SPECIMENSCORE);
     private int currentIndex = -1;
     private State currentState = State.START;
     private List<State> currentLine = sampleLine;
@@ -23,8 +23,13 @@ public class StateMachine {
 
     public void switchToSpecimen() {
         currentLine = specimenLine;
-        currentState = currentLine.get(0);
-        currentIndex = 0;
+        if (currentState == State.TRANSFER || currentState == State.GRABG || currentState == State.BARRIER2) {
+            currentState = currentLine.get(0);
+            currentIndex = 0;
+        } else {
+            currentState = currentLine.get(1);
+            currentIndex = 1;
+        }
     }
 
     public void switchToSample() {
@@ -42,6 +47,6 @@ public class StateMachine {
     }
 
     public enum State {
-        START, BARRIER1, HOVERG, GRAB, BARRIER2, TRANSFER, SAMPLESCORE, DROP, HOVERW, SPECIMENSCORE
+        START, BARRIER1, HOVERG, GRABG, BARRIER2, TRANSFER, SAMPLESCORE, DROP, HOVERW, GRABW, SPECIMENSCORE
     }
 }

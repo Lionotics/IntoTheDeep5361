@@ -45,9 +45,9 @@ public class SlidesTesting extends LinearOpMode {
             gp2.update(gamepad2);
 
             if (gp1.dpad_left.isCurrentlyPressed()) {
-                robot.hSlides.slide(true);
+                robot.hSlides.slideRetract();
             } else if (gp1.dpad_right.isCurrentlyPressed()){
-                robot.hSlides.slide(false);
+                robot.hSlides.slideExtend();
             } else {
                 robot.hSlides.hold();
             }

@@ -16,7 +16,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class DriveTrain {
     static final double INCHES_PER_TICK = 340.136;
     public double maxSpeed = 1;
-    public double offset = -Math.PI / 2;
     private DcMotor frontLeft, frontRight, backLeft, backRight;
     private IMU imu;
 
@@ -46,7 +45,7 @@ public class DriveTrain {
         double rx = -rightStickX;
 
         // Read inverse IMU heading, as the IMU heading is CW positive
-        double botHeading = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + offset;
+        double botHeading = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         double rotX = x * Math.cos(botHeading) - y * Math.sin(botHeading);
         double rotY = x * Math.sin(botHeading) + y * Math.cos(botHeading);
 
@@ -90,7 +89,7 @@ public class DriveTrain {
     public void initIMU(HardwareMap hwMap) {
         // Retrieve the IMU from the hardware map
         imu = hwMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         imu.initialize(parameters);
         imu.resetYaw();
     }

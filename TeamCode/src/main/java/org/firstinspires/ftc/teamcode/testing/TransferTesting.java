@@ -28,7 +28,7 @@ public class TransferTesting extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         robot.init(hardwareMap);
         waitForStart();
-        robot.transfer.stateMachine.next();
+        robot.transfer.flush();
         while (opModeIsActive()) {
             state = robot.transfer.stateMachine.getCurrentState();
             line = robot.transfer.stateMachine.getCurrentLine();
