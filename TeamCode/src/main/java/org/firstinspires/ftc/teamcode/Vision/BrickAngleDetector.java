@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Vision;
+package org.firstinspires.ftc.teamcode.vision;
 
 import android.graphics.Canvas;
 
@@ -8,14 +8,17 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
+import org.opencv.core.KeyPoint;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.features2d.SimpleBlobDetector;
+import org.opencv.features2d.SimpleBlobDetector_Params;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -23,64 +26,52 @@ import java.util.List;
 
 @Config
 public class BrickAngleDetector implements VisionProcessor {
-    private double angle;
-    public boolean isBlue;
+    public static Scalar hsvLowerYellow = new Scalar(10, 140, 180),
+            hsvUpperYellow = new Scalar(40, 220, 255);
+    public static Scalar hsvLowerBlue = new Scalar(110, 130, 100),
+            hsvUpperBlue = new Scalar(125, 255, 255);
+    public static Scalar hsvLowerRed = new Scalar(0, 100, 100),
+            hsvUpperRed = new Scalar(10, 255, 255);
     public Telemetry telemetry;
-    public static Scalar hsvLowerYellow = new Scalar(20,100,100),
-            hsvUpperYellow = new Scalar(30,255,255);
-    public static Scalar hsvLowerBlue = new Scalar(110,50,50),
-           hsvUpperBlue = new Scalar(130,255,255);
-    public static Scalar hsvLowerRed = new Scalar(90,100,100),
-            hsvUpperRed = new Scalar(180,255,255);
     public Scalar hsvLowerTeam, hsvUpperTeam;
+    private double angle;
+    private List<PreviousData> previousData = new ArrayList<>();
+
+    private static class PreviousData {
+        public double angle;
+        public double confidence;
+
+        public PreviousData(double angle, double confidence) {
+            this.angle = angle;
+            this.confidence = confidence;
+        }
+    }
+
     public BrickAngleDetector(boolean isBlue, Telemetry telemetry) {
-        this.isBlue = isBlue;
         hsvLowerTeam = isBlue ? hsvLowerBlue : hsvLowerRed;
         hsvUpperTeam = isBlue ? hsvUpperBlue : hsvUpperRed;
         this.telemetry = telemetry;
     }
 
-    @Deprecated
     private Mat generateMask(Mat frame) {
-        Mat maskYellow = new Mat(), maskTeam = new Mat(), returnee = new Mat();
-        Core.inRange(frame,hsvLowerYellow,hsvUpperYellow,maskYellow);
-        Core.inRange(frame,hsvLowerTeam,hsvUpperTeam,maskTeam);
-        Core.bitwise_or(maskYellow,maskTeam,returnee);
+        Mat hsv = new Mat();
+        Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_RGB2HSV);
 
-        //Memory management for the cool kids
-        maskYellow.release();
-        maskTeam.release();
-
-        return returnee;
-    }
-
-    @Deprecated
-    public List<MatOfPoint> findContours(Mat frame) {
-        Mat gray = new Mat();
-        Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGB2GRAY);
-
-        // Apply Gaussian Blurring to enhance the contours
-        Mat blurred = new Mat();
-        Imgproc.GaussianBlur(gray, blurred, new Size(15,15),0);
-
-        // Find edges
-        Mat edges = new Mat();
-        Imgproc.Canny(blurred, edges, 50, 150);
-
-        // Find contours
-        List<MatOfPoint> contours = new ArrayList<>();
-        Imgproc.findContours(edges, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        // Create a mask for yellow color
+        Mat yelMask = new Mat(), teamMask = new Mat(), mask = new Mat();
+        Core.inRange(hsv, hsvLowerYellow, hsvUpperYellow, yelMask);
+        Core.inRange(hsv, hsvLowerTeam, hsvUpperTeam, teamMask);
+        Core.bitwise_or(yelMask, teamMask, mask);
 
         // Memory management for the cool kids
-        gray.release();
-        blurred.release();
-        edges.release();
+        hsv.release();
+        yelMask.release();
+        teamMask.release();
 
-        return contours;
+        return mask;
     }
 
     // Returns in format y=mx+b
-    @Deprecated
     private double[] bestFitLineSlope(double[] x, double[] y) {
         int n = x.length;
         double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
@@ -95,30 +86,12 @@ public class BrickAngleDetector implements VisionProcessor {
         double m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
         double b = (sumY - m * sumX) / n;
 
-        return new double[] {m,b};
+        return new double[]{m, b};
     }
 
-
-    @Override
-    public void init(int width, int height, CameraCalibration calibration) {
-
-    }
-
-    // Moreinu Ve'Rabeinu Ma'ara De'Asra ChatGPT found this answer online, and it is cracked
-    // Don't question its methods
-    @Override
-    public Object processFrame(Mat frame, long useless) {
-        Mat hsv = new Mat();
-        Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_RGB2HSV);
-
-        // Define yellow color range in HSV
-
-        // Create a mask for yellow color
-        Mat yelMask = new Mat(), teamMask = new Mat(), mask = new Mat();
-        Core.inRange(hsv, hsvLowerYellow, hsvUpperYellow, yelMask);
-        Core.inRange(hsv, hsvLowerTeam, hsvUpperTeam, teamMask);
-        Core.bitwise_or(yelMask,teamMask,mask);
-
+    // If this works, this built-in class does wonders, but it tends to not detect stuff
+    // properly, so we can resolve it another way
+    private double openCVRectangleDetection(Mat mask) {
         // Perform morphological operations to remove noise
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
@@ -126,7 +99,8 @@ public class BrickAngleDetector implements VisionProcessor {
 
         // Find contours
         List<MatOfPoint> contours = new ArrayList<>();
-        Imgproc.findContours(mask, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(mask, contours, new Mat(),
+                Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
         double angle = Double.NaN; // Default angle if no valid contour is found
 
@@ -136,21 +110,6 @@ public class BrickAngleDetector implements VisionProcessor {
 
             // Fit a bounding rectangle to the contour
             RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
-
-            // Reject rectangles that are too small
-            if (rotatedRect.size.height * rotatedRect.size.width < 50) {
-                Imgproc.putText(frame, "Rect not found", new Point(50,50), Imgproc.FONT_HERSHEY_SCRIPT_COMPLEX, 1.0, new Scalar(0,0,255), 2);
-                return null;
-            }
-
-            // Assume rotatedRect is a valid RotatedRect object and frame is the Mat on which you want to draw
-            Point[] vertices = new Point[4];
-            rotatedRect.points(vertices);
-
-            // Draw lines between the vertices
-            for (int i = 0; i < 4; i++) {
-                Imgproc.line(frame, vertices[i], vertices[(i + 1) % 4], new Scalar(0, 255, 0), 2);
-            }
 
             // Calculate the angle of rotation
             angle = rotatedRect.angle;
@@ -164,12 +123,161 @@ public class BrickAngleDetector implements VisionProcessor {
         }
 
         // Release resources
-        hsv.release();
         mask.release();
         kernel.release();
 
+        return angle;
+    }
 
-        Imgproc.putText(frame, "Angle: " + angle, new Point(50,50), Imgproc.FONT_HERSHEY_SCRIPT_COMPLEX, 1.0, new Scalar(0,0,255), 2);
+    // Instead of picking out rectangles, we try to clean up extraneous data from the mask
+    private double blobDetection(Mat mask) {
+        // Look for Continuous Blobs with a big size (remember block is close to the camera)
+        SimpleBlobDetector_Params params = new SimpleBlobDetector_Params();
+        params.set_filterByArea(true);
+        params.set_minArea(1000);
+        params.set_maxArea(100000);
+        params.set_filterByCircularity(false);
+        params.set_filterByConvexity(false);
+        params.set_filterByInertia(false);
+
+        // Create a blob detector with the parameters
+        SimpleBlobDetector detector = SimpleBlobDetector.create(params);
+
+        // Detect blobs in the mask
+        MatOfKeyPoint keypoints = new MatOfKeyPoint();
+        detector.detect(mask, keypoints);
+
+        // If we have no blobs, we can't do anything
+        if (keypoints.toList().isEmpty()) {
+            return Double.NaN;
+        }
+
+        // Else, filter out all data that isn't a blob
+        // Create a blank Mat for output
+        Mat dartBoard = Mat.zeros(mask.size(), mask.type());
+
+        // Iterate over keypoints and preserve only those regions
+        for (KeyPoint keypoint : keypoints.toArray()) {
+            Point center = keypoint.pt;
+            int radius = (int) (keypoint.size / 2);
+
+            // Copy circular region around the keypoint
+            Imgproc.circle(dartBoard, center, radius, new Scalar(255, 255, 255), -1);
+        }
+
+        // Use the mask to calculate the angle
+        return maskToAngle(dartBoard);
+    }
+
+    private double maskToAngle(Mat mask) {
+        // Fetch all positive pixels in the dartboard
+        ArrayList<Integer> nonZeroPoints_x = new ArrayList<>();
+        ArrayList<Integer> nonZeroPoints_y = new ArrayList<>();
+        for (int row = 0; row < mask.rows(); row++) {
+            for (int col = 0; col < mask.cols(); col++) {
+                if (mask.get(row, col)[0] > 0) {
+                    nonZeroPoints_x.add(col);
+                    nonZeroPoints_y.add(row);
+                }
+            }
+        }
+
+        // Getting the m of the best fit line after giving it all the points
+        double slope = bestFitLineSlope(
+                // Now this looks complicated, but the gist of it that we are converting
+                // the ArrayList to a primitive double[] array
+                nonZeroPoints_x.stream().mapToDouble(i -> i).toArray(),
+                nonZeroPoints_y.stream().mapToDouble(i -> i).toArray()
+        )[0];
+
+        // Calculate the angle of the line
+        return angle = Math.toDegrees(Math.atan(slope));
+    }
+
+    private double weightedAverage(List<PreviousData> data) {
+        double sum = 0, weight = 0;
+        for (PreviousData d : data) {
+            sum += d.angle * d.confidence;
+            weight += d.confidence;
+        }
+        return sum / weight;
+    }
+
+    @Override
+    public void init(int width, int height, CameraCalibration calibration) {
+
+    }
+
+    @Override
+    public Object processFrame(Mat frame, long useless) {
+        // Before we start: NEVER TRY TO SAVE ANYTHING TO THE FRAME
+        // It screws up the pipeline and causes a lot of issues
+
+        // Generate a mask for the frame. Plan A, B, and C all need it.
+        Mat mask = generateMask(frame);
+
+        // This is our Plan A - use a OpenCV built-in rectangle detection
+        //.If it works, we're done, ship it and send it back
+        double planA = openCVRectangleDetection(mask);
+
+        // Make sure we get some valid data before returning
+        if (!Double.isNaN(planA) && planA != 0.0d && planA != 90 && planA != 180) {
+            angle = planA;
+            previousData.add(new PreviousData(angle, 1));
+            Imgproc.putText(frame, "Angle: " + angle,
+                    new Point(50, 50),
+                    Imgproc.FONT_HERSHEY_PLAIN,
+                    1.0,
+                    new Scalar(0, 0, 255),
+                    2
+            );
+            return null;
+        }
+
+        // If we're here, Plan A failed, so we need to go to Plan B
+        // Attempt to remove extraneous data (Reduce noise (nonsense data) in the mask)
+        Imgproc.GaussianBlur(mask, mask, new Size(5, 5), 0);
+
+        // Plan B - Find blobs in the mask, and see if there are any hits
+        double planB = blobDetection(mask);
+        if (!Double.isNaN(planB)) {
+            angle = planB;
+            previousData.add(new PreviousData(angle, .5));
+
+            // If we have a lot of data, we can try to use the approximation instead
+            if (previousData.size() > 100) {
+                angle = weightedAverage(previousData);
+            }
+            Imgproc.putText(frame, "Angle: " + angle,
+                    new Point(50, 50),
+                    Imgproc.FONT_HERSHEY_PLAIN,
+                    1.0,
+                    new Scalar(0, 0, 255),
+                    2
+            );
+            return null;
+        }
+
+        // If we're here, Plan B failed, so we need to go to Plan C
+        // Now we take any data on the frame out thresh and cleanup
+        double planC = maskToAngle(mask);
+        angle = planC;
+        previousData.add(new PreviousData(angle, 0.1));
+        // Even if we have only a little data, at this point something is better than nothing
+        if (previousData.size() > 10) {
+            angle = weightedAverage(previousData);
+        }
+        Imgproc.putText(frame, "Angle: " + angle,
+                new Point(50, 50),
+                Imgproc.FONT_HERSHEY_PLAIN,
+                1.0,
+                new Scalar(0, 0, 255),
+                2
+        );
+
+        // Memory management for the cool kids
+        mask.release();
+
         return null;
     }
 
@@ -181,7 +289,4 @@ public class BrickAngleDetector implements VisionProcessor {
     public double getAngle() {
         return angle;
     }
-    
-
-
 }

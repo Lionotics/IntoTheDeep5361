@@ -120,6 +120,63 @@ public class Intake {
         };
     }*/
 
+    public static enum WristState {
+        WEST(0.0), NORTHWEST(0.51), NORTH(0.685), NORTHEAST(0.85), EAST(1.0);
+
+        public final double pos;
+        WristState(double pos) {
+            this.pos = pos;
+        }
+    }
+
+    private WristState currentWristState = WristState.NORTH;
+
+    public void turnWristManualRight() {
+        switch (currentWristState) {
+            case WEST:
+                setWrist(WristState.NORTHWEST.pos);
+                currentWristState = WristState.NORTHWEST;
+                break;
+            case NORTHWEST:
+                setWrist(WristState.NORTH.pos);
+                currentWristState = WristState.NORTH;
+                break;
+            case NORTH:
+                setWrist(WristState.NORTHEAST.pos);
+                currentWristState = WristState.NORTHEAST;
+                break;
+            case NORTHEAST:
+                setWrist(WristState.EAST.pos);
+                currentWristState = WristState.EAST;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void turnWristManualLeft() {
+        switch (currentWristState) {
+            case EAST:
+                setWrist(WristState.NORTHEAST.pos);
+                currentWristState = WristState.NORTHEAST;
+                break;
+            case NORTHEAST:
+                setWrist(WristState.NORTH.pos);
+                currentWristState = WristState.NORTH;
+                break;
+            case NORTH:
+                setWrist(WristState.NORTHWEST.pos);
+                currentWristState = WristState.NORTHWEST;
+                break;
+            case NORTHWEST:
+                setWrist(WristState.WEST.pos);
+                currentWristState = WristState.WEST;
+                break;
+            default:
+                break;
+        }
+    }
+
     public double clawPos() {
         return claw.getPosition();
     }

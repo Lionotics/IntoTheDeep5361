@@ -21,6 +21,7 @@ public class Teleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        // Implement vision with automatic pivot
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -47,6 +48,12 @@ public class Teleop extends LinearOpMode {
             } else if (gp1.b.isNewlyPressed()) {
                 robot.transfer.switchToSample();
             }
+
+           if (gp1.x.isNewlyPressed()) {
+                robot.transfer.intake.turnWristManualRight();
+           } else if (gp1.y.isNewlyPressed()) {
+                robot.transfer.intake.turnWristManualLeft();
+           }
 
             if (gp1.dpad_up.isCurrentlyPressed()) {
                 robot.vSlides.manualUp();
