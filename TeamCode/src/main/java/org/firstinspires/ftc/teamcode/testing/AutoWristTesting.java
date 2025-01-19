@@ -16,7 +16,6 @@ import org.firstinspires.ftc.vision.VisionPortal;
 public class AutoWristTesting extends LinearOpMode {
     VisionPortal visionPortal;
     BrickAngleDetector bad;
-    double prevAngle = 90;
 
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());

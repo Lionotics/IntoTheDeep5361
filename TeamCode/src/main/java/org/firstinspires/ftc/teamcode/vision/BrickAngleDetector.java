@@ -23,6 +23,7 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Config
 public class BrickAngleDetector implements VisionProcessor {
@@ -35,15 +36,37 @@ public class BrickAngleDetector implements VisionProcessor {
     public Telemetry telemetry;
     public Scalar hsvLowerTeam, hsvUpperTeam;
     private double angle;
-    private List<PreviousData> previousData = new ArrayList<>();
 
-    private static class PreviousData {
+    public static class AngleData {
+        public enum DataType {
+            RECT_DETECT, BLOB_DETECT, THRESH_DETECT
+        }
         public double angle;
         public double confidence;
+        public DataType dataType;
+        public static List<AngleData> database = new ArrayList<>();
+        public static int getTotalData() {
+            return database.size();
+        }
+        public static int getTotalDataType(DataType targetData) {
+            return (int) database.stream()
+                    .filter(data -> data.dataType == targetData)
+                    .count();
+        }
 
-        public PreviousData(double angle, double confidence) {
+        private static double weightedAverage() {
+            double sum = 0, weight = 0;
+            for (AngleData d : database) {
+                sum += d.angle * d.confidence;
+                weight += d.confidence;
+            }
+            return sum / weight;
+        }
+
+        public AngleData(double angle, double confidence, DataType dataType) {
             this.angle = angle;
             this.confidence = confidence;
+            this.dataType = dataType;
         }
     }
 
@@ -194,15 +217,6 @@ public class BrickAngleDetector implements VisionProcessor {
         return angle = Math.toDegrees(Math.atan(slope));
     }
 
-    private double weightedAverage(List<PreviousData> data) {
-        double sum = 0, weight = 0;
-        for (PreviousData d : data) {
-            sum += d.angle * d.confidence;
-            weight += d.confidence;
-        }
-        return sum / weight;
-    }
-
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
 
@@ -223,7 +237,9 @@ public class BrickAngleDetector implements VisionProcessor {
         // Make sure we get some valid data before returning
         if (!Double.isNaN(planA) && planA != 0.0d && planA != 90 && planA != 180) {
             angle = planA;
-            previousData.add(new PreviousData(angle, 1));
+            AngleData.database.add(
+                    new AngleData(angle, 1,AngleData.DataType.RECT_DETECT)
+            );
             Imgproc.putText(frame, "Angle: " + angle,
                     new Point(50, 50),
                     Imgproc.FONT_HERSHEY_PLAIN,
@@ -242,11 +258,13 @@ public class BrickAngleDetector implements VisionProcessor {
         double planB = blobDetection(mask);
         if (!Double.isNaN(planB)) {
             angle = planB;
-            previousData.add(new PreviousData(angle, .5));
+            AngleData.database.add(
+                    new AngleData(angle, .1, AngleData.DataType.BLOB_DETECT)
+            );
 
             // If we have a lot of data, we can try to use the approximation instead
-            if (previousData.size() > 100) {
-                angle = weightedAverage(previousData);
+            if (AngleData.getTotalData() > 100) {
+                angle = AngleData.weightedAverage();
             }
             Imgproc.putText(frame, "Angle: " + angle,
                     new Point(50, 50),
@@ -260,12 +278,15 @@ public class BrickAngleDetector implements VisionProcessor {
 
         // If we're here, Plan B failed, so we need to go to Plan C
         // Now we take any data on the frame out thresh and cleanup
-        double planC = maskToAngle(mask);
-        angle = planC;
-        previousData.add(new PreviousData(angle, 0.1));
+        double planC = angle = maskToAngle(mask);
+
+        AngleData.database.add(
+                new AngleData(angle, 0.1, AngleData.DataType.THRESH_DETECT)
+        );
+
         // Even if we have only a little data, at this point something is better than nothing
-        if (previousData.size() > 10) {
-            angle = weightedAverage(previousData);
+        if (AngleData.getTotalData() > 10) {
+            angle = AngleData.weightedAverage();
         }
         Imgproc.putText(frame, "Angle: " + angle,
                 new Point(50, 50),

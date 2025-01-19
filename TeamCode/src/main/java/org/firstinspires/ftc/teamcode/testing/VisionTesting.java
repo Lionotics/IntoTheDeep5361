@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.vision.BrickAngleDetector;
+import org.firstinspires.ftc.teamcode.vision.BrickAngleDetector.AngleData;
 import org.firstinspires.ftc.teamcode.helpers.GamepadEx;
 import org.firstinspires.ftc.vision.VisionPortal;
 
@@ -32,11 +33,15 @@ public class VisionTesting extends LinearOpMode {
         while (opModeIsActive()) {
             cs = visionPortal.getCameraState();
             telemetry.addData("Brick Angle", bad.getAngle());
-            telemetry.update();
+            telemetry.addData("Current Pieces of Data", AngleData.getTotalData());
+            telemetry.addData("Rectangle Detection",
+                   AngleData.getTotalDataType(AngleData.DataType.RECT_DETECT));
+           telemetry.addData("Blob Detection",
+                     AngleData.getTotalDataType(AngleData.DataType.BLOB_DETECT));
+           telemetry.addData("Thresh Detection",
+                     AngleData.getTotalDataType(AngleData.DataType.THRESH_DETECT));
+           telemetry.update();
         }
-
-
-//        visionPortal.close();
     }
 
     private void initVision() {
