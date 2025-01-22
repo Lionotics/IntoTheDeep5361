@@ -30,9 +30,10 @@ public class AutoWristTesting extends LinearOpMode {
 
         while (opModeIsActive()) {
             double angle = bad.getAngle();
-            if (angle == Double.NaN || angle == 0 || angle == 90 || angle == 180) {continue;}
-            robot.transfer.intake.setWrist(angle/90 - 1);
-            prevAngle = angle;
+            if (Double.isNaN(angle)) {continue;}
+            angle = angle/90 - 1;
+            robot.transfer.intake.setWrist(angle);
+            //prevAngle = angle;
             telemetry.addData("Brick Angle", bad.getAngle());
             telemetry.update();
         }

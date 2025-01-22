@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class Intake {
 
     public static enum Consts {
-        CLAW_CLOSE(0.1), CLAW_OPEN(.7),
+        CLAW_CLOSE(0.1), CLAW_OPEN(.6),
         PIVOT_BARRIER(0.65), PIVOT_GRAB(0.95), PIVOT_TRANSFER(0),
         WRIST_UP(0.31), WRIST_DOWN(0); //TODO: Control with camera; remove all manual wrist control
 
@@ -42,7 +42,7 @@ public class Intake {
     public void setWrist(Consts pos) {
         wrist.setPosition(pos.pos);
     }
-    public void setWrist(double pos) {claw.setPosition(pos);}
+    public void setWrist(double pos) {wrist.setPosition(pos);}
 
    /* public Action openClaw() {
         return new Action() {
@@ -121,7 +121,7 @@ public class Intake {
     }*/
 
     public static enum WristState {
-        WEST(0.0), NORTHWEST(0.51), NORTH(0.685), NORTHEAST(0.85), EAST(1.0);
+        WEST(0.6), NORTHWEST(0.5), NORTH(0.31), NORTHEAST(0.15), EAST(0.0);
 
         public final double pos;
         WristState(double pos) {
@@ -129,7 +129,7 @@ public class Intake {
         }
     }
 
-    private WristState currentWristState = WristState.NORTH;
+    public WristState currentWristState = WristState.NORTH;
 
     public void turnWristManualRight() {
         switch (currentWristState) {

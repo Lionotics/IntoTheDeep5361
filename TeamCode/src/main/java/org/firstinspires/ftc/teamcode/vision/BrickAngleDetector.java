@@ -36,7 +36,6 @@ public class BrickAngleDetector implements VisionProcessor {
     public Telemetry telemetry;
     public Scalar hsvLowerTeam, hsvUpperTeam;
     private double angle;
-
     public static class AngleData {
         public enum DataType {
             RECT_DETECT, BLOB_DETECT, THRESH_DETECT
@@ -78,6 +77,7 @@ public class BrickAngleDetector implements VisionProcessor {
 
     private Mat generateMask(Mat frame) {
         Mat hsv = new Mat();
+        if (frame == null) {return new Mat();}
         Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_RGB2HSV);
 
         // Create a mask for yellow color
@@ -115,6 +115,7 @@ public class BrickAngleDetector implements VisionProcessor {
     // If this works, this built-in class does wonders, but it tends to not detect stuff
     // properly, so we can resolve it another way
     private double openCVRectangleDetection(Mat mask) {
+        if (mask == null) {return Double.NaN;}
         // Perform morphological operations to remove noise
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
@@ -154,6 +155,7 @@ public class BrickAngleDetector implements VisionProcessor {
 
     // Instead of picking out rectangles, we try to clean up extraneous data from the mask
     private double blobDetection(Mat mask) {
+        if (mask == null) {return Double.NaN;}
         // Look for Continuous Blobs with a big size (remember block is close to the camera)
         SimpleBlobDetector_Params params = new SimpleBlobDetector_Params();
         params.set_filterByArea(true);
@@ -227,8 +229,12 @@ public class BrickAngleDetector implements VisionProcessor {
         // Before we start: NEVER TRY TO SAVE ANYTHING TO THE FRAME
         // It screws up the pipeline and causes a lot of issues
 
+        if (frame == null) {return null;}
+
         // Generate a mask for the frame. Plan A, B, and C all need it.
         Mat mask = generateMask(frame);
+
+        if (mask.empty()) {return null;}
 
         // This is our Plan A - use a OpenCV built-in rectangle detection
         //.If it works, we're done, ship it and send it back
@@ -252,7 +258,9 @@ public class BrickAngleDetector implements VisionProcessor {
 
         // If we're here, Plan A failed, so we need to go to Plan B
         // Attempt to remove extraneous data (Reduce noise (nonsense data) in the mask)
-        Imgproc.GaussianBlur(mask, mask, new Size(5, 5), 0);
+        //TODO: Figure out why this throws this:
+        // OpenCV(4.10.0) Error: Assertion failed (!_src.empty()) in GaussianBlur
+        //Imgproc.GaussianBlur(mask, mask, new Size(5, 5), 0);
 
         // Plan B - Find blobs in the mask, and see if there are any hits
         double planB = blobDetection(mask);
