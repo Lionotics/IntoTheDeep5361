@@ -4,7 +4,7 @@ import java.util.List;
 
 public class StateMachine {
     private final List<State> sampleLine = List.of(State.BARRIER1, State.HOVERG, State.GRABG, State.BARRIER2, State.TRANSFER, State.SAMPLESCORE);
-    private final List<State> specimenLine = List.of(State.DROP, State.HOVERW, State.GRABW, State.SPECIMENSCORE);
+    private final List<State> specimenLine = List.of(State.HOVERW, State.GRABW, State.SPECIMENSCORE);
     private int currentIndex = -1;
     private State currentState = State.START;
     private List<State> currentLine = sampleLine;
@@ -47,6 +47,6 @@ public class StateMachine {
     }
 
     public enum State {
-        START, BARRIER1, HOVERG, GRABG, BARRIER2, TRANSFER, SAMPLESCORE, DROP, HOVERW, GRABW, SPECIMENSCORE
+        START, BARRIER1, HOVERG, GRABG, BARRIER2, TRANSFER, SAMPLESCORE, HOVERW, GRABW, SPECIMENSCORE
     }
 }

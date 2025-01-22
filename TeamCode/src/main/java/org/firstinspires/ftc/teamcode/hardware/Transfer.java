@@ -3,9 +3,15 @@ package org.firstinspires.ftc.teamcode.hardware;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+
 @Config
 public class Transfer {
 
+    private static final Logger log = LoggerFactory.getLogger(Transfer.class);
     public StateMachine stateMachine = new StateMachine();
     public EndEffector ee = new EndEffector();
     public Intake intake = new Intake();
@@ -73,10 +79,10 @@ public class Transfer {
                                     Thread.sleep(750);
                                     ee.setClaw(EndEffector.Consts.CLAW_OPEN);
                                 } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                                    log.error("Failed to handle multi threading{}", Arrays.toString(e.getStackTrace()));
                                 }
                             }
-                        }.run();
+                        }.start();
                         break;
                 }
                 break;
@@ -96,10 +102,10 @@ public class Transfer {
                                     intake.setWrist(Intake.Consts.WRIST_UP);
                                     intake.setPivot(Intake.Consts.PIVOT_TRANSFER);
                                 } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                                    log.error("Failed to handle multi threading{}", Arrays.toString(e.getStackTrace()));
                                 }
                             }
-                        }.run();
+                        }.start();
                         break;
                     case BARRIER1:
                         ee.setClaw(EndEffector.Consts.CLAW_CLOSE);
@@ -110,25 +116,6 @@ public class Transfer {
                         intake.setPivot(Intake.Consts.PIVOT_TRANSFER);
                         break;
                 }
-                break;
-            case DROP:
-                // Can only come from TRANSFER
-                ee.setClaw(EndEffector.Consts.CLAW_OPEN);
-                ee.setBigPivot(EndEffector.Consts.BIG_DROP);
-                ee.setLittlePivot(EndEffector.Consts.LITTLE_DROP);
-                intake.setWrist(Intake.Consts.WRIST_UP);
-                intake.setPivot(Intake.Consts.PIVOT_GRAB);
-                new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(750);
-                            intake.setClaw(Intake.Consts.CLAW_OPEN);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }.run();
                 break;
             case HOVERW:
                 ee.setClaw(EndEffector.Consts.CLAW_OPEN);
