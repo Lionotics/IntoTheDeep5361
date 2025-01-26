@@ -1,37 +1,30 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
 
+import static com.acmerobotics.roadrunner.Math.clamp;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
 @Config
 public class HSlides {
     public static final double MAX_SPEED = 1;
-    private CRServo hSlideLeft, hSlideRight; // The two servos that control the slides
+    private DcMotor hSlide;
 
-    // Initializes the hardware and sets the PID controller
+    // Initializes the hardware
     public void init(@NonNull HardwareMap hwMap) {
-        hSlideLeft = hwMap.get(CRServo.class, "hSlideLeft");
-        hSlideRight = hwMap.get(CRServo.class, "hSlideRight");
+        hSlide = hwMap.get(DcMotor.class, "hSlide");
+        hSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        hSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
-
-    public void slideExtend() {
-        hSlideLeft.setPower(MAX_SPEED);
-        hSlideRight.setPower(-MAX_SPEED);
-    }
-
-    public void slideRetract() {
-        hSlideLeft.setPower(-MAX_SPEED);
-        hSlideRight.setPower(MAX_SPEED);
-    }
-
-    public void hold() {
-        hSlideLeft.setPower(0);
-        hSlideRight.setPower(0);
+    public void setPower(double power) {
+        power *= MAX_SPEED;
+        power = clamp(power, -MAX_SPEED, MAX_SPEED);
+        hSlide.setPower(power);
     }
 }

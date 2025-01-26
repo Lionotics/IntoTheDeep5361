@@ -45,11 +45,11 @@ public class SlidesTesting extends LinearOpMode {
             gp2.update(gamepad2);
 
             if (gp1.dpad_left.isCurrentlyPressed()) {
-                robot.hSlides.slideRetract();
+                robot.hSlides.setPower(1);
             } else if (gp1.dpad_right.isCurrentlyPressed()){
-                robot.hSlides.slideExtend();
+                robot.hSlides.setPower(-1);
             } else {
-                robot.hSlides.hold();
+                robot.hSlides.setPower(0);
             }
 
             if (gp2.dpad_up.isCurrentlyPressed()) {
@@ -63,9 +63,9 @@ public class SlidesTesting extends LinearOpMode {
             } else if (gp1.b.isNewlyPressed()) {
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_BUCKET);
             } else if (gp1.x.isNewlyPressed()) {
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BAR);
+                robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_CHAMBER);
             } else if (gp1.y.isNewlyPressed()) {
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_HANG);
+                robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_CHAMBER);
             }
 
             if (isNoButtonPressed()) {

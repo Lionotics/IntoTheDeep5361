@@ -14,7 +14,7 @@ public class Intake {
     public static enum Consts {
         CLAW_CLOSE(0.1), CLAW_OPEN(.6),
         PIVOT_BARRIER(0.65), PIVOT_GRAB(0.95), PIVOT_TRANSFER(0),
-        WRIST_UP(0.31), WRIST_DOWN(0); //TODO: Control with camera; remove all manual wrist control
+        WRIST_UP(0.31), WRIST_DOWN(0);
 
         public final double pos;
 

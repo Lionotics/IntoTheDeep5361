@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.zyxOrientation;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriverRR;
+import com.acmerobotics.roadrunner.ftc.LazyImu;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -17,6 +21,8 @@ public class DriveTrain {
     static final double INCHES_PER_TICK = 340.136;
     public double maxSpeed = 1;
     private DcMotor frontLeft, frontRight, backLeft, backRight;
+    private GoBildaPinpointDriverRR pinpoint;
+    private LazyImu lazyImu;
     private IMU imu;
 
     public void init(HardwareMap hwMap) {
@@ -34,15 +40,15 @@ public class DriveTrain {
         backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         initIMU(hwMap);
     }
 
     public void drive(double leftStickY, double leftStickX, double rightStickX) {
-        double y = leftStickY; // Remember, Y stick value is reversed
-        double x = -leftStickX;
-        double rx = -rightStickX;
+        double y = -leftStickY; // Remember, Y stick value is reversed
+        double x = leftStickX;
+        double rx = rightStickX;
 
         // Read inverse IMU heading, as the IMU heading is CW positive
         double botHeading = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -88,10 +94,10 @@ public class DriveTrain {
 
     public void initIMU(HardwareMap hwMap) {
         // Retrieve the IMU from the hardware map
-        imu = hwMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
-        imu.initialize(parameters);
-        imu.resetYaw();
+        pinpoint = hwMap.get(GoBildaPinpointDriverRR.class, "pinpoint");
+        lazyImu = new LazyImu(hwMap, "pinpoint", new RevHubOrientationOnRobot(zyxOrientation(0, 0, 0)));
+        pinpoint.resetPosAndIMU();
+        imu = lazyImu.get();
     }
 
     public void setPower(double frontLeftPower, double frontRightPower, double backLeftPower, double backRightPower) {

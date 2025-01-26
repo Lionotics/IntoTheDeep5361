@@ -209,7 +209,7 @@ public class VSlides {
 
     // Position constants for the slides to move to (in encoder ticks)
     public enum LiftPositions {
-        TOP_BUCKET(2300), BOTTOM_BUCKET(900), TOP_BAR(340), TOP_HANG(0), BOTTOM(0);
+        TOP_BUCKET(930), BOTTOM_BUCKET(230), TOP_CHAMBER(575), BOTTOM_CHAMBER(10), BOTTOM(0);
 
         public final int pos;
 
