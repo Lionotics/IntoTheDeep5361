@@ -14,7 +14,7 @@ public class EndEffector {
     public static enum Consts {
         CLAW_CLOSE(0), CLAW_OPEN(.2),
         BIG_SPECIMEN(0), BIG_TRANSFER(0.02), BIG_SAMPLE(0.45), BIG_DROP(0.85), BIG_WALL(0.75),
-        LITTLE_SPECIMEN(0.15), LITTLE_TRANSFER(0.515), LITTLE_SAMPLE(0), LITTLE_DROP(0.1), LITTLE_WALL(0.175);
+        LITTLE_SPECIMEN(0.15), LITTLE_TRANSFER(0.515), LITTLE_SAMPLE(0), LITTLE_DROP(0.1), LITTLE_WALL(0.16);
 
         public double pos;
 

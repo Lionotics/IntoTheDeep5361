@@ -27,7 +27,7 @@ public class TestWheels extends LinearOpMode {
             } else if (gamepad1.dpad_down) {
                 robot.driveTrain.driveRobotCentric(-.1, 0, 0);
             } else if (gamepad1.dpad_left) {
-                robot.driveTrain.drive(0, -.1, 0);
+                robot.driveTrain.drive(0, -.1, 0, 0);
             } else if (gamepad1.dpad_right) {
                 robot.driveTrain.driveRobotCentric(0, .1, 0);
             } else if (gamepad1.a) {
@@ -39,7 +39,7 @@ public class TestWheels extends LinearOpMode {
             } else if (gamepad1.x) {
                 robot.driveTrain.setPower(0, 0, 0, .1);
             } else {
-                robot.driveTrain.drive(0, 0, 0);
+                robot.driveTrain.drive(0, 0, 0,0);
             }
         }
     }

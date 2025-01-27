@@ -23,13 +23,10 @@ public class StateMachine {
 
     public void switchToSpecimen() {
         currentLine = specimenLine;
-        if (currentState == State.TRANSFER || currentState == State.GRABG || currentState == State.BARRIER2) {
-            currentState = currentLine.get(0);
-            currentIndex = 0;
-        } else {
-            currentState = currentLine.get(1);
-            currentIndex = 1;
-        }
+
+        currentState = currentLine.get(0);
+        currentIndex = 0;
+
     }
 
     public void switchToSample() {

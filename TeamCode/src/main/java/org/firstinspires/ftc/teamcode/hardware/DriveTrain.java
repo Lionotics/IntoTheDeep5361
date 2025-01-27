@@ -21,8 +21,6 @@ public class DriveTrain {
     static final double INCHES_PER_TICK = 340.136;
     public double maxSpeed = 1;
     private DcMotor frontLeft, frontRight, backLeft, backRight;
-    private GoBildaPinpointDriverRR pinpoint;
-    private LazyImu lazyImu;
     private IMU imu;
 
     public void init(HardwareMap hwMap) {
@@ -45,13 +43,13 @@ public class DriveTrain {
         initIMU(hwMap);
     }
 
-    public void drive(double leftStickY, double leftStickX, double rightStickX) {
+    public void drive(double leftStickY, double leftStickX, double rightStickX, double offset) {
         double y = -leftStickY; // Remember, Y stick value is reversed
         double x = leftStickX;
         double rx = rightStickX;
 
         // Read inverse IMU heading, as the IMU heading is CW positive
-        double botHeading = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        double botHeading = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + Math.toRadians(offset);
         double rotX = x * Math.cos(botHeading) - y * Math.sin(botHeading);
         double rotY = x * Math.sin(botHeading) + y * Math.cos(botHeading);
 
@@ -94,10 +92,10 @@ public class DriveTrain {
 
     public void initIMU(HardwareMap hwMap) {
         // Retrieve the IMU from the hardware map
-        pinpoint = hwMap.get(GoBildaPinpointDriverRR.class, "pinpoint");
-        lazyImu = new LazyImu(hwMap, "pinpoint", new RevHubOrientationOnRobot(zyxOrientation(0, 0, 0)));
-        pinpoint.resetPosAndIMU();
-        imu = lazyImu.get();
+        imu = hwMap.get(IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+        imu.initialize(parameters);
+        imu.resetYaw();
     }
 
     public void setPower(double frontLeftPower, double frontRightPower, double backLeftPower, double backRightPower) {
@@ -108,6 +106,24 @@ public class DriveTrain {
     }
 
     public Action drive(double time){
+        return new Action() {
+            private boolean initialized = false;
+            private double startTime;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    startTime = System.currentTimeMillis();
+                    setPower(0,-.5,-.5,0);
+                    initialized = true;
+                }
+                double timeLeft = startTime + (time * 1000) - System.currentTimeMillis();
+                packet.put("Distance Left: ", timeLeft);
+                return timeLeft>0;
+            }
+        };
+    }
+    public Action driveBack(double time){
         return new Action() {
             private boolean initialized = false;
             private double startTime;

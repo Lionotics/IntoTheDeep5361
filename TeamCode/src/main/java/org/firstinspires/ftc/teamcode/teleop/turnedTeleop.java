@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.vision.BrickAngleDetector;
 import java.util.List;
 
 @Config
-@TeleOp(name = "Teleop", group = "Teleop")
-public class Teleop extends LinearOpMode {
+@TeleOp(name = "Turned Teleop", group = "Teleop")
+public class turnedTeleop extends LinearOpMode {
 
     Robot robot = Robot.getInstance();
     GamepadEx gp1 = new GamepadEx(), gp2 = new GamepadEx();
@@ -60,11 +60,11 @@ public class Teleop extends LinearOpMode {
                 robot.transfer.switchToSample();
             }
 
-           if (gp1.x.isNewlyPressed()) {
+            if (gp1.x.isNewlyPressed()) {
                 robot.transfer.intake.turnWristManualLeft();
-           } else if (gp1.b.isNewlyPressed()) {
+            } else if (gp1.b.isNewlyPressed()) {
                 robot.transfer.intake.turnWristManualRight();
-           }
+            }
            /*else {
                if (Double.isNaN(angle)) {
                    robot.transfer.intake.setWrist(angle);
@@ -84,16 +84,14 @@ public class Teleop extends LinearOpMode {
                 robot.vSlides.hold();
             }
 
-            if (gp2.rightBumper.isNewlyPressed()) {
+            if (gp2.a.isNewlyPressed()) {
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
             } else if (gp2.b.isNewlyPressed()) {
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_BUCKET);
-            } else if (gp2.leftBumper.isNewlyPressed()) {
+            } else if (gp2.x.isNewlyPressed()) {
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_CHAMBER);
             } else if (gp2.y.isNewlyPressed()) {
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_CHAMBER);
-            } else if (gp2.a.isNewlyPressed()) {
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
             }
 
             if (gp1.dpad_right.isCurrentlyPressed() || gp2.dpad_right.isCurrentlyPressed()) {
@@ -104,7 +102,7 @@ public class Teleop extends LinearOpMode {
                 robot.hSlides.setPower(0);
             }
 
-            robot.driveTrain.drive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, 0);
+            robot.driveTrain.drive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, 90);
 
             robot.vSlides.loop();
 
