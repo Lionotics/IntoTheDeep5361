@@ -95,9 +95,9 @@ public class turnedTeleop extends LinearOpMode {
             }
 
             if (gp1.dpad_right.isCurrentlyPressed() || gp2.dpad_right.isCurrentlyPressed()) {
-                robot.hSlides.setPower(1);
-            } else if (gp1.dpad_left.isCurrentlyPressed() || gp2.dpad_left.isCurrentlyPressed()) {
                 robot.hSlides.setPower(-1);
+            } else if (gp1.dpad_left.isCurrentlyPressed() || gp2.dpad_left.isCurrentlyPressed()) {
+                robot.hSlides.setPower(1);
             } else {
                 robot.hSlides.setPower(0);
             }

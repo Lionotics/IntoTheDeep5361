@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.hardware;
 import java.util.List;
 
 public class StateMachine {
-    private final List<State> sampleLine = List.of(State.BARRIER1, State.HOVERG, State.GRABG, State.BARRIER2, State.TRANSFER, State.SAMPLESCORE);
+    private final List<State> sampleLine = List.of(State.BARRIER, State.HOVERG, State.GRABG, State.TRANSFER, State.SAMPLESCORE);
     private final List<State> specimenLine = List.of(State.HOVERW, State.GRABW, State.SPECIMENSCORE);
     private int currentIndex = -1;
     private State currentState = State.START;
@@ -44,6 +44,6 @@ public class StateMachine {
     }
 
     public enum State {
-        START, BARRIER1, HOVERG, GRABG, BARRIER2, TRANSFER, SAMPLESCORE, HOVERW, GRABW, SPECIMENSCORE
+        START, BARRIER, HOVERG, GRABG, TRANSFER, SAMPLESCORE, HOVERW, GRABW, SPECIMENSCORE
     }
 }

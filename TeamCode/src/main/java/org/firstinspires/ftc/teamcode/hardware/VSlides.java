@@ -31,7 +31,7 @@ public class VSlides {
     public static double kP = 0.001;
     public static double kI = 0.55;
     public static double kD = 0;
-    public static int THRESHOLD = 50; // If the slides are within this threshold of the target position, they are considered to be at the target position
+    public static int THRESHOLD = 20; // If the slides are within this threshold of the target position, they are considered to be at the target position
     public static double HOLD_POWER = 0.1; // The power needed to not move, but still counteract gravity
     private DcMotor vSlideLeft, vSlideRight; // The two motors that control the slides
     private PIDController controller; // The PID controller for the slides
@@ -209,7 +209,7 @@ public class VSlides {
 
     // Position constants for the slides to move to (in encoder ticks)
     public enum LiftPositions {
-        TOP_BUCKET(930), BOTTOM_BUCKET(230), TOP_CHAMBER(575), BOTTOM_CHAMBER(10), BOTTOM(0);
+        TOP_BUCKET(930), BOTTOM_BUCKET(230), TOP_CHAMBER(575), BOTTOM_CHAMBER(0), BOTTOM(0);
 
         public final int pos;
 
