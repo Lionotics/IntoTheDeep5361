@@ -1,4 +1,4 @@
- /**
+/**
  * build.common.gradle
  *
  * Try to avoid editing this file, as it may be updated from time to time as the FTC SDK
@@ -45,6 +45,10 @@ android {
             storeFile rootProject.file('libs/ftc.debug.keystore')
             storePassword 'android'
         }
+    }
+
+    aaptOptions {
+        noCompress "tflite"
     }
 
     defaultConfig {
@@ -106,6 +110,9 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    packagingOptions {
+        pickFirst '**/*.so'
+    }
     ndkVersion '21.3.6528147'
 }
 
