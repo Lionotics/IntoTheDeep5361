@@ -18,7 +18,7 @@
             <Servo name="intakePivot" port="4" />
             <Servo name="bigPivot" port="5" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
-            <goBILDAPinpointRR name="pinpoint" port="0" bus="1" />
+            <GoBildaPinpointDriver name="pinpoint" port="0" bus="1" />
         </LynxModule>
     </LynxUsbDevice>
     <Webcam name="Webcam 1" serialNumber="B0BF27E0" />

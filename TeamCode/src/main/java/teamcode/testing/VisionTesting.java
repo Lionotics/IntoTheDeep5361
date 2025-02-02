@@ -13,7 +13,7 @@ import teamcode.vision.BrickAngleDetector.AngleData;
 import teamcode.helpers.GamepadEx;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-@TeleOp(name="Vision Testing")
+@TeleOp(name="Vision Testing", group = "Testing")
 public class VisionTesting extends LinearOpMode {
 
     public VisionPortal visionPortal;
