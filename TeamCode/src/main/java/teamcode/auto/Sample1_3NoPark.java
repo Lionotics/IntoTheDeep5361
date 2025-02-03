@@ -7,7 +7,6 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
-import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -18,8 +17,8 @@ import teamcode.hardware.Intake;
 import teamcode.hardware.Robot;
 import teamcode.hardware.VSlides;
 
-@Autonomous(name = "Red Sample", group = "Red")
-public class SampleRed extends OpMode {
+@Autonomous(name = "Sample 1 + 3 No Park", group = "Red")
+public class Sample1_3NoPark extends OpMode {
     public static Pose startPose = new Pose(133, 36, Math.toRadians(0));
     public static Pose basket = new Pose(127, 19, Math.toRadians(130));
     public static Pose topSample = new Pose(113, 23, Math.toRadians(0));
