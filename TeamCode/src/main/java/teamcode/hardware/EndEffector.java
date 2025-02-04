@@ -1,25 +1,26 @@
 package teamcode.hardware;
 
-import androidx.annotation.NonNull;
-
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class EndEffector {
 
-    public static enum Consts {
-        CLAW_CLOSE(0), CLAW_OPEN(.2),
-        BIG_SPECIMEN(0), BIG_TRANSFER(0.02), BIG_SAMPLE(0.45), BIG_DROP(0.85), BIG_WALL(0.75),
-        LITTLE_SPECIMEN(0.15), LITTLE_TRANSFER(0.515), LITTLE_SAMPLE(0), LITTLE_DROP(0.1), LITTLE_WALL(0.16);
-
-        public double pos;
-
-        Consts(double pos) {
-            this.pos = pos;
-        }
+    @Config
+    public static class EEConsts {
+        public static double CLAW_CLOSE = 0;
+        public static double CLAW_OPEN = .2;
+        public static double BIG_SPECIMEN = 0;
+        public static double BIG_TRANSFER = 0.02;
+        public static double BIG_SAMPLE = 0.45;
+        public static double BIG_DROP = 0.85;
+        public static double BIG_WALL = 0.75;
+        public static double LITTLE_SPECIMEN = 0.15;
+        public static double LITTLE_TRANSFER = 0.515;
+        public static double LITTLE_SAMPLE = 0;
+        public static double LITTLE_DROP = 0.1;
+        public static double LITTLE_WALL = 0.16;
     }
 
     public Servo claw, bigPivot, littlePivot;
@@ -30,16 +31,16 @@ public class EndEffector {
         littlePivot = hwMap.get(Servo.class, "littlePivot");
     }
 
-    public void setClaw(Consts pos) {
-        claw.setPosition(pos.pos);
+    public void setClaw(double pos) {
+        claw.setPosition(pos);
     }
 
-    public void setBigPivot(Consts pos) {
-        bigPivot.setPosition(pos.pos);
+    public void setBigPivot(double pos) {
+        bigPivot.setPosition(pos);
     }
 
-    public void setLittlePivot(Consts pos) {
-        littlePivot.setPosition(pos.pos);
+    public void setLittlePivot(double pos) {
+        littlePivot.setPosition(pos);
     }
 
     //TODO: FIX ACTIONS

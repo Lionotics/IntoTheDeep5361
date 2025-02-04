@@ -1,7 +1,5 @@
 package teamcode.hardware;
 
-import androidx.annotation.NonNull;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -9,16 +7,15 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class Intake {
 
-    public static enum Consts {
-        CLAW_CLOSE(0.1), CLAW_OPEN(.6),
-        PIVOT_BARRIER(0.65), PIVOT_GRAB(0.95), PIVOT_TRANSFER(0),
-        WRIST_UP(0.31), WRIST_DOWN(0);
-
-        public final double pos;
-
-        Consts(double pos) {
-            this.pos = pos;
-        }
+    @Config
+    public static class IntakeConsts {
+        public static double CLAW_CLOSE = 0.1;
+        public static double CLAW_OPEN = .6;
+        public static double PIVOT_BARRIER = 0.65;
+        public static double PIVOT_GRAB = 0.95;
+        public static double PIVOT_TRANSFER = 0;
+        public static double WRIST_UP = 0.31;
+        public static double WRIST_DOWN = 0;
     }
 
     Servo claw, wrist, pivot;
@@ -29,16 +26,12 @@ public class Intake {
         pivot = hwMap.get(Servo.class, "intakePivot");
     }
 
-    public void setClaw(Consts pos) {
-        claw.setPosition(pos.pos);
+    public void setClaw(double pos) {
+        claw.setPosition(pos);
     }
 
-    public void setPivot(Consts pos) {
-        pivot.setPosition(pos.pos);
-    }
-
-    public void setWrist(Consts pos) {
-        wrist.setPosition(pos.pos);
+    public void setPivot(double pos) {
+        pivot.setPosition(pos);
     }
 
     public void setWrist(double pos) {
@@ -46,14 +39,22 @@ public class Intake {
     }
 
 
-    public static enum WristState {
-        WEST(0.6), NORTHWEST(0.5), NORTH(0.31), NORTHEAST(0.15), EAST(0.0);
+    public enum WristState {
+        WEST(WristPos.WEST), NORTHWEST(WristPos.NORTHWEST), NORTH(WristPos.NORTH), NORTHEAST(WristPos.NORTHEAST), EAST(WristPos.EAST);
 
         public final double pos;
 
         WristState(double pos) {
             this.pos = pos;
         }
+    }
+
+    public static class WristPos {
+        public static double WEST = 0.6;
+        public static double NORTHWEST = 0.5;
+        public static double NORTH = 0.31;
+        public static double NORTHEAST = 0.15;
+        public static double EAST = 0.0;
     }
 
     public WristState currentWristState = WristState.NORTH;

@@ -1,5 +1,9 @@
 package teamcode.auto;
 
+import static java.lang.Thread.sleep;
+
+import android.util.Log;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
@@ -19,15 +23,13 @@ import teamcode.hardware.VSlides;
 
 @Autonomous(name = "Sample 1 + 3 No Park", group = "Red")
 public class Sample1_3NoPark extends OpMode {
-    public static Pose startPose = new Pose(133, 36, Math.toRadians(0));
-    public static Pose basket = new Pose(127, 19, Math.toRadians(130));
-    public static Pose topSample = new Pose(113, 23, Math.toRadians(0));
-    public static Pose midSample = new Pose(113, 13, Math.toRadians(0));
-    public static Pose botSample = new Pose(113, 13, Math.toRadians(35));
+    public static Pose startPose = new Pose(133, 36, Math.toRadians(90));
+    public static Pose basket = new Pose(128.2946175637394, 7.546742209631725, Math.toRadians(135));
+    public static Pose topSample = new Pose(113, 20, Math.toRadians(180));
+    public static Pose midSample = new Pose(113, 15, Math.toRadians(180));
+    public static Pose botSample = new Pose(113, 15, Math.toRadians(225));
 
     private static int pathState = 0;
-    private boolean currentProcessFinished = false;
-
     private Follower follower;
     private PathChain preload2basket, basket2top, top2basket, basket2mid, mid2basket, basket2bot,
         bot2basket;
@@ -36,112 +38,98 @@ public class Sample1_3NoPark extends OpMode {
     public void buildPaths() {
 
         preload2basket = follower.pathBuilder()
-                .addTemporalCallback(0, () -> {
-                    robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
-                    robot.transfer.ee.setBigPivot(EndEffector.Consts.BIG_SAMPLE);
-                    robot.transfer.ee.setLittlePivot(EndEffector.Consts.LITTLE_SAMPLE);
-                    robot.transfer.intake.setWrist(Intake.Consts.WRIST_UP);
-                    robot.transfer.intake.setPivot(Intake.Consts.PIVOT_TRANSFER);
-                })
                 .addPath(new Path(new BezierLine(new Point(startPose), new Point(basket))))
+                .addParametricCallback(0, () -> {
+                    robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
+                    robot.transfer.ee.setBigPivot(EndEffector.EEConsts.BIG_SAMPLE);
+                    robot.transfer.ee.setLittlePivot(EndEffector.EEConsts.LITTLE_SAMPLE);
+                    robot.transfer.intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                    robot.transfer.intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
+                })
                 .setLinearHeadingInterpolation(startPose.getHeading(), basket.getHeading())
-                .addTemporalCallback(1000, () -> {
-                    robot.transfer.ee.setClaw(EndEffector.Consts.CLAW_OPEN);
-                    currentProcessFinished = true;
+                .addParametricCallback(1, () -> {
+                    robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                 })
                 .build();
 
         basket2top = follower.pathBuilder()
-                .addTemporalCallback(0, () -> {
+                .addPath(new BezierLine(new Point(basket), new Point(topSample)))
+                .addParametricCallback(0, () -> {
                     robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
                 })
-                .addPath(new BezierLine(new Point(basket), new Point(topSample)))
                 .setLinearHeadingInterpolation(basket.getHeading(), topSample.getHeading())
                 .addTemporalCallback(500, () -> {
                     robot.transfer.next(); robot.transfer.next(); robot.transfer.next();
                     robot.transfer.next(); // Pick up block and transfer
-
-                    currentProcessFinished = true;
                 })
                 .build();
 
         top2basket = follower.pathBuilder()
-                .addTemporalCallback(0, () -> {
+                .addPath(new BezierLine(new Point(topSample), new Point(basket)))
+                .addParametricCallback(0, () -> {
                     robot.transfer.next();
                 })
-                .addPath(new BezierLine(new Point(topSample), new Point(basket)))
                 .setLinearHeadingInterpolation(topSample.getHeading(), basket.getHeading())
                 .addTemporalCallback(1500, () -> {
                     robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
                 })
-                .addTemporalCallback(500, () -> {
-                    robot.transfer.ee.setClaw(EndEffector.Consts.CLAW_OPEN);
-
-                    currentProcessFinished = true;
+                .addTemporalCallback(2000, () -> {
+                    robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                 })
                 .build();
 
         basket2mid = follower.pathBuilder()
-                .addTemporalCallback(0, () -> {
+                .addPath(new BezierLine(new Point(basket), new Point(midSample)))
+                .addParametricCallback(0, () -> {
                     robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
                 })
-                .addPath(new BezierLine(new Point(basket), new Point(midSample)))
                 .setLinearHeadingInterpolation(basket.getHeading(), midSample.getHeading())
                 .addTemporalCallback(500, () -> {
                     robot.transfer.next(); robot.transfer.next(); robot.transfer.next();
                     robot.transfer.next(); // Pick up block and transfer
-
-                    currentProcessFinished = true;
                 })
                 .build();
 
         mid2basket = follower.pathBuilder()
-                .addTemporalCallback(0, () -> {
+                .addPath(new BezierLine(new Point(midSample), new Point(basket)))
+                .addParametricCallback(0, () -> {
                     robot.transfer.next();
                 })
-                .addPath(new BezierLine(new Point(midSample), new Point(basket)))
                 .setLinearHeadingInterpolation(midSample.getHeading(), basket.getHeading())
                 .addTemporalCallback(1500, () -> {
                     robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
                 })
-                .addTemporalCallback(500, () -> {
-                    robot.transfer.ee.setClaw(EndEffector.Consts.CLAW_OPEN);
-
-                    currentProcessFinished = true;
+                .addTemporalCallback(2000, () -> {
+                    robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                 })
                 .build();
 
         basket2bot = follower.pathBuilder()
-                .addTemporalCallback(0, () -> {
+                .addPath(new BezierLine(new Point(basket), new Point(botSample)))
+                .addParametricCallback(0, () -> {
                     robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
                 })
-                .addPath(new BezierLine(new Point(basket), new Point(botSample)))
                 .setLinearHeadingInterpolation(basket.getHeading(), botSample.getHeading())
                 .addTemporalCallback(500, () -> {
                     robot.transfer.next(); robot.transfer.next();
                     robot.transfer.intake.turnWristManualRight();
                 })
-                .addTemporalCallback(500, () -> {
+                .addTemporalCallback(1000, () -> {
                     robot.transfer.next(); robot.transfer.next();
-
-                    currentProcessFinished = true;
                 })
                 .build();
 
         bot2basket = follower.pathBuilder()
-                .addTemporalCallback(0, () -> {
+                .addPath(new BezierLine(new Point(botSample), new Point(basket)))
+                .addParametricCallback(0, () -> {
                     robot.transfer.next();
                 })
-                .addPath(new BezierLine(new Point(botSample), new Point(basket)))
                 .setLinearHeadingInterpolation(botSample.getHeading(), basket.getHeading())
                 .addTemporalCallback(1500, () -> {
                     robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
                 })
-                .addTemporalCallback(500, () -> {
-                    robot.transfer.ee.setClaw(EndEffector.Consts.CLAW_OPEN);
-
-                    currentProcessFinished = true;
-                })
+                .addTemporalCallback(2000, () -> {
+                    robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);})
                 .build();
     }
 
@@ -152,43 +140,37 @@ public class Sample1_3NoPark extends OpMode {
                 setPathState(1);
                 break;
             case 1:
-                if(!follower.isBusy() && currentProcessFinished) {
-                    currentProcessFinished = false;
+                if(!follower.isBusy()) {
                     follower.followPath(basket2top,true);
                     setPathState(2);
                 }
                 break;
             case 2:
-                if(!follower.isBusy() && currentProcessFinished) {
-                    currentProcessFinished = false;
+                if(!follower.isBusy()) {
                     follower.followPath(top2basket,true);
                     setPathState(3);
                 }
                 break;
             case 3:
-                if(!follower.isBusy() && currentProcessFinished) {
-                    currentProcessFinished = false;
+                if(!follower.isBusy()) {
                     follower.followPath(basket2mid,true);
                     setPathState(4);
                 }
                 break;
             case 4:
-                if(!follower.isBusy() && currentProcessFinished) {
-                    currentProcessFinished = false;
+                if(!follower.isBusy()) {
                     follower.followPath(mid2basket,true);
                     setPathState(5);
                 }
                 break;
             case 5:
-                if(!follower.isBusy() && currentProcessFinished) {
-                    currentProcessFinished = false;
+                if(!follower.isBusy()) {
                     follower.followPath(basket2bot,true);
                     setPathState(6);
                 }
                 break;
             case 6:
-                if(!follower.isBusy() && currentProcessFinished) {
-                    currentProcessFinished = false;
+                if(!follower.isBusy()) {
                     follower.followPath(bot2basket,true);
                     setPathState(7);
                 }
@@ -216,6 +198,7 @@ public class Sample1_3NoPark extends OpMode {
 
         // These loop the movements of the robot
         follower.update();
+        //robot.vSlides.loop();
         autonomousPathUpdate();
 
         // Feedback to Driver Hub
@@ -230,13 +213,13 @@ public class Sample1_3NoPark extends OpMode {
     @Override
     public void init() {
         robot.init(hardwareMap);
-
+        Log.d("Teamcode", "Entered init callback");
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         buildPaths();
 
-        robot.transfer.ee.setClaw(EndEffector.Consts.CLAW_CLOSE);
+        robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_CLOSE);
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
