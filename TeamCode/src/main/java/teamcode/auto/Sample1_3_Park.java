@@ -12,14 +12,12 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
-import kotlin.jvm.Synchronized;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import teamcode.hardware.EndEffector;
@@ -28,21 +26,22 @@ import teamcode.hardware.Robot;
 import teamcode.hardware.StateMachine;
 import teamcode.hardware.VSlides;
 
-@Autonomous(name = "Sample 1 + 3 No Park", group = "Red")
-public class Sample1_3NoPark extends OpMode {
-    private static final Logger log = LoggerFactory.getLogger(Sample1_3NoPark.class);
+@Autonomous(name = "Sample 1 + 3 W/ Park", group = "Red")
+public class Sample1_3_Park extends OpMode {
+    private static final Logger log = LoggerFactory.getLogger(Sample1_3_Park.class);
+    private static final Object lock = new Object();
     public static Pose startPose = new Pose(133, 36, Math.toRadians(90));
     public static Pose basket = new Pose(128.2946175637394, 7.546742209631725, Math.toRadians(135));
     public static Pose topSample = new Pose(113, 14, Math.toRadians(180));
     public static Pose midSample = new Pose(113, 5, Math.toRadians(180));
     public static Pose botSample = new Pose(113, 13, Math.toRadians(225));
-
+    public static Pose park = new Pose(83,45,90),
+        parkControl = new Pose(83,12);
     private static int pathState = 0;
+    public Robot robot = Robot.getInstance();
     private Follower follower;
     private PathChain preload2basket, basket2top, top2basket, basket2mid, mid2basket, basket2bot,
-        bot2basket, basket2start;
-
-    private static final Object lock = new Object();
+            bot2basket, basket2park, park2start;
     private Thread placeInBucket = new Thread() {
         @Override
         public void run() {
@@ -91,9 +90,6 @@ public class Sample1_3NoPark extends OpMode {
         }
     };
 
-
-
-    public Robot robot = Robot.getInstance();
     public void buildPaths() {
         // NOTES:
         // * pickUpBlock takes you from BARRIER to TRANSFER
@@ -101,22 +97,24 @@ public class Sample1_3NoPark extends OpMode {
         preload2basket = follower.pathBuilder()
                 .addPath(new Path(new BezierLine(new Point(startPose), new Point(basket))))
                 .addParametricCallback(0, () -> {
-                    robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
-                    robot.transfer.ee.setBigPivot(EndEffector.EEConsts.BIG_SAMPLE);
-                    robot.transfer.ee.setLittlePivot(EndEffector.EEConsts.LITTLE_SAMPLE);
-                    robot.transfer.intake.setWrist(Intake.IntakeConsts.WRIST_UP);
-                    robot.transfer.intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
-                    Log.v("Teamcode", "I'm here");
+                    Log.d("Teamcode", "p2b started");
                     new Thread() {
                         @Override
                         public void run() {
                             try {
+                                robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
+                                robot.transfer.ee.setBigPivot(EndEffector.EEConsts.BIG_SAMPLE);
+                                robot.transfer.ee.setLittlePivot(EndEffector.EEConsts.LITTLE_SAMPLE);
+                                robot.transfer.intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                                robot.transfer.intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
+                                Log.d("Teamcode", "p2b in progress...");
                                 Thread.sleep(2000);
+                                robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
+                                Thread.sleep(250);
+                                Log.d("Teamcode", "p2b finished")
                             } catch (InterruptedException err) {
                                 Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
                             }
-                            Log.v("Teamcode", "Now I'm here");
-                            robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                             synchronized (lock) {
                                 lock.notify();
                             }
@@ -178,103 +176,113 @@ public class Sample1_3NoPark extends OpMode {
                 .setLinearHeadingInterpolation(botSample.getHeading(), basket.getHeading())
                 .build();
 
-        basket2start = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(basket), new Point(startPose)))
-                .setLinearHeadingInterpolation(basket.getHeading(), startPose.getHeading())
+        basket2park = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(basket), new Point(park), new Point(parkControl)))
+                .setLinearHeadingInterpolation(basket.getHeading(), park.getHeading())
+                .build();
+
+        park2start = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(park), new Point(startPose), new Point(parkControl)))
+                .setLinearHeadingInterpolation(park.getHeading(), startPose.getHeading())
                 .build();
     }
 
-   public void autonomousPathUpdate() {
+    public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
                 follower.followPath(preload2basket);
                 setPathState(1);
                 break;
             case 1:
-                if(!follower.isBusy()) {
-                    if(!follower.isBusy()) {
-                        try {
-                            synchronized (lock) {
-                                lock.wait();
-                                Log.i("Teamcode", "Main thread notified");
-                            }
-                        } catch (InterruptedException err) {
-                            Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
+                if (!follower.isBusy()) {
+                    try {
+                        synchronized (lock) {
+                            Log.i("Teamcode", "Main thread locking...");
+                            lock.wait();
+                            Log.i("Teamcode", "Main thread notified");
                         }
-                        follower.followPath(top2basket,true);
-                        setPathState(3);
+                    } catch (InterruptedException err) {
+                        Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
                     }
-                    follower.followPath(basket2top,true);
+                    follower.followPath(top2basket, true);
+                    setPathState(3);
+
+                    follower.followPath(basket2top, true);
                     setPathState(2);
                 }
                 break;
             case 2:
-                if(!follower.isBusy()) {
+                if (!follower.isBusy()) {
                     try {
                         synchronized (lock) {
+                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
                     } catch (InterruptedException err) {
                         Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
                     }
-                    follower.followPath(top2basket,true);
+                    follower.followPath(top2basket, true);
                     setPathState(3);
                 }
                 break;
             case 3:
-                if(!follower.isBusy()) {
+                if (!follower.isBusy()) {
                     try {
                         synchronized (lock) {
+                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
                     } catch (InterruptedException err) {
                         Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
                     }
-                    follower.followPath(basket2mid,true);
+                    follower.followPath(basket2mid, true);
                     setPathState(4);
                 }
                 break;
             case 4:
-                if(!follower.isBusy()) {
+                if (!follower.isBusy()) {
                     try {
                         synchronized (lock) {
+                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
                     } catch (InterruptedException err) {
                         Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
                     }
-                    follower.followPath(mid2basket,true);
+                    follower.followPath(mid2basket, true);
                     setPathState(5);
                 }
                 break;
             case 5:
-                if(!follower.isBusy()) {
+                if (!follower.isBusy()) {
                     try {
                         synchronized (lock) {
+                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
                     } catch (InterruptedException err) {
                         Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
                     }
-                    follower.followPath(basket2bot,true);
+                    follower.followPath(basket2bot, true);
                     setPathState(6);
                 }
                 break;
             case 6:
-                if(!follower.isBusy()) {
+                if (!follower.isBusy()) {
                     try {
                         synchronized (lock) {
+                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
                     } catch (InterruptedException err) {
                         Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
                     }
-                    follower.followPath(bot2basket,true);
+                    follower.followPath(bot2basket, true);
                     setPathState(7);
                 }
                 break;
@@ -282,18 +290,24 @@ public class Sample1_3NoPark extends OpMode {
                 if (!follower.isBusy()) {
                     try {
                         synchronized (lock) {
+                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
                     } catch (InterruptedException err) {
                         Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
                     }
-                    follower.followPath(basket2start,true);
+                    follower.followPath(basket2park, true);
                     setPathState(8);
                 }
             case 8:
+                if (!follower.isBusy()) {
+                    follower.followPath(park2start, true);
+                    setPathState(9);
+                }
+            case 9:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
+                if (!follower.isBusy()) {
                     /* Set the state to a Case we won't use or define, so it just stops running an new paths */
                     setPathState(-1);
                 }
@@ -306,7 +320,9 @@ public class Sample1_3NoPark extends OpMode {
         pathState = pState;
     }
 
-    /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
+    /**
+     * This is the main loop of the OpMode, it will run repeatedly after clicking "Play".
+     **/
     @Override
     public void loop() {
 
@@ -327,7 +343,9 @@ public class Sample1_3NoPark extends OpMode {
         telemetry.update();
     }
 
-    /** This method is called once at the init of the OpMode. **/
+    /**
+     * This method is called once at the init of the OpMode.
+     **/
     @Override
     public void init() {
         robot.init(hardwareMap);
@@ -341,18 +359,25 @@ public class Sample1_3NoPark extends OpMode {
         robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_CLOSE);
     }
 
-    /** This method is called continuously after Init while waiting for "play". **/
+    /**
+     * This method is called continuously after Init while waiting for "play".
+     **/
     @Override
-    public void init_loop() {}
+    public void init_loop() {
+    }
 
-    /** This method is called once at the start of the OpMode.
-     * It runs all the setup actions, including building paths and starting the path system **/
+    /**
+     * This method is called once at the start of the OpMode.
+     * It runs all the setup actions, including building paths and starting the path system
+     **/
     @Override
     public void start() {
         setPathState(0);
     }
 
-    /** We do not use this because everything should automatically disable **/
+    /**
+     * We do not use this because everything should automatically disable
+     **/
     @Override
     public void stop() {
     }

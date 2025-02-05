@@ -169,6 +169,7 @@ public class VSlides {
 
     // Position constants for the slides to move to (in encoder ticks)
     public enum LiftPositions {
+        // TODO: Top chamber too low
         TOP_BUCKET(930), BOTTOM_BUCKET(230), TOP_CHAMBER(575), BOTTOM_CHAMBER(0), BOTTOM(0);
 
         public final int pos;
