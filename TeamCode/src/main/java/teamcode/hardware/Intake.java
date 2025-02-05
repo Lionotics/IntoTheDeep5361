@@ -11,7 +11,7 @@ public class Intake {
 
     public static enum Consts {
         CLAW_CLOSE(0.1), CLAW_OPEN(.6),
-        PIVOT_BARRIER(0.65), PIVOT_GRAB(0.95), PIVOT_TRANSFER(0),
+        PIVOT_BARRIER(0.7), PIVOT_GRAB(0.935), PIVOT_TRANSFER(0.4),
         WRIST_UP(0.31), WRIST_DOWN(0);
 
         public final double pos;

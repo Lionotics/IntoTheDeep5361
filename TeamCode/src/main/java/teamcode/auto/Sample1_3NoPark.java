@@ -21,9 +21,9 @@ import teamcode.hardware.VSlides;
 public class Sample1_3NoPark extends OpMode {
     public static Pose startPose = new Pose(133, 36, Math.toRadians(0));
     public static Pose basket = new Pose(127, 19, Math.toRadians(130));
-    public static Pose topSample = new Pose(113, 23, Math.toRadians(0));
-    public static Pose midSample = new Pose(113, 13, Math.toRadians(0));
-    public static Pose botSample = new Pose(113, 13, Math.toRadians(35));
+    public static Pose topSample = new Pose(113, 20, Math.toRadians(0));
+    public static Pose midSample = new Pose(113, 10, Math.toRadians(0));
+    public static Pose botSample = new Pose(113, 10, Math.toRadians(35));
 
     private static int pathState = 0;
     private boolean currentProcessFinished = false;
