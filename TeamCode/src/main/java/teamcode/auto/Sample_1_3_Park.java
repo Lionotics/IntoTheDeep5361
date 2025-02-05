@@ -13,9 +13,6 @@ import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 
 import pedroPathing.constants.FConstants;
@@ -27,8 +24,7 @@ import teamcode.hardware.StateMachine;
 import teamcode.hardware.VSlides;
 
 @Autonomous(name = "Sample 1 + 3 W/ Park", group = "Red")
-public class Sample1_3_Park extends OpMode {
-    private static final Logger log = LoggerFactory.getLogger(Sample1_3_Park.class);
+public class Sample_1_3_Park extends OpMode {
     private static final Object lock = new Object();
     public static Pose startPose = new Pose(133, 36, Math.toRadians(90));
     public static Pose basket = new Pose(128.2946175637394, 7.546742209631725, Math.toRadians(135));
@@ -42,7 +38,7 @@ public class Sample1_3_Park extends OpMode {
     private Follower follower;
     private PathChain preload2basket, basket2top, top2basket, basket2mid, mid2basket, basket2bot,
             bot2basket, basket2park, park2start;
-    private Thread placeInBucket = new Thread() {
+    private final Thread placeInBucket = new Thread() {
         @Override
         public void run() {
             try {
@@ -111,7 +107,7 @@ public class Sample1_3_Park extends OpMode {
                                 Thread.sleep(2000);
                                 robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                                 Thread.sleep(250);
-                                Log.d("Teamcode", "p2b finished")
+                                Log.d("Teamcode", "p2b finished");
                             } catch (InterruptedException err) {
                                 Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
                             }
@@ -204,9 +200,6 @@ public class Sample1_3_Park extends OpMode {
                     } catch (InterruptedException err) {
                         Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
                     }
-                    follower.followPath(top2basket, true);
-                    setPathState(3);
-
                     follower.followPath(basket2top, true);
                     setPathState(2);
                 }
