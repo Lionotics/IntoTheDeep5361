@@ -23,9 +23,11 @@ public class Transfer {
 
     private void transition(StateMachine.State fromState, StateMachine.State toState) {
         switch (toState) {
+            case START:
+                break;
             case BARRIER:
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
-                ee.setBigPivot(EndEffector.EEConsts.BIG_TRANSFER);
+                ee.setBigPivot(EndEffector.EEConsts.BIG_POST_TRANSFER);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
                 intake.setWrist(Intake.IntakeConsts.WRIST_UP);
                 intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
@@ -33,7 +35,7 @@ public class Transfer {
                 break;
             case HOVERG:
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
-                ee.setBigPivot(EndEffector.EEConsts.BIG_TRANSFER);
+                ee.setBigPivot(EndEffector.EEConsts.BIG_POST_TRANSFER);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
                 intake.setWrist(Intake.IntakeConsts.WRIST_UP);
                 intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
@@ -41,39 +43,30 @@ public class Transfer {
                 break;
             case GRABG:
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
-                ee.setBigPivot(EndEffector.EEConsts.BIG_TRANSFER);
+                ee.setBigPivot(EndEffector.EEConsts.BIG_PRE_TRANSFER);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
                 intake.setWrist(Intake.IntakeConsts.WRIST_UP);
                 intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_GRAB);
                 break;
             case TRANSFER:
-                ee.setBigPivot(EndEffector.EEConsts.BIG_TRANSFER);
+                ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
+                ee.setBigPivot(EndEffector.EEConsts.BIG_PRE_TRANSFER);
                 intake.setWrist(Intake.IntakeConsts.WRIST_UP);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
-                new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(500);
-                            intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
-                            Thread.sleep(750);
-                            ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
-                        } catch (InterruptedException e) {
-                            log.error("Failed to handle multi threading{}", Arrays.toString(e.getStackTrace()));
-                        }
-                    }
-                }.start();
+                intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
                 break;
             case SAMPLESCORE:
                 switch (fromState) {
                     case TRANSFER:
-                        ee.setClaw(EndEffector.EEConsts.CLAW_CLOSE);
+                        ee.setBigPivot(EndEffector.EEConsts.BIG_POST_TRANSFER);
                         new Thread() {
                             @Override
                             public void run() {
                                 try {
+                                    Thread.sleep(350);
+                                    ee.setClaw(EndEffector.EEConsts.CLAW_CLOSE);
                                     Thread.sleep(500);
                                     intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
                                     Thread.sleep(750);

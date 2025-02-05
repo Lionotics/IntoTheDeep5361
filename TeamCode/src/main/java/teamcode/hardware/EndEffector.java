@@ -11,15 +11,14 @@ public class EndEffector {
     public static class EEConsts {
         public static double CLAW_CLOSE = 0;
         public static double CLAW_OPEN = .2;
+        public static double BIG_PRE_TRANSFER = .1;
         public static double BIG_SPECIMEN = 0;
-        public static double BIG_TRANSFER = 0;
+        public static double BIG_POST_TRANSFER = 0;
         public static double BIG_SAMPLE = 0.45;
-        public static double BIG_DROP = 0.85;
         public static double BIG_WALL = 0.75;
         public static double LITTLE_SPECIMEN = 0.15;
         public static double LITTLE_TRANSFER = 0.515;
         public static double LITTLE_SAMPLE = 0;
-        public static double LITTLE_DROP = 0.1;
         public static double LITTLE_WALL = 0.16;
     }
 
