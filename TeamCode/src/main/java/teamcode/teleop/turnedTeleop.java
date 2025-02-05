@@ -11,7 +11,6 @@ import teamcode.hardware.Robot;
 import teamcode.hardware.StateMachine;
 import teamcode.hardware.VSlides;
 import teamcode.helpers.GamepadEx;
-import teamcode.vision.BrickAngleDetector;
 
 import java.util.List;
 
@@ -73,7 +72,7 @@ public class turnedTeleop extends LinearOpMode {
 
 
             if (gp1.a.isNewlyPressed()) {
-                robot.transfer.ee.setClaw(EndEffector.Consts.CLAW_OPEN);
+                robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
             }
 
             if (gp1.dpad_up.isCurrentlyPressed() || gp2.dpad_up.isCurrentlyPressed()) {

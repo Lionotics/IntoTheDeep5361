@@ -22,23 +22,23 @@ public class IntakeTesting extends LinearOpMode {
 
         while (opModeIsActive()) {
             if (gp1.a.isCurrentlyPressed()) {
-                robot.transfer.intake.setClaw(Intake.Consts.CLAW_OPEN);
+                robot.transfer.intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
             } else {
-                robot.transfer.intake.setClaw(Intake.Consts.CLAW_CLOSE);
+                robot.transfer.intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
             }
 
             if (gp1.b.isCurrentlyPressed()) {
-                robot.transfer.intake.setWrist(Intake.Consts.WRIST_DOWN);
+                robot.transfer.intake.setWrist(Intake.IntakeConsts.WRIST_DOWN);
             } else {
-                robot.transfer.intake.setWrist(Intake.Consts.WRIST_UP);
+                robot.transfer.intake.setWrist(Intake.IntakeConsts.WRIST_UP);
             }
 
             if (gp1.dpad_up.isCurrentlyPressed()) {
-                robot.transfer.intake.setPivot(Intake.Consts.PIVOT_GRAB);
+                robot.transfer.intake.setPivot(Intake.IntakeConsts.PIVOT_GRAB);
             } else if (gp1.dpad_right.isCurrentlyPressed()){
-                robot.transfer.intake.setPivot(Intake.Consts.PIVOT_BARRIER);
+                robot.transfer.intake.setPivot(Intake.IntakeConsts.PIVOT_BARRIER);
             } else if (gp1.dpad_down.isCurrentlyPressed()){
-                robot.transfer.intake.setPivot(Intake.Consts.PIVOT_TRANSFER);
+                robot.transfer.intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
             }
 
 
