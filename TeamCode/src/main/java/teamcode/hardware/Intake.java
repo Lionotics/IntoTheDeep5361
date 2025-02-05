@@ -11,9 +11,9 @@ public class Intake {
     public static class IntakeConsts {
         public static double CLAW_CLOSE = 0.1;
         public static double CLAW_OPEN = .6;
-        public static double PIVOT_BARRIER = 0.65;
-        public static double PIVOT_GRAB = 0.95;
-        public static double PIVOT_TRANSFER = 0;
+        public static double PIVOT_BARRIER = 0.7;
+        public static double PIVOT_GRAB = 0.935;
+        public static double PIVOT_TRANSFER = 0.4;
         public static double WRIST_UP = 0.31;
         public static double WRIST_DOWN = 0;
     }
