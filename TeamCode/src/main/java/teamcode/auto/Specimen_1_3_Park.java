@@ -43,6 +43,7 @@ public class Specimen_1_3_Park extends OpMode {
         public void run() {
             try {
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
+                robot.vSlides.loop();
                 robot.transfer.switchToSample();
                 Thread.sleep(500);
                 Log.d("Teamcode", "pub 1 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
@@ -67,9 +68,11 @@ public class Specimen_1_3_Park extends OpMode {
                 Log.d("Teamcode", "pob 1 - Expected: GRABW, Actual: " + robot.transfer.stateMachine.getCurrentState());
                 robot.transfer.next();
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_CHAMBER);
+                robot.vSlides.loop();
                 Log.d("Teamcode", "pob 2 - Expected: SPECIMENSCORE, Actual: " + robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(1500);
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_BUCKET);
+                robot.vSlides.loop();
                 robot.transfer.next();
                 Log.d("Teamcode", "pob 3 - Expected: HOVERW, Actual: " + robot.transfer.stateMachine.getCurrentState());
                 Log.i("Teamcode", "placeOnBar finished");
@@ -103,6 +106,7 @@ public class Specimen_1_3_Park extends OpMode {
                 Log.d("Teamcode", "pow 2 - Expected: GRABW, Actual: " + robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(250);
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_BUCKET);
+                robot.vSlides.loop();
                 // Enough to lift it off the wall
                 Thread.sleep(500);
                 Log.i("Teamcode", "waitThreeSeconds finished");
@@ -122,17 +126,13 @@ public class Specimen_1_3_Park extends OpMode {
         // * placeOnBar takes you from GRABW to HOVERW
         preload2bar = follower.pathBuilder()
                 .addPath(new Path(new BezierLine(new Point(startPose), new Point(bar))))
-                .addParametricCallback(0, () -> {
-                    placeOnBar.start();
-                })
+                .addParametricCallback(0, placeOnBar::start)
                 .setLinearHeadingInterpolation(startPose.getHeading(), bar.getHeading())
                 .build();
 
         bar2bot = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(bar), new Point(botSample)))
-                .addParametricCallback(0, () -> {
-                    pickUpBlock.start();
-                })
+                .addParametricCallback(0, pickUpBlock::start)
                 .setLinearHeadingInterpolation(bar.getHeading(), botSample.getHeading())
                 .build();
 
@@ -148,9 +148,7 @@ public class Specimen_1_3_Park extends OpMode {
 
         drop2top = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(drop), new Point(topSample)))
-                .addParametricCallback(0, () -> {
-                    pickUpBlock.start();
-                })
+                .addParametricCallback(0, pickUpBlock::start)
                 .setLinearHeadingInterpolation(drop.getHeading(), topSample.getHeading())
                 .build();
 
@@ -166,33 +164,25 @@ public class Specimen_1_3_Park extends OpMode {
 
         drop2prePickup = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(drop), new Point(prePickup)))
-                .addParametricCallback(1, () -> {
-                    waitThreeSeconds.start();
-                })
+                .addParametricCallback(1, waitThreeSeconds::start)
                 .setLinearHeadingInterpolation(drop.getHeading(), prePickup.getHeading())
                 .build();
 
         bar2prePickup = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(bar), new Point(prePickup)))
-                .addParametricCallback(1, () -> {
-                    waitThreeSeconds.start();
-                })
+                .addParametricCallback(1, waitThreeSeconds::start)
                 .setLinearHeadingInterpolation(bar.getHeading(), prePickup.getHeading())
                 .build();
 
         prePickup2pickup = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(prePickup), new Point(pickup)))
-                .addParametricCallback(1, () -> {
-                    pickOffWall.start();
-                })
+                .addParametricCallback(1, pickOffWall::start)
                 .setLinearHeadingInterpolation(prePickup.getHeading(), pickup.getHeading())
                 .build();
 
         pickup2bar = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(pickup), new Point(bar)))
-                .addParametricCallback(1, () -> {
-                    placeOnBar.start();
-                })
+                .addParametricCallback(1, placeOnBar::start)
                 .setLinearHeadingInterpolation(pickup.getHeading(), bar.getHeading())
                 .build();
 
@@ -347,7 +337,6 @@ public class Specimen_1_3_Park extends OpMode {
 
         // These loop the movements of the robot
         follower.update();
-        //robot.vSlides.loop();
         autonomousPathUpdate();
 
         StateMachine.State state = robot.transfer.stateMachine.getCurrentState();

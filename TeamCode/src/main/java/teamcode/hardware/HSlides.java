@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 @Config
 public class HSlides {
     public static final double MAX_SPEED = 1;
-    public static double HOLD_POWER = 1;
+    public static double HOLD_POWER = .1;
     private DcMotor hSlide;
 
     // Initializes the hardware

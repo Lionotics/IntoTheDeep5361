@@ -28,11 +28,11 @@ public class Sample_1_3_Park extends OpMode {
     private static final Object lock = new Object();
     public static Pose startPose = new Pose(133, 36, Math.toRadians(90));
     public static Pose basket = new Pose(128.2946175637394, 7.546742209631725, Math.toRadians(135));
-    public static Pose topSample = new Pose(113, 14, Math.toRadians(180));
-    public static Pose midSample = new Pose(113, 5, Math.toRadians(180));
-    public static Pose botSample = new Pose(113, 13, Math.toRadians(225));
-    public static Pose park = new Pose(83,45,90),
-        parkControl = new Pose(83,12);
+    public static Pose topSample = new Pose(113, 13.5, Math.toRadians(180));
+    public static Pose midSample = new Pose(113.5, 3.5, Math.toRadians(180));
+    public static Pose botSample = new Pose(115, 4, Math.toRadians(215));
+    public static Pose park1 = new Pose(83,12, Math.toRadians(90));
+    public static Pose park2 = new Pose(83,45, Math.toRadians(90));
     private static int pathState = 0;
     public Robot robot = Robot.getInstance();
     private Follower follower;
@@ -44,11 +44,12 @@ public class Sample_1_3_Park extends OpMode {
             try {
                 Log.d("Teamcode", "pib 1 - Expected: TRANSFER; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 robot.transfer.next();
-                Thread.sleep(1500);
+                Thread.sleep(1000);
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
-                Thread.sleep(500);
+                robot.vSlides.loop();
+                Thread.sleep(1500);
                 robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
-                Thread.sleep(500);
+                Thread.sleep(1500);
                 Log.d("Teamcode", "pib 2 - Expected: SAMPLESCORE; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 robot.transfer.next();
                 Log.d("Teamcode", "pib 3 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
@@ -61,21 +62,26 @@ public class Sample_1_3_Park extends OpMode {
             }
         }
     }, pickUpBlock = new Thread() {
+
         @Override
         public void run() {
             try {
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
-                Thread.sleep(500);
+                robot.vSlides.loop();
+                Thread.sleep(1500);
                 Log.d("Teamcode", "pub 1 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 robot.transfer.next();
+                if (pathState == 6) {
+                    robot.transfer.intake.turnWristManualRight();
+                }
                 Log.d("Teamcode", "pub 2 - Expected: HOVERG; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                Thread.sleep(1000);
+                Thread.sleep(500);
                 robot.transfer.next();
                 Log.d("Teamcode", "pub 3 - Expected: GRABG; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(750);
                 robot.transfer.next();
                 Log.d("Teamcode", "pub 4 - Expected: TRANSFER; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                Thread.sleep(250);
+                Thread.sleep(1250);
                 Log.i("Teamcode", "pickUpBlock finished");
                 synchronized (lock) {
                     lock.notify();
@@ -98,7 +104,6 @@ public class Sample_1_3_Park extends OpMode {
                         @Override
                         public void run() {
                             try {
-                                robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
                                 robot.transfer.ee.setBigPivot(EndEffector.EEConsts.BIG_SAMPLE);
                                 robot.transfer.ee.setLittlePivot(EndEffector.EEConsts.LITTLE_SAMPLE);
                                 robot.transfer.intake.setWrist(Intake.IntakeConsts.WRIST_UP);
@@ -106,7 +111,7 @@ public class Sample_1_3_Park extends OpMode {
                                 Log.d("Teamcode", "p2b in progress...");
                                 Thread.sleep(2000);
                                 robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
-                                Thread.sleep(250);
+                                Thread.sleep(1250);
                                 Log.d("Teamcode", "p2b finished");
                             } catch (InterruptedException err) {
                                 Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
@@ -133,53 +138,46 @@ public class Sample_1_3_Park extends OpMode {
 
         top2basket = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(topSample), new Point(basket)))
-                .addParametricCallback(0, () -> {
-                    placeInBucket.start();
-                })
+                .addParametricCallback(0, placeInBucket::start)
                 .setLinearHeadingInterpolation(topSample.getHeading(), basket.getHeading())
                 .build();
 
         basket2mid = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(basket), new Point(midSample)))
-                .addParametricCallback(0, () -> {
-                    pickUpBlock.start();
-                })
+                .addParametricCallback(0, pickUpBlock::start)
                 .setLinearHeadingInterpolation(basket.getHeading(), midSample.getHeading())
                 .build();
 
         mid2basket = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(midSample), new Point(basket)))
-                .addParametricCallback(0, () -> {
-                    placeInBucket.start();
-                })
+                .addParametricCallback(0, placeInBucket::start)
                 .setLinearHeadingInterpolation(midSample.getHeading(), basket.getHeading())
                 .build();
 
         basket2bot = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(basket), new Point(botSample)))
-                .addParametricCallback(0, () -> {
-                    robot.transfer.intake.turnWristManualRight();
-                    pickUpBlock.start();
-                })
+                .addParametricCallback(0, pickUpBlock::start)
                 .setLinearHeadingInterpolation(basket.getHeading(), botSample.getHeading())
                 .build();
 
         bot2basket = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(botSample), new Point(basket)))
-                .addParametricCallback(0, () -> {
-                    placeInBucket.start();
-                })
+                .addParametricCallback(0, placeInBucket::start)
                 .setLinearHeadingInterpolation(botSample.getHeading(), basket.getHeading())
                 .build();
 
         basket2park = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(basket), new Point(park), new Point(parkControl)))
-                .setLinearHeadingInterpolation(basket.getHeading(), park.getHeading())
+                .addPath(new BezierCurve(new Point(basket), new Point(park1)))
+                .setLinearHeadingInterpolation(basket.getHeading(), park1.getHeading())
+                .addPath(new BezierCurve(new Point(park1), new Point(park2)))
+                .setLinearHeadingInterpolation(park1.getHeading(), park2.getHeading())
                 .build();
 
         park2start = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(park), new Point(startPose), new Point(parkControl)))
-                .setLinearHeadingInterpolation(park.getHeading(), startPose.getHeading())
+                .addPath(new BezierCurve(new Point(park2), new Point(park1)))
+                .setLinearHeadingInterpolation(park2.getHeading(), park1.getHeading())
+                .addPath(new BezierCurve(new Point(park1), new Point(startPose)))
+                .setLinearHeadingInterpolation(park1.getHeading(), startPose.getHeading())
                 .build();
     }
 
@@ -321,7 +319,6 @@ public class Sample_1_3_Park extends OpMode {
 
         // These loop the movements of the robot
         follower.update();
-        //robot.vSlides.loop();
         autonomousPathUpdate();
 
         StateMachine.State state = robot.transfer.stateMachine.getCurrentState();
@@ -365,6 +362,8 @@ public class Sample_1_3_Park extends OpMode {
      **/
     @Override
     public void start() {
+        robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
+        robot.vSlides.loop();
         setPathState(0);
     }
 
@@ -373,6 +372,9 @@ public class Sample_1_3_Park extends OpMode {
      **/
     @Override
     public void stop() {
+        synchronized (lock) {
+            lock.notify();
+        }
     }
 
 }

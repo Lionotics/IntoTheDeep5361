@@ -1,5 +1,7 @@
 package teamcode.hardware;
 
+import android.util.Log;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -13,9 +15,9 @@ public class EndEffector {
         public static double CLAW_OPEN = .2;
         public static double BIG_PRE_TRANSFER = .1;
         public static double BIG_SPECIMEN = 0;
-        public static double BIG_POST_TRANSFER = 0;
+        public static double BIG_POST_TRANSFER = 0.03;
         public static double BIG_SAMPLE = 0.45;
-        public static double BIG_WALL = 0.75;
+        public static double BIG_WALL = 0.725;
         public static double LITTLE_SPECIMEN = 0.15;
         public static double LITTLE_TRANSFER = 0.515;
         public static double LITTLE_SAMPLE = 0;

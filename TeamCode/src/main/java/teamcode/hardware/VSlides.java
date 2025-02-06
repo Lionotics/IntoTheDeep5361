@@ -26,8 +26,8 @@ public class VSlides {
     public static final double MAX_SLIDE_DOWN_SPEED = .5;
     public static final double MAX_SLIDE_HEIGHT = 2225;
     // PID constants kP, kI, and kD
-    public static double kP = 0.001;
-    public static double kI = 0.55;
+    public static double kP = 0.005;
+    public static double kI = 0.2;
     public static double kD = 0;
     public static int THRESHOLD = 20; // If the slides are within this threshold of the target position, they are considered to be at the target position
     public static double HOLD_POWER = 0.1; // The power needed to not move, but still counteract gravity
@@ -170,7 +170,7 @@ public class VSlides {
     // Position constants for the slides to move to (in encoder ticks)
     public enum LiftPositions {
         // TODO: Top chamber too low
-        TOP_BUCKET(930), BOTTOM_BUCKET(230), TOP_CHAMBER(575), BOTTOM_CHAMBER(0), BOTTOM(0);
+        TOP_BUCKET(950), BOTTOM_BUCKET(230), TOP_CHAMBER(515), BOTTOM_CHAMBER(0), BOTTOM(0);
 
         public final int pos;
 
