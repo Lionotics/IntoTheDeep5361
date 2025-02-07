@@ -30,7 +30,7 @@ public class Sample_1_3_Park extends OpMode {
     public static Pose basket = new Pose(128.2946175637394, 7.546742209631725, Math.toRadians(135));
     public static Pose topSample = new Pose(113, 13.5, Math.toRadians(180));
     public static Pose midSample = new Pose(113.5, 3.5, Math.toRadians(180));
-    public static Pose botSample = new Pose(116.5, 4, Math.toRadians(230));
+    public static Pose botSample = new Pose(115.5, 4, Math.toRadians(230));
     public static Pose botBackup = new Pose(120, 10, Math.toRadians(230));
 //    public static Pose park1 = new Pose(83,12, Math.toRadians(90));
 //    public static Pose park2 = new Pose(83,45, Math.toRadians(90));
@@ -74,7 +74,7 @@ public class Sample_1_3_Park extends OpMode {
                 robot.transfer.next();
                 if (pathState == 6) {
                     robot.transfer.intake.turnWristManualRight();
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                     robot.transfer.intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
                     Thread.sleep(500);
                 }
@@ -175,7 +175,7 @@ public class Sample_1_3_Park extends OpMode {
         basket2park = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(basket), new Point(topSample)))
                 .addParametricCallback(0, () -> {
-                    robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
+                   robot.transfer.next(); robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
                     robot.vSlides.loop();
                 })
                 .setLinearHeadingInterpolation(basket.getHeading(), topSample.getHeading())
