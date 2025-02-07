@@ -30,7 +30,7 @@ public class Sample_1_3_Park extends OpMode {
     public static Pose basket = new Pose(128.2946175637394, 7.546742209631725, Math.toRadians(135));
     public static Pose topSample = new Pose(113, 13.5, Math.toRadians(180));
     public static Pose midSample = new Pose(113.5, 3.5, Math.toRadians(180));
-    public static Pose botSample = new Pose(115, 4, Math.toRadians(215));
+    public static Pose botSample = new Pose(115.75, 4, Math.toRadians(230));
     public static Pose park1 = new Pose(83,12, Math.toRadians(90));
     public static Pose park2 = new Pose(83,45, Math.toRadians(90));
     private static int pathState = 0;
@@ -73,6 +73,9 @@ public class Sample_1_3_Park extends OpMode {
                 robot.transfer.next();
                 if (pathState == 6) {
                     robot.transfer.intake.turnWristManualRight();
+                    Thread.sleep(1000);
+                    robot.transfer.intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
+                    Thread.sleep(500);
                 }
                 Log.d("Teamcode", "pub 2 - Expected: HOVERG; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(500);
@@ -161,13 +164,19 @@ public class Sample_1_3_Park extends OpMode {
                 .build();
 
         bot2basket = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(botSample), new Point(basket)))
+                .addPath(new BezierCurve(new Point(botSample), new Point(midSample)))
+                .setLinearHeadingInterpolation(botSample.getHeading(), midSample.getHeading())
+                .addPath(new BezierLine(new Point(midSample), new Point(basket)))
                 .addParametricCallback(0, placeInBucket::start)
-                .setLinearHeadingInterpolation(botSample.getHeading(), basket.getHeading())
+                .setLinearHeadingInterpolation(midSample.getHeading(), basket.getHeading())
                 .build();
 
         basket2park = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(basket), new Point(park1)))
+                .addParametricCallback(0, () -> {
+                    robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
+                    robot.vSlides.loop();
+                })
                 .setLinearHeadingInterpolation(basket.getHeading(), park1.getHeading())
                 .addPath(new BezierCurve(new Point(park1), new Point(park2)))
                 .setLinearHeadingInterpolation(park1.getHeading(), park2.getHeading())
