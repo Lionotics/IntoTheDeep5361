@@ -30,9 +30,10 @@ public class Sample_1_3_Park extends OpMode {
     public static Pose basket = new Pose(128.2946175637394, 7.546742209631725, Math.toRadians(135));
     public static Pose topSample = new Pose(113, 13.5, Math.toRadians(180));
     public static Pose midSample = new Pose(113.5, 3.5, Math.toRadians(180));
-    public static Pose botSample = new Pose(115.75, 4, Math.toRadians(230));
-    public static Pose park1 = new Pose(83,12, Math.toRadians(90));
-    public static Pose park2 = new Pose(83,45, Math.toRadians(90));
+    public static Pose botSample = new Pose(116.5, 4, Math.toRadians(230));
+    public static Pose botBackup = new Pose(120, 10, Math.toRadians(230));
+//    public static Pose park1 = new Pose(83,12, Math.toRadians(90));
+//    public static Pose park2 = new Pose(83,45, Math.toRadians(90));
     private static int pathState = 0;
     public Robot robot = Robot.getInstance();
     private Follower follower;
@@ -49,7 +50,7 @@ public class Sample_1_3_Park extends OpMode {
                 robot.vSlides.loop();
                 Thread.sleep(1500);
                 robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
-                Thread.sleep(1500);
+                Thread.sleep(1000);
                 Log.d("Teamcode", "pib 2 - Expected: SAMPLESCORE; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 robot.transfer.next();
                 Log.d("Teamcode", "pib 3 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
@@ -84,7 +85,7 @@ public class Sample_1_3_Park extends OpMode {
                 Thread.sleep(750);
                 robot.transfer.next();
                 Log.d("Teamcode", "pub 4 - Expected: TRANSFER; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                Thread.sleep(1250);
+                Thread.sleep(750);
                 Log.i("Teamcode", "pickUpBlock finished");
                 synchronized (lock) {
                     lock.notify();
@@ -164,30 +165,30 @@ public class Sample_1_3_Park extends OpMode {
                 .build();
 
         bot2basket = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(botSample), new Point(midSample)))
-                .setLinearHeadingInterpolation(botSample.getHeading(), midSample.getHeading())
-                .addPath(new BezierLine(new Point(midSample), new Point(basket)))
+                .addPath(new BezierCurve(new Point(botSample), new Point(botBackup)))
+                .setLinearHeadingInterpolation(botSample.getHeading(), botBackup.getHeading())
+                .addPath(new BezierLine(new Point(botBackup), new Point(basket)))
                 .addParametricCallback(0, placeInBucket::start)
-                .setLinearHeadingInterpolation(midSample.getHeading(), basket.getHeading())
+                .setLinearHeadingInterpolation(botBackup.getHeading(), basket.getHeading())
                 .build();
 
         basket2park = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(basket), new Point(park1)))
+                .addPath(new BezierCurve(new Point(basket), new Point(topSample)))
                 .addParametricCallback(0, () -> {
                     robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
                     robot.vSlides.loop();
                 })
-                .setLinearHeadingInterpolation(basket.getHeading(), park1.getHeading())
-                .addPath(new BezierCurve(new Point(park1), new Point(park2)))
-                .setLinearHeadingInterpolation(park1.getHeading(), park2.getHeading())
+                .setLinearHeadingInterpolation(basket.getHeading(), topSample.getHeading())
+//                .addPath(new BezierCurve(new Point(park1), new Point(park2)))
+//                .setLinearHeadingInterpolation(park1.getHeading(), park2.getHeading())
                 .build();
 
-        park2start = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(park2), new Point(park1)))
-                .setLinearHeadingInterpolation(park2.getHeading(), park1.getHeading())
-                .addPath(new BezierCurve(new Point(park1), new Point(startPose)))
-                .setLinearHeadingInterpolation(park1.getHeading(), startPose.getHeading())
-                .build();
+//        park2start = follower.pathBuilder()
+//                .addPath(new BezierCurve(new Point(park2), new Point(park1)))
+//                .setLinearHeadingInterpolation(park2.getHeading(), park1.getHeading())
+//                .addPath(new BezierCurve(new Point(park1), new Point(startPose)))
+//                .setLinearHeadingInterpolation(park1.getHeading(), startPose.getHeading())
+//                .build();
     }
 
     public void autonomousPathUpdate() {
@@ -199,8 +200,8 @@ public class Sample_1_3_Park extends OpMode {
             case 1:
                 if (!follower.isBusy()) {
                     try {
+                        Log.i("Teamcode", "Main thread locking...");
                         synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
@@ -214,8 +215,8 @@ public class Sample_1_3_Park extends OpMode {
             case 2:
                 if (!follower.isBusy()) {
                     try {
+                        Log.i("Teamcode", "Main thread locking...");
                         synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
@@ -229,8 +230,8 @@ public class Sample_1_3_Park extends OpMode {
             case 3:
                 if (!follower.isBusy()) {
                     try {
+                        Log.i("Teamcode", "Main thread locking...");
                         synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
@@ -244,8 +245,8 @@ public class Sample_1_3_Park extends OpMode {
             case 4:
                 if (!follower.isBusy()) {
                     try {
+                        Log.i("Teamcode", "Main thread locking...");
                         synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
@@ -259,8 +260,8 @@ public class Sample_1_3_Park extends OpMode {
             case 5:
                 if (!follower.isBusy()) {
                     try {
+                        Log.i("Teamcode", "Main thread locking...");
                         synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
@@ -274,8 +275,8 @@ public class Sample_1_3_Park extends OpMode {
             case 6:
                 if (!follower.isBusy()) {
                     try {
+                        Log.i("Teamcode", "Main thread locking...");
                         synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
@@ -289,8 +290,8 @@ public class Sample_1_3_Park extends OpMode {
             case 7:
                 if (!follower.isBusy()) {
                     try {
+                        Log.i("Teamcode", "Main thread locking...");
                         synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
                             lock.wait();
                             Log.i("Teamcode", "Main thread notified");
                         }
@@ -300,12 +301,12 @@ public class Sample_1_3_Park extends OpMode {
                     follower.followPath(basket2park, true);
                     setPathState(8);
                 }
+//            case 8:
+//                if (!follower.isBusy()) {
+//                    follower.followPath(park2start, true);
+//                    setPathState(9);
+//                }
             case 8:
-                if (!follower.isBusy()) {
-                    follower.followPath(park2start, true);
-                    setPathState(9);
-                }
-            case 9:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if (!follower.isBusy()) {
                     /* Set the state to a Case we won't use or define, so it just stops running an new paths */

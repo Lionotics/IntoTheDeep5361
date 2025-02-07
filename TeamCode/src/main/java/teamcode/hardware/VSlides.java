@@ -158,8 +158,9 @@ public class VSlides {
 
     public double getPos() {
         double left = vSlideLeft.getCurrentPosition();
-        double right = vSlideRight.getCurrentPosition();
-        return (left + right) / 2;
+        //double right = vSlideRight.getCurrentPosition();
+        //return (left + right) / 2;
+        return left;
     }
 
     // Possible states for the vertical slides
