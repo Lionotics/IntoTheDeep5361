@@ -47,13 +47,12 @@ public class Transfer {
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
                 intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_GRAB);
-                intake.currentWristState = Intake.WristState.NORTH;
-                intake.setWrist(Intake.WristPosConsts.NORTH);
                 break;
             case TRANSFER:
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
                 ee.setBigPivot(EndEffector.EEConsts.BIG_PRE_TRANSFER);
+                intake.currentWristState = Intake.WristState.NORTH;
                 intake.setWrist(Intake.WristPosConsts.NORTH);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
                 intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);

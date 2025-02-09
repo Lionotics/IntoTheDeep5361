@@ -19,8 +19,8 @@ public class Intake {
     @Config
     public static class WristPosConsts {
         public static double WEST = 0.6;
-        public static double NORTHWEST = 0.5;
-        public static double NORTH = 0.275;
+        public static double NORTHWEST = 0.4;
+        public static double NORTH = 0.3075;
         public static double NORTHEAST = 0.15;
         public static double EAST = 0.0;
     }
