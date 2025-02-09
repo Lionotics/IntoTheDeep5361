@@ -110,7 +110,7 @@ public class Sample_1_3_Park extends OpMode {
                             try {
                                 robot.transfer.ee.setBigPivot(EndEffector.EEConsts.BIG_SAMPLE);
                                 robot.transfer.ee.setLittlePivot(EndEffector.EEConsts.LITTLE_SAMPLE);
-                                robot.transfer.intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                                robot.transfer.intake.setWrist(Intake.WristPosConsts.NORTH);
                                 robot.transfer.intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
                                 Log.d("Teamcode", "p2b in progress...");
                                 Thread.sleep(2000);

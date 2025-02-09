@@ -21,16 +21,16 @@ public class IntakeTesting extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            if (gp1.a.isCurrentlyPressed()) {
+            if (gp1.y.isCurrentlyPressed()) {
                 robot.transfer.intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
             } else {
                 robot.transfer.intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
             }
 
             if (gp1.b.isCurrentlyPressed()) {
-                robot.transfer.intake.setWrist(Intake.IntakeConsts.WRIST_DOWN);
-            } else {
-                robot.transfer.intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                robot.transfer.intake.turnWristManualRight();
+            } else if (gp1.x.isCurrentlyPressed()) {
+                robot.transfer.intake.turnWristManualLeft();
             }
 
             if (gp1.dpad_up.isCurrentlyPressed()) {

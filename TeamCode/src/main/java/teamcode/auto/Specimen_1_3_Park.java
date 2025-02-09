@@ -45,8 +45,8 @@ public class Specimen_1_3_Park extends OpMode {
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
                 robot.vSlides.loop();
                 robot.transfer.switchToSample();
-                Thread.sleep(500);
                 Log.d("Teamcode", "pub 1 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
+                Thread.sleep(500);
                 robot.transfer.next();
                 Log.d("Teamcode", "pub 2 - Expected: HOVERG; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(1000);

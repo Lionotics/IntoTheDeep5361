@@ -29,7 +29,7 @@ public class Transfer {
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                 ee.setBigPivot(EndEffector.EEConsts.BIG_POST_TRANSFER);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
-                intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                intake.setWrist(Intake.WristPosConsts.NORTH);
                 intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_BARRIER);
                 break;
@@ -37,7 +37,7 @@ public class Transfer {
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                 ee.setBigPivot(EndEffector.EEConsts.BIG_POST_TRANSFER);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
-                intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                intake.setWrist(Intake.WristPosConsts.NORTH);
                 intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_GRAB);
                 break;
@@ -45,15 +45,16 @@ public class Transfer {
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                 ee.setBigPivot(EndEffector.EEConsts.BIG_PRE_TRANSFER);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
-                intake.setWrist(Intake.IntakeConsts.WRIST_UP);
                 intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_GRAB);
+                intake.currentWristState = Intake.WristState.NORTH;
+                intake.setWrist(Intake.WristPosConsts.NORTH);
                 break;
             case TRANSFER:
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
                 ee.setBigPivot(EndEffector.EEConsts.BIG_PRE_TRANSFER);
-                intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                intake.setWrist(Intake.WristPosConsts.NORTH);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
                 intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
                 break;
@@ -72,7 +73,7 @@ public class Transfer {
                                     Thread.sleep(750);
                                     ee.setBigPivot(EndEffector.EEConsts.BIG_SAMPLE);
                                     ee.setLittlePivot(EndEffector.EEConsts.LITTLE_SAMPLE);
-                                    intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                                    intake.setWrist(Intake.WristPosConsts.NORTH);
                                     intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
                                 } catch (InterruptedException e) {
                                     log.error("Failed to handle multi threading{}", Arrays.toString(e.getStackTrace()));
@@ -84,7 +85,7 @@ public class Transfer {
                         ee.setClaw(EndEffector.EEConsts.CLAW_CLOSE);
                         ee.setBigPivot(EndEffector.EEConsts.BIG_SAMPLE);
                         ee.setLittlePivot(EndEffector.EEConsts.LITTLE_SAMPLE);
-                        intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                        intake.setWrist(Intake.WristPosConsts.NORTH);
                         intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
                         intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
                         break;
@@ -94,7 +95,7 @@ public class Transfer {
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                 ee.setBigPivot(EndEffector.EEConsts.BIG_WALL);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_WALL);
-                intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                intake.setWrist(Intake.WristPosConsts.NORTH);
                 intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
                 break;
@@ -102,7 +103,7 @@ public class Transfer {
                 ee.setClaw(EndEffector.EEConsts.CLAW_CLOSE);
                 ee.setBigPivot(EndEffector.EEConsts.BIG_WALL);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_WALL);
-                intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                intake.setWrist(Intake.WristPosConsts.NORTH);
                 intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
                 break;
@@ -111,7 +112,7 @@ public class Transfer {
                 ee.setClaw(EndEffector.EEConsts.CLAW_CLOSE);
                 ee.setBigPivot(EndEffector.EEConsts.BIG_SPECIMEN);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_SPECIMEN);
-                intake.setWrist(Intake.IntakeConsts.WRIST_UP);
+                intake.setWrist(Intake.WristPosConsts.NORTH);
                 intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
                 break;

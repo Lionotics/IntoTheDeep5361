@@ -14,8 +14,15 @@ public class Intake {
         public static double PIVOT_BARRIER = 0.7;
         public static double PIVOT_GRAB = 0.935;
         public static double PIVOT_TRANSFER = 0.4;
-        public static double WRIST_UP = 0.31;
-        public static double WRIST_DOWN = 0;
+    }
+
+    @Config
+    public static class WristPosConsts {
+        public static double WEST = 0.6;
+        public static double NORTHWEST = 0.5;
+        public static double NORTH = 0.275;
+        public static double NORTHEAST = 0.15;
+        public static double EAST = 0.0;
     }
 
     Servo claw, wrist, pivot;
@@ -40,22 +47,13 @@ public class Intake {
 
 
     public enum WristState {
-        WEST(WristPos.WEST), NORTHWEST(WristPos.NORTHWEST), NORTH(WristPos.NORTH), NORTHEAST(WristPos.NORTHEAST), EAST(WristPos.EAST);
+        WEST(WristPosConsts.WEST), NORTHWEST(WristPosConsts.NORTHWEST), NORTH(WristPosConsts.NORTH), NORTHEAST(WristPosConsts.NORTHEAST), EAST(WristPosConsts.EAST);
 
         public final double pos;
 
         WristState(double pos) {
             this.pos = pos;
         }
-    }
-
-    @Config
-    public static class WristPos {
-        public static double WEST = 0.6;
-        public static double NORTHWEST = 0.5;
-        public static double NORTH = 0.275;
-        public static double NORTHEAST = 0.15;
-        public static double EAST = 0.0;
     }
 
     public WristState currentWristState = WristState.NORTH;
