@@ -5,118 +5,115 @@ import android.util.Log;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import teamcode.hardware.Consts;
+import teamcode.hardware.HSlides;
+import teamcode.hardware.Intake;
 import teamcode.hardware.Robot;
 import teamcode.hardware.StateMachine;
 import teamcode.hardware.VSlides;
 
-@Autonomous(name = "Specimen 1 + 3 W/ Park", group = "Red")
+@Autonomous(name = "Specimen 1+3 Park", group = "Red")
 public class Specimen_1_3_Park extends OpMode {
-    private static final Object lock = new Object();
-    public static Pose startPose = new Pose(133, 88, Math.toRadians(0));
-    public static Pose bar = new Pose(106.5, 62.2, Math.toRadians(0));
-    public static Pose botSample = new Pose(111, 121, Math.toRadians(180));
-    public static Pose topSample = new Pose(111, 132, Math.toRadians(180));
-    public static Pose drop = new Pose(129,132, Math.toRadians(0));
-    public static Pose prePickup = new Pose(106,110, Math.toRadians(180));
-    public static Pose pickup = new Pose(135,110, Math.toRadians(180));
-    public static Pose park = new Pose(135.5,132, Math.toRadians(0));
+    private static ExecutorService executor = Executors.newSingleThreadExecutor();
+    public static Pose startPose = new Pose(135.75, 88, Math.toRadians(180));
+    public static Pose botSample = new Pose(115.75, 106, Math.toRadians(140));
+    public static Pose botDrop = new Pose(115.75, 106, Math.toRadians(55));
+    public static Pose midSample = new Pose(115.75, 117, Math.toRadians(135));
+    public static Pose midDrop = new Pose(115.75, 117, Math.toRadians(55));
+    public static Pose topSample = new Pose(115.75, 126, Math.toRadians(130));
+    public static Pose topDrop = new Pose(115.75, 126, Math.toRadians(55));
+    public static Point topControl = new Point(115.75, 117, Point.CARTESIAN);
     private static int pathState = 0;
     public Robot robot = Robot.getInstance();
-    private int iteration = 1; private final int MAX_ITERATION = 4;
+    //    private int iteration = 1; private final int MAX_ITERATION = 4;
+    public static int waitTime = 1000;
     private Follower follower;
-    private PathChain preload2bar, bar2bot, bot2drop, drop2top, top2drop, drop2prePickup,
-            bar2prePickup, prePickup2pickup, pickup2bar, bar2park, park2start;
-    private final Thread pickUpBlock = new Thread() {
-        @Override
-        public void run() {
+    private PathChain start2bot, bot2drop, drop2mid, mid2drop, drop2top, top2drop;
+    private Intake intake;
+
+    private Runnable pickUpBlock() {
+        return () -> {
             try {
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
-                robot.vSlides.loop();
                 robot.transfer.switchToSample();
-                Log.d("Teamcode", "pub 1 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
+                Log.d("Teamcode", "pub 1 - Expected: BARRIER; Actual: " +
+                        robot.transfer.stateMachine.getCurrentState());
+                robot.transfer.next();
+                intake.turnWristManualLeft();
+                Log.d("Teamcode", "pub 2 - Expected: HOVERG; Actual: " +
+                        robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(500);
                 robot.transfer.next();
-                Log.d("Teamcode", "pub 2 - Expected: HOVERG; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                Thread.sleep(1000);
-                robot.transfer.next();
-                Log.d("Teamcode", "pub 3 - Expected: GRABG; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                Thread.sleep(750);
-                Log.i("Teamcode", "pickUpBlock finished");
-                synchronized (lock) {
-                    lock.notify();
-                }
+                Log.d("Teamcode", "pub 3 - Expected: GRABG; Actual: " +
+                        robot.transfer.stateMachine.getCurrentState());
+                Thread.sleep(500);
             } catch (InterruptedException err) {
-                Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
+                Log.e("Teamcode", "Thread failed; Interrupting Thread...");
+                Thread.currentThread().interrupt();
             }
-        }
-    }, placeOnBar = new Thread() {
-        @Override
-        public void run() {
+        };
+    };
+    private Runnable dropBlock() {
+        return () -> {
             try {
-                Log.d("Teamcode", "pob 1 - Expected: GRABW, Actual: " + robot.transfer.stateMachine.getCurrentState());
+                Thread.sleep(500);
+                robot.transfer.switchToSpecimen();
+                Log.d("Teamcode", "dp 1 - Expected: HOVERW; Actual: " +
+                        robot.transfer.stateMachine.getCurrentState());
+                Thread.sleep(250);
+            } catch (InterruptedException err) {
+                Log.e("Teamcode", "Thread failed; Interrupting Thread...");
+                Thread.currentThread().interrupt();
+            }
+        };
+    };
+    private Runnable placeOnBar() {
+        return () -> {
+            try {
+                Log.d("Teamcode", "pob 1 - Expected: GRABW, Actual: " +
+                        robot.transfer.stateMachine.getCurrentState());
                 robot.transfer.next();
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_CHAMBER);
                 robot.vSlides.loop();
-                Log.d("Teamcode", "pob 2 - Expected: SPECIMENSCORE, Actual: " + robot.transfer.stateMachine.getCurrentState());
+                Log.d("Teamcode", "pob 2 - Expected: SPECIMENSCORE, Actual: " +
+                        robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(1500);
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_BUCKET);
                 robot.vSlides.loop();
                 robot.transfer.next();
-                Log.d("Teamcode", "pob 3 - Expected: HOVERW, Actual: " + robot.transfer.stateMachine.getCurrentState());
-                Log.i("Teamcode", "placeOnBar finished");
-                synchronized (lock) {
-                    lock.notify();
-                }
+                Log.d("Teamcode", "pob 3 - Expected: HOVERW, Actual: " +
+                        robot.transfer.stateMachine.getCurrentState());
             } catch (InterruptedException err) {
-                Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
+                Log.e("Teamcode", "Thread failed; Interrupting Thread...");
+                Thread.currentThread().interrupt();
             }
-        }
-    }, waitThreeSeconds = new Thread() {
-        @Override
-        public void run() {
+        };
+    };
+    private Runnable pickOffWall() {
+        return () -> {
             try {
-                Thread.sleep(3000);
-                Log.i("Teamcode", "waitThreeSeconds finished");
-                synchronized (lock) {
-                    lock.notify();
-                }
-            } catch (InterruptedException err) {
-                Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
-            }
-        }
-    }, pickOffWall = new Thread() {
-        @Override
-        public void run() {
-            try {
-                Log.d("Teamcode", "pow 1 - Expected: HOVERW, Actual: " + robot.transfer.stateMachine.getCurrentState());
+                Log.d("Teamcode", "pow 1 - Expected: HOVERW, Actual: " +
+                        robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(500);
-                robot.transfer.next();
-                Log.d("Teamcode", "pow 2 - Expected: GRABW, Actual: " + robot.transfer.stateMachine.getCurrentState());
-                Thread.sleep(250);
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_BUCKET);
                 robot.vSlides.loop();
                 // Enough to lift it off the wall
                 Thread.sleep(500);
-                Log.i("Teamcode", "waitThreeSeconds finished");
-                synchronized (lock) {
-                    lock.notify();
-                }
             } catch (InterruptedException err) {
-                Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
+                Log.e("Teamcode", "Thread failed; Interrupting Thread...");
+                Thread.currentThread().interrupt();
             }
-        }
+        };
     };
 
     public void buildPaths() {
@@ -124,197 +121,139 @@ public class Specimen_1_3_Park extends OpMode {
         // * pickUpBlock takes you to GRABG
         // * pickOffWall takes you from HOVERW to GRABW
         // * placeOnBar takes you from GRABW to HOVERW
-        preload2bar = follower.pathBuilder()
-                .addPath(new Path(new BezierLine(new Point(startPose), new Point(bar))))
-                .addParametricCallback(0, placeOnBar::start)
-                .setLinearHeadingInterpolation(startPose.getHeading(), bar.getHeading())
-                .build();
 
-        bar2bot = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(bar), new Point(botSample)))
-                .addParametricCallback(0, pickUpBlock::start)
-                .setLinearHeadingInterpolation(bar.getHeading(), botSample.getHeading())
+        start2bot = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(startPose), new Point(botSample)))
+                .addParametricCallback(0, () -> {
+                    robot.hSlides.moveToPosition(HSlides.SlidePositions.IN);
+                    robot.hSlides.loop();
+                })
+                .addParametricCallback(1, () -> executor.submit(this::pickUpBlock))
+                .setLinearHeadingInterpolation(startPose.getHeading(), botSample.getHeading())
                 .build();
 
         bot2drop = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(botSample), new Point(drop)))
-                .addParametricCallback(1, () -> {
-                    Log.d("Teamcode", "b2d 1 - Expected: GRABG, Actual: " + robot.transfer.stateMachine.getCurrentState());
-                    robot.transfer.switchToSpecimen(); // Go to HOVERW, drop the block
-                    Log.d("Teamcode", "b2d 2 - Expected: HOVERW, Actual: " + robot.transfer.stateMachine.getCurrentState());
+                .addPath(new BezierCurve(new Point(botSample), new Point(botDrop)))
+                .addParametricCallback(0, () -> {
+                    robot.hSlides.hold();
+                    robot.hSlides.loop();
                 })
-                .setLinearHeadingInterpolation(botSample.getHeading(), drop.getHeading())
+                .addParametricCallback(1, () -> executor.submit(this::dropBlock))
+                .setLinearHeadingInterpolation(botSample.getHeading(), botDrop.getHeading())
+                .build();
+
+        drop2mid = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(botDrop), new Point(midSample)))
+                .addParametricCallback(1, () -> executor.submit(this::pickUpBlock))
+                .setLinearHeadingInterpolation(botDrop.getHeading(), midSample.getHeading())
+                .build();
+
+        mid2drop = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(midSample), new Point(midDrop)))
+                .addParametricCallback(1, () -> executor.submit(this::dropBlock))
+                .setLinearHeadingInterpolation(midSample.getHeading(), midDrop.getHeading())
                 .build();
 
         drop2top = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(drop), new Point(topSample)))
-                .addParametricCallback(0, pickUpBlock::start)
-                .setLinearHeadingInterpolation(drop.getHeading(), topSample.getHeading())
+                .addPath(new BezierCurve(new Point(midDrop), topControl, new Point(topSample)))
+                .addParametricCallback(1, () -> executor.submit(this::pickUpBlock))
+                .setLinearHeadingInterpolation(midDrop.getHeading(), topSample.getHeading())
                 .build();
 
         top2drop = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(topSample), new Point(drop)))
-                .addParametricCallback(0, () -> {
-                    Log.d("Teamcode", "t2d 1 - Expected: GRABG, Actual: " + robot.transfer.stateMachine.getCurrentState());
-                    robot.transfer.switchToSpecimen(); // Go to HOVERW, drop the block
-                    Log.d("Teamcode", "t2d 2 - Expected: HOVERW, Actual: " + robot.transfer.stateMachine.getCurrentState());
-                })
-                .setLinearHeadingInterpolation(topSample.getHeading(), drop.getHeading())
-                .build();
-
-        drop2prePickup = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(drop), new Point(prePickup)))
-                .addParametricCallback(1, waitThreeSeconds::start)
-                .setLinearHeadingInterpolation(drop.getHeading(), prePickup.getHeading())
-                .build();
-
-        bar2prePickup = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(bar), new Point(prePickup)))
-                .addParametricCallback(1, waitThreeSeconds::start)
-                .setLinearHeadingInterpolation(bar.getHeading(), prePickup.getHeading())
-                .build();
-
-        prePickup2pickup = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(prePickup), new Point(pickup)))
-                .addParametricCallback(1, pickOffWall::start)
-                .setLinearHeadingInterpolation(prePickup.getHeading(), pickup.getHeading())
-                .build();
-
-        pickup2bar = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(pickup), new Point(bar)))
-                .addParametricCallback(1, placeOnBar::start)
-                .setLinearHeadingInterpolation(pickup.getHeading(), bar.getHeading())
-                .build();
-
-        bar2park = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(bar),new Point(park)))
-                .setLinearHeadingInterpolation(bar.getHeading(), park.getHeading())
-                .build();
-
-        park2start = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(park), new Point(startPose)))
-                .setLinearHeadingInterpolation(park.getHeading(), startPose.getHeading())
+                .addPath(new BezierCurve(new Point(topSample), topControl, new Point(topDrop)))
+                .addParametricCallback(1, () -> executor.submit(this::dropBlock))
+                .setLinearHeadingInterpolation(topSample.getHeading(), topDrop.getHeading())
                 .build();
     }
 
-    public void autonomousPathUpdate() {
+    private void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(preload2bar);
+                follower.followPath(start2bot);
                 setPathState(1);
                 break;
             case 1:
                 if (!follower.isBusy()) {
+                    executor.shutdown();
                     try {
-                        synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
-                            lock.wait();
-                            Log.i("Teamcode", "Main thread notified");
+                        if (!executor.awaitTermination(waitTime, TimeUnit.MILLISECONDS)) {
+                            executor.shutdownNow();
                         }
                     } catch (InterruptedException err) {
-                        Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
+                        Log.e("Teamcode","Timeout reached, forcing shutdown.");
+                        executor.shutdownNow(); // Attempts to stop execution
                     }
-                    follower.followPath(bar2bot, true);
+                    executor = Executors.newSingleThreadExecutor();
+                    follower.followPath(bot2drop, true);
                     setPathState(2);
                 }
                 break;
             case 2:
                 if (!follower.isBusy()) {
+                    executor.shutdown();
                     try {
-                        synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
-                            lock.wait();
-                            Log.i("Teamcode", "Main thread notified");
+                        if (!executor.awaitTermination(waitTime, TimeUnit.MILLISECONDS)) {
+                            executor.shutdownNow();
                         }
                     } catch (InterruptedException err) {
-                        Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
+                        Log.e("Teamcode","Timeout reached, forcing shutdown.");
+                        executor.shutdownNow(); // Attempts to stop execution
                     }
-                    follower.followPath(bot2drop, true);
+                    executor = Executors.newSingleThreadExecutor();
+                    follower.followPath(drop2mid, true);
                     setPathState(3);
-                }
-                break;
-            case 3:
-                if (!follower.isBusy()) {
-                    follower.followPath(drop2top, true);
-                    setPathState(4);
                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
+                    executor.shutdown();
                     try {
-                        synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
-                            lock.wait();
-                            Log.i("Teamcode", "Main thread notified");
+                        if (!executor.awaitTermination(waitTime, TimeUnit.MILLISECONDS)) {
+                            executor.shutdownNow();
                         }
                     } catch (InterruptedException err) {
-                        Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
+                        Log.e("Teamcode","Timeout reached, forcing shutdown.");
+                        executor.shutdownNow(); // Attempts to stop execution
                     }
-                    follower.followPath(top2drop, true);
+                    executor = Executors.newSingleThreadExecutor();
+                    follower.followPath(mid2drop, true);
                     setPathState(5);
                 }
                 break;
             case 5:
                 if (!follower.isBusy()) {
-                    follower.followPath(drop2prePickup, true);
+                    executor.shutdown();
+                    try {
+                        if (!executor.awaitTermination(waitTime, TimeUnit.MILLISECONDS)) {
+                            executor.shutdownNow();
+                        }
+                    } catch (InterruptedException err) {
+                        Log.e("Teamcode","Timeout reached, forcing shutdown.");
+                        executor.shutdownNow(); // Attempts to stop execution
+                    }
+                    executor = Executors.newSingleThreadExecutor();
+                    follower.followPath(drop2top, true);
                     setPathState(6);
                 }
                 break;
             case 6:
                 if (!follower.isBusy()) {
+                    executor.shutdown();
                     try {
-                        synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
-                            lock.wait();
-                            Log.i("Teamcode", "Main thread notified");
+                        if (!executor.awaitTermination(waitTime, TimeUnit.MILLISECONDS)) {
+                            executor.shutdownNow();
                         }
                     } catch (InterruptedException err) {
-                        Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
+                        Log.e("Teamcode","Timeout reached, forcing shutdown.");
+                        executor.shutdownNow(); // Attempts to stop execution
                     }
-                    follower.followPath(prePickup2pickup, true);
+                    executor = Executors.newSingleThreadExecutor();
+                    follower.followPath(top2drop, true);
                     setPathState(7);
                 }
                 break;
             case 7:
-                if (!follower.isBusy()) {
-                    try {
-                        synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
-                            lock.wait();
-                            Log.i("Teamcode", "Main thread notified");
-                        }
-                    } catch (InterruptedException err) {
-                        Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
-                    }
-                    follower.followPath(pickup2bar, true);
-                    setPathState(8);
-                }
-            case 8:
-                if (!follower.isBusy()) {
-                    try {
-                        synchronized (lock) {
-                            Log.i("Teamcode", "Main thread locking...");
-                            lock.wait();
-                            Log.i("Teamcode", "Main thread notified");
-                        }
-                    } catch (InterruptedException err) {
-                        Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
-                    }
-                    if (iteration < MAX_ITERATION) {
-                        iteration++;
-                        follower.followPath(bar2prePickup);
-                        setPathState(6);
-                    } else {
-                        follower.followPath(bar2park, true);
-                        setPathState(9);
-                    }
-                }
-            case 9:
-                if (!follower.isBusy()) {
-                    follower.followPath(park2start);
-                    setPathState(10);
-                }
-            case 10:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if (!follower.isBusy()) {
                     /* Set the state to a Case we won't use or define, so it just stops running an new paths */
@@ -324,24 +263,22 @@ public class Specimen_1_3_Park extends OpMode {
         }
     }
 
-
-    public void setPathState(int pState) {
+    private void setPathState(int pState) {
         pathState = pState;
     }
 
     /**
-     * This is the main loop of the OpMode, it will run repeatedly after clicking "Play".
+     * This method is called once at the init of the OpMode.
      **/
     @Override
     public void loop() {
-
         // These loop the movements of the robot
         follower.update();
+
         autonomousPathUpdate();
-
         StateMachine.State state = robot.transfer.stateMachine.getCurrentState();
-
         robot.hSlides.hold();
+
         // Feedback to Driver Hub
         telemetry.addData("path state", pathState);
         telemetry.addData("State", state.name());
@@ -364,10 +301,10 @@ public class Specimen_1_3_Park extends OpMode {
         follower.setStartingPose(startPose);
         buildPaths();
 
-        robot.transfer.switchToSpecimen();
-        robot.transfer.next();
-    }
+        intake = robot.transfer.intake;
 
+        robot.transfer.ee.setClaw(Consts.E_CLAW_CLOSE);
+    }
     /**
      * This method is called continuously after Init while waiting for "play".
      **/
@@ -389,5 +326,6 @@ public class Specimen_1_3_Park extends OpMode {
      **/
     @Override
     public void stop() {
+        executor.shutdownNow();
     }
 }

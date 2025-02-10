@@ -6,7 +6,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import teamcode.hardware.Consts;
 import teamcode.hardware.EndEffector;
+import teamcode.hardware.Intake;
 import teamcode.hardware.Robot;
 import teamcode.hardware.StateMachine;
 import teamcode.hardware.VSlides;
@@ -20,18 +22,21 @@ public class Teleop extends LinearOpMode {
 
     Robot robot = Robot.getInstance();
     GamepadEx gp1 = new GamepadEx(), gp2 = new GamepadEx();
+
     //private BrickAngleDetector bad;
+    private Intake intake; private EndEffector ee;
 
     @Override
     public void runOpMode() {
-        // Implement vision with automatic pivot
+        // TODO: Implement vision with automatic pivot
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         //bad = new BrickAngleDetector(true,telemetry);
-
         waitForStart();
 
         robot.init(hardwareMap);
+
+        intake = robot.transfer.intake; ee = robot.transfer.ee;
 
         robot.transfer.flush();
 
@@ -60,9 +65,9 @@ public class Teleop extends LinearOpMode {
             }
 
            if (gp1.x.isNewlyPressed()) {
-                robot.transfer.intake.turnWristManualLeft();
+                intake.turnWristManualLeft();
            } else if (gp1.b.isNewlyPressed()) {
-                robot.transfer.intake.turnWristManualRight();
+                intake.turnWristManualRight();
            }
            /*else {
                if (Double.isNaN(angle)) {
@@ -72,7 +77,7 @@ public class Teleop extends LinearOpMode {
 
 
             if (gp1.a.isNewlyPressed()) {
-                robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
+                ee.setClaw(Consts.E_CLAW_OPEN);
             }
 
             if (gp1.dpad_up.isCurrentlyPressed() || gp2.dpad_up.isCurrentlyPressed()) {
@@ -96,9 +101,9 @@ public class Teleop extends LinearOpMode {
             }
 
             if (gp1.dpad_right.isCurrentlyPressed() || gp2.dpad_right.isCurrentlyPressed()) {
-                robot.hSlides.setPower(-1);
+                robot.hSlides.manualOut();
             } else if (gp1.dpad_left.isCurrentlyPressed() || gp2.dpad_left.isCurrentlyPressed()) {
-                robot.hSlides.setPower(1);
+                robot.hSlides.manualIn();
             } else {
                 robot.hSlides.hold();
             }
@@ -106,6 +111,7 @@ public class Teleop extends LinearOpMode {
             robot.driveTrain.drive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, 0);
 
             robot.vSlides.loop();
+            robot.hSlides.loop();
 
             telemetry.addData("State", state.name());
             telemetry.addData("Linecap", lineCap.name());

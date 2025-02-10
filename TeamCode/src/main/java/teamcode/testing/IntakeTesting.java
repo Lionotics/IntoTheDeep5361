@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import teamcode.hardware.Consts;
 import teamcode.hardware.Intake;
 import teamcode.hardware.Robot;
 import teamcode.helpers.GamepadEx;
@@ -13,38 +14,40 @@ import teamcode.helpers.GamepadEx;
 public class IntakeTesting extends LinearOpMode {
     Robot robot = Robot.getInstance();
     GamepadEx gp1 = new GamepadEx();
+    private Intake intake;
+    
     @Override
     public void runOpMode() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         robot.init(hardwareMap);
-
+        intake = robot.transfer.intake;
         waitForStart();
 
         while (opModeIsActive()) {
             if (gp1.y.isCurrentlyPressed()) {
-                robot.transfer.intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
+                intake.setClaw(Consts.I_CLAW_OPEN);
             } else {
-                robot.transfer.intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
+                intake.setClaw(Consts.I_CLAW_CLOSE);
             }
 
             if (gp1.b.isCurrentlyPressed()) {
-                robot.transfer.intake.turnWristManualRight();
+                intake.turnWristManualRight();
             } else if (gp1.x.isCurrentlyPressed()) {
-                robot.transfer.intake.turnWristManualLeft();
+                intake.turnWristManualLeft();
             }
 
             if (gp1.dpad_up.isCurrentlyPressed()) {
-                robot.transfer.intake.setPivot(Intake.IntakeConsts.PIVOT_GRAB);
+                intake.setPivot(Consts.PIVOT_GRAB);
             } else if (gp1.dpad_right.isCurrentlyPressed()){
-                robot.transfer.intake.setPivot(Intake.IntakeConsts.PIVOT_BARRIER);
+                intake.setPivot(Consts.PIVOT_BARRIER);
             } else if (gp1.dpad_down.isCurrentlyPressed()){
-                robot.transfer.intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
+                intake.setPivot(Consts.PIVOT_TRANSFER);
             }
 
 
-            telemetry.addData("claw",robot.transfer.intake.clawPos());
-            telemetry.addData("wrist",robot.transfer.intake.wristPos());
-            telemetry.addData("pivot",robot.transfer.intake.pivotPos());
+            telemetry.addData("claw",intake.clawPos());
+            telemetry.addData("wrist",intake.wristPos());
+            telemetry.addData("pivot",intake.pivotPos());
             telemetry.update();
             gp1.update(gamepad1);
         }

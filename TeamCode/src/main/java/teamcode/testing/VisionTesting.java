@@ -20,7 +20,7 @@ public class VisionTesting extends LinearOpMode {
     private BrickAngleDetector bad;
     public VisionPortal.CameraState cs;
 
-    private GamepadEx gp1 = new GamepadEx();
+    private final GamepadEx gp1 = new GamepadEx();
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());

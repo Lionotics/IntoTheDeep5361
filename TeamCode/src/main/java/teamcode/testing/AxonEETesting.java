@@ -1,31 +1,30 @@
 package teamcode.testing;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import java.util.List;
 
 import teamcode.hardware.Robot;
 import teamcode.hardware.StateMachine;
 import teamcode.helpers.GamepadEx;
 
-import java.util.List;
+@TeleOp(name = "Axon EE Testing", group = "Testing")
+public class AxonEETesting extends LinearOpMode {
 
-@TeleOp(name = "Transfer Testing", group = "Testing")
-public class TransferTesting extends LinearOpMode {
     Robot robot = Robot.getInstance();
-    StateMachine.State state;
-    StateMachine.State lineCap;
+    GamepadEx gp1 = new GamepadEx();
+    StateMachine.State state, lineCap;
     List<StateMachine.State> line;
-    GamepadEx gp1 = new GamepadEx(), gp2 = new GamepadEx();
-
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         robot.init(hardwareMap);
+
         waitForStart();
-        robot.transfer.flush();
+
         while (opModeIsActive()) {
             state = robot.transfer.stateMachine.getCurrentState();
             line = robot.transfer.stateMachine.getCurrentLine();
@@ -44,6 +43,7 @@ public class TransferTesting extends LinearOpMode {
 
             telemetry.addData("State", state.name());
             telemetry.addData("Linecap", lineCap.name());
+            telemetry.addData("Axon pos", robot.transfer.ee.getBigPos());
             telemetry.update();
         }
     }
