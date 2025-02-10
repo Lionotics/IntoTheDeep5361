@@ -4,6 +4,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import teamcode.helpers.HardwareMonitor;
+
 @Config
 public class Intake {
 
@@ -19,7 +21,7 @@ public class Intake {
     @Config
     public static class WristPosConsts {
         public static double WEST = 0.6;
-        public static double NORTHWEST = 0.4;
+        public static double NORTHWEST = 0.45;
         public static double NORTH = 0.3075;
         public static double NORTHEAST = 0.15;
         public static double EAST = 0.0;

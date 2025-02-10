@@ -10,7 +10,6 @@ import java.util.Arrays;
 
 @Config
 public class Transfer {
-
     private static final Logger log = LoggerFactory.getLogger(Transfer.class);
     public StateMachine stateMachine = new StateMachine();
     public EndEffector ee = new EndEffector();
@@ -27,7 +26,7 @@ public class Transfer {
                 break;
             case BARRIER:
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
-                ee.setBigPivot(EndEffector.EEConsts.BIG_POST_TRANSFER);
+                ee.setBigPivot(EndEffector.EEConsts.BIG_TRANSFER);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
                 intake.setWrist(Intake.WristPosConsts.NORTH);
                 intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
@@ -35,7 +34,7 @@ public class Transfer {
                 break;
             case HOVERG:
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
-                ee.setBigPivot(EndEffector.EEConsts.BIG_POST_TRANSFER);
+                ee.setBigPivot(EndEffector.EEConsts.BIG_TRANSFER);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
                 intake.setWrist(Intake.WristPosConsts.NORTH);
                 intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);
@@ -43,7 +42,7 @@ public class Transfer {
                 break;
             case GRABG:
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
-                ee.setBigPivot(EndEffector.EEConsts.BIG_PRE_TRANSFER);
+                ee.setBigPivot(EndEffector.EEConsts.BIG_GRAB);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
                 intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_GRAB);
@@ -51,7 +50,7 @@ public class Transfer {
             case TRANSFER:
                 ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
                 ee.setLittlePivot(EndEffector.EEConsts.LITTLE_TRANSFER);
-                ee.setBigPivot(EndEffector.EEConsts.BIG_PRE_TRANSFER);
+                ee.setBigPivot(EndEffector.EEConsts.BIG_GRAB);
                 intake.currentWristState = Intake.WristState.NORTH;
                 intake.setWrist(Intake.WristPosConsts.NORTH);
                 intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
@@ -60,12 +59,14 @@ public class Transfer {
             case SAMPLESCORE:
                 switch (fromState) {
                     case TRANSFER:
-                        ee.setBigPivot(EndEffector.EEConsts.BIG_POST_TRANSFER);
+                        ee.setBigPivot(EndEffector.EEConsts.BIG_TRANSFER);
                         new Thread() {
                             @Override
                             public void run() {
                                 try {
-                                    Thread.sleep(350);
+                                    while (!ee.bigMonitor.isWithinThreshold(EndEffector.EEConsts.BIG_TRANSFER)) {
+                                        Thread.sleep(10);
+                                    }
                                     ee.setClaw(EndEffector.EEConsts.CLAW_CLOSE);
                                     Thread.sleep(500);
                                     intake.setClaw(Intake.IntakeConsts.CLAW_OPEN);

@@ -1,21 +1,22 @@
 package teamcode.hardware;
 
-import android.util.Log;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import teamcode.helpers.HardwareMonitor;
 
 @Config
 public class EndEffector {
 
     @Config
     public static class EEConsts {
+        public static int BIG_THRESH = 10;
         public static double CLAW_CLOSE = 0;
         public static double CLAW_OPEN = .2;
-        public static double BIG_PRE_TRANSFER = .1;
+        public static double BIG_GRAB = .1;
         public static double BIG_SPECIMEN = 0;
-        public static double BIG_POST_TRANSFER = 0.03;
+        public static double BIG_TRANSFER = 0.03;
         public static double BIG_SAMPLE = 0.45;
         public static double BIG_WALL = 0.725;
         public static double LITTLE_SPECIMEN = 0.15;
@@ -24,12 +25,15 @@ public class EndEffector {
         public static double LITTLE_WALL = 0.16;
     }
 
-    public Servo claw, bigPivot, littlePivot;
+    Servo claw, bigPivot, littlePivot;
+    public HardwareMonitor bigMonitor;
 
     public void init(HardwareMap hwMap) {
         claw = hwMap.get(Servo.class, "outtakeClaw");
         bigPivot = hwMap.get(Servo.class, "bigPivot");
         littlePivot = hwMap.get(Servo.class, "littlePivot");
+
+        bigMonitor = new HardwareMonitor(bigPivot, EEConsts.BIG_THRESH);
     }
 
     public void setClaw(double pos) {

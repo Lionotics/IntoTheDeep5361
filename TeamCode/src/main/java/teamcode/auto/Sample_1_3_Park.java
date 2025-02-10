@@ -30,10 +30,10 @@ public class Sample_1_3_Park extends OpMode {
     public static Pose basket = new Pose(128.2946175637394, 7.546742209631725, Math.toRadians(135));
     public static Pose topSample = new Pose(113, 13.5, Math.toRadians(180));
     public static Pose midSample = new Pose(113.5, 3.5, Math.toRadians(180));
-    public static Pose botSample = new Pose(114.5, 4, Math.toRadians(230));
+    public static Pose botSample = new Pose(114.5, 3, Math.toRadians(230));
     public static Pose botBackup = new Pose(120, 10, Math.toRadians(230));
-//    public static Pose park1 = new Pose(83,12, Math.toRadians(90));
-//    public static Pose park2 = new Pose(83,45, Math.toRadians(90));
+//    public static Pose park1 = new Pose(83, 12, Math.toRadians(90));
+//    public static Pose park2 = new Pose(83, 45, Math.toRadians(90));
     private static int pathState = 0;
     public Robot robot = Robot.getInstance();
     private Follower follower;
@@ -45,7 +45,7 @@ public class Sample_1_3_Park extends OpMode {
             try {
                 Log.d("Teamcode", "pib 1 - Expected: TRANSFER; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 robot.transfer.next();
-                Thread.sleep(1000);
+                Thread.sleep(1250);
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
                 robot.vSlides.loop();
                 Thread.sleep(1500);
@@ -333,7 +333,7 @@ public class Sample_1_3_Park extends OpMode {
 
         StateMachine.State state = robot.transfer.stateMachine.getCurrentState();
 
-        robot.hSlides.hold();
+        robot.hSlides.setPower(.5);
         // Feedback to Driver Hub
         telemetry.addData("path state", pathState);
         telemetry.addData("State", state.name());
