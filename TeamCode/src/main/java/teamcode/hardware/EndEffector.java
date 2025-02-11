@@ -6,12 +6,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import teamcode.helpers.HardwareMonitor;
 
-@Config
-public class EndEffector {
 
-    @Config
-    public static class EEConsts {
-    }
+public class EndEffector {
 
     Servo claw, bigPivot, littlePivot;
     public HardwareMonitor bigMonitor;

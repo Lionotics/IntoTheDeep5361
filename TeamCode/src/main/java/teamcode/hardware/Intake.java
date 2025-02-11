@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import teamcode.helpers.HardwareMonitor;
 
-@Config
 public class Intake {
     Servo claw, wrist, pivot;
 

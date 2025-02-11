@@ -12,7 +12,6 @@ import teamcode.helpers.GamepadEx;
 
 import java.util.List;
 
-@Config
 @TeleOp(name = "Transfer Testing", group = "Testing")
 public class TransferTesting extends LinearOpMode {
     Robot robot = Robot.getInstance();

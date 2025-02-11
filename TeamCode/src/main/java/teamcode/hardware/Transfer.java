@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
-@Config
 public class Transfer {
     private static final Logger log = LoggerFactory.getLogger(Transfer.class);
     public StateMachine stateMachine = new StateMachine();

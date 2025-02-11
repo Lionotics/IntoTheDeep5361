@@ -13,7 +13,6 @@ import teamcode.hardware.VSlides;
 import teamcode.helpers.GamepadEx;
 
 
-@Config
 @TeleOp(name="Slides Testing", group="Testing")
 public class SlidesTesting extends LinearOpMode {
 

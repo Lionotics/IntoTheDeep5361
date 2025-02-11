@@ -13,14 +13,10 @@ import teamcode.hardware.Robot;
 import teamcode.hardware.Transfer;
 import teamcode.helpers.GamepadEx;
 
-@Config
 @TeleOp(name="End Effector Testing", group = "Testing")
 public class EndEffectorTesting extends LinearOpMode {
     Robot robot = Robot.getInstance();
     GamepadEx gp1 = new GamepadEx();
-
-    public static double big = 0;
-    public static double small = 0;
     private EndEffector ee;
 
 
