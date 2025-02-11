@@ -35,6 +35,7 @@ public class Specimen_1_3_Park extends OpMode {
     private static int pathState = 0;
     public Robot robot = Robot.getInstance();
     private int iteration = 1; private final int MAX_ITERATION = 4;
+    public static int waitTime = 1000;
     private Follower follower;
     private PathChain preload2bar, bar2bot, bot2drop, drop2top, top2drop, drop2prePickup,
             bar2prePickup, prePickup2pickup, pickup2bar, bar2park, park2start;
@@ -83,11 +84,11 @@ public class Specimen_1_3_Park extends OpMode {
                 Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
             }
         }
-    }, waitThreeSeconds = new Thread() {
+    }, waitForDriver = new Thread() {
         @Override
         public void run() {
             try {
-                Thread.sleep(3000);
+                Thread.sleep(waitTime);
                 Log.i("Teamcode", "waitThreeSeconds finished");
                 synchronized (lock) {
                     lock.notify();
@@ -164,13 +165,13 @@ public class Specimen_1_3_Park extends OpMode {
 
         drop2prePickup = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(drop), new Point(prePickup)))
-                .addParametricCallback(1, waitThreeSeconds::start)
+                .addParametricCallback(1, waitForDriver::start)
                 .setLinearHeadingInterpolation(drop.getHeading(), prePickup.getHeading())
                 .build();
 
         bar2prePickup = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(bar), new Point(prePickup)))
-                .addParametricCallback(1, waitThreeSeconds::start)
+                .addParametricCallback(1, waitForDriver::start)
                 .setLinearHeadingInterpolation(bar.getHeading(), prePickup.getHeading())
                 .build();
 

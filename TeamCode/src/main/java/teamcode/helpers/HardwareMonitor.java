@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class HardwareMonitor {
     double threshold;
     Servo servo;
-    public HardwareMonitor(Servo servo, int threshold) {
+    public HardwareMonitor(Servo servo, double threshold) {
         this.servo = servo;
         this.threshold = threshold;
     }

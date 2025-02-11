@@ -8,25 +8,6 @@ import teamcode.helpers.HardwareMonitor;
 
 @Config
 public class Intake {
-
-    @Config
-    public static class IntakeConsts {
-        public static double CLAW_CLOSE = 0.1;
-        public static double CLAW_OPEN = .6;
-        public static double PIVOT_BARRIER = 0.7;
-        public static double PIVOT_GRAB = 0.935;
-        public static double PIVOT_TRANSFER = 0.4;
-    }
-
-    @Config
-    public static class WristPosConsts {
-        public static double WEST = 0.6;
-        public static double NORTHWEST = 0.45;
-        public static double NORTH = 0.3075;
-        public static double NORTHEAST = 0.15;
-        public static double EAST = 0.0;
-    }
-
     Servo claw, wrist, pivot;
 
     public void init(HardwareMap hwMap) {
@@ -49,33 +30,32 @@ public class Intake {
 
 
     public enum WristState {
-        WEST(WristPosConsts.WEST), NORTHWEST(WristPosConsts.NORTHWEST), NORTH(WristPosConsts.NORTH), NORTHEAST(WristPosConsts.NORTHEAST), EAST(WristPosConsts.EAST);
-
-        public final double pos;
-
-        WristState(double pos) {
-            this.pos = pos;
-        }
+        WEST, NORTHWEST, NORTH, NORTHEAST, EAST
     }
 
     public WristState currentWristState = WristState.NORTH;
 
+    public void alignWrist() {
+        setWrist(Consts.W_NORTH);
+        currentWristState = WristState.NORTH;
+    }
+
     public void turnWristManualRight() {
         switch (currentWristState) {
             case WEST:
-                setWrist(WristState.NORTHWEST.pos);
+                setWrist(Consts.W_NORTHWEST);
                 currentWristState = WristState.NORTHWEST;
                 break;
             case NORTHWEST:
-                setWrist(WristState.NORTH.pos);
+                setWrist(Consts.W_NORTH);
                 currentWristState = WristState.NORTH;
                 break;
             case NORTH:
-                setWrist(WristState.NORTHEAST.pos);
+                setWrist(Consts.W_NORTHEAST);
                 currentWristState = WristState.NORTHEAST;
                 break;
             case NORTHEAST:
-                setWrist(WristState.EAST.pos);
+                setWrist(Consts.W_EAST);
                 currentWristState = WristState.EAST;
                 break;
             default:
@@ -86,19 +66,19 @@ public class Intake {
     public void turnWristManualLeft() {
         switch (currentWristState) {
             case EAST:
-                setWrist(WristState.NORTHEAST.pos);
+                setWrist(Consts.W_NORTHEAST);
                 currentWristState = WristState.NORTHEAST;
                 break;
             case NORTHEAST:
-                setWrist(WristState.NORTH.pos);
+                setWrist(Consts.W_NORTH);
                 currentWristState = WristState.NORTH;
                 break;
             case NORTH:
-                setWrist(WristState.NORTHWEST.pos);
+                setWrist(Consts.W_NORTHWEST);
                 currentWristState = WristState.NORTHWEST;
                 break;
             case NORTHWEST:
-                setWrist(WristState.WEST.pos);
+                setWrist(Consts.W_WEST);
                 currentWristState = WristState.WEST;
                 break;
             default:

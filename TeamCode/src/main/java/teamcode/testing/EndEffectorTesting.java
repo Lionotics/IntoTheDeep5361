@@ -6,8 +6,11 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import teamcode.hardware.Consts;
 import teamcode.hardware.EndEffector;
+import teamcode.hardware.Intake;
 import teamcode.hardware.Robot;
+import teamcode.hardware.Transfer;
 import teamcode.helpers.GamepadEx;
 
 @Config
@@ -18,26 +21,48 @@ public class EndEffectorTesting extends LinearOpMode {
 
     public static double big = 0;
     public static double small = 0;
+    private EndEffector ee;
 
 
     @Override
     public void runOpMode() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         robot.init(hardwareMap);
-
+        ee = robot.transfer.ee;
         waitForStart();
 
         while (opModeIsActive()) {
-            if (gp1.a.isCurrentlyPressed()) {
-                robot.transfer.ee.bigPivot.setPosition(big);
-            }
-            if (gp1.b.isCurrentlyPressed()) {
-                robot.transfer.ee.littlePivot.setPosition(small);
+            if (gp1.y.isCurrentlyPressed()) {
+                ee.setClaw(Consts.E_CLAW_OPEN);
+            } else if (gp1.a.isCurrentlyPressed()) {
+                ee.setClaw(Consts.I_CLAW_CLOSE);
             }
 
-            telemetry.addData("claw",robot.transfer.ee.clawPos());
-            telemetry.addData("big",robot.transfer.ee.bigPos());
-            telemetry.addData("little",robot.transfer.ee.littlePos());
+            if (gp1.b.isCurrentlyPressed()) {
+                ee.setBigPivot(Consts.BIG_GRAB);
+            } else if (gp1.x.isCurrentlyPressed()) {
+                ee.setBigPivot(Consts.BIG_TRANSFER);
+            } else if (gp1.back.isCurrentlyPressed()) {
+                ee.setBigPivot(Consts.BIG_SAMPLE);
+            } else if (gp1.start.isCurrentlyPressed()) {
+                ee.setBigPivot(Consts.BIG_WALL);
+            } else if (gp1.rightBumper.isCurrentlyPressed()) {
+                ee.setBigPivot(Consts.BIG_SPECIMEN);
+            }
+
+            if (gp1.dpad_up.isCurrentlyPressed()) {
+                ee.setLittlePivot(Consts.LITTLE_TRANSFER);
+            } else if (gp1.dpad_right.isCurrentlyPressed()){
+                ee.setLittlePivot(Consts.LITTLE_WALL);
+            } else if (gp1.dpad_down.isCurrentlyPressed()){
+                ee.setLittlePivot(Consts.LITTLE_SAMPLE);
+            } else if (gp1.dpad_left.isCurrentlyPressed()){
+                ee.setLittlePivot(Consts.LITTLE_SPECIMEN);
+            }
+
+            telemetry.addData("claw",ee.clawPos());
+            telemetry.addData("big",ee.bigPos());
+            telemetry.addData("little",ee.littlePos());
             telemetry.update();
             gp1.update(gamepad1);
         }

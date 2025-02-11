@@ -17,6 +17,7 @@ import java.util.Arrays;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import teamcode.hardware.Consts;
 import teamcode.hardware.EndEffector;
 import teamcode.hardware.Intake;
 import teamcode.hardware.Robot;
@@ -26,6 +27,7 @@ import teamcode.hardware.VSlides;
 @Autonomous(name = "Sample 1 + 3 W/ Park", group = "Red")
 public class Sample_1_3_Park extends OpMode {
     private static final Object lock = new Object();
+    private EndEffector ee; private Intake intake;
     public static Pose startPose = new Pose(133, 36, Math.toRadians(90));
     public static Pose basket = new Pose(128.2946175637394, 7.546742209631725, Math.toRadians(135));
     public static Pose topSample = new Pose(113, 13.5, Math.toRadians(180));
@@ -38,18 +40,20 @@ public class Sample_1_3_Park extends OpMode {
     public Robot robot = Robot.getInstance();
     private Follower follower;
     private PathChain preload2basket, basket2top, top2basket, basket2mid, mid2basket, basket2bot,
-            bot2basket, basket2park, park2start;
+            bot2basket, basket2park/*, park2start*/;
     private final Thread placeInBucket = new Thread() {
         @Override
         public void run() {
             try {
                 Log.d("Teamcode", "pib 1 - Expected: TRANSFER; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 robot.transfer.next();
-                Thread.sleep(1250);
+                while (ee.bigMonitor.isWithinThreshold(Consts.BIG_TRANSFER)) {
+                    Thread.sleep(10);
+                }
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
                 robot.vSlides.loop();
                 Thread.sleep(1500);
-                robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
+                ee.setClaw(Consts.E_CLAW_OPEN);
                 Thread.sleep(1000);
                 Log.d("Teamcode", "pib 2 - Expected: SAMPLESCORE; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 robot.transfer.next();
@@ -73,9 +77,9 @@ public class Sample_1_3_Park extends OpMode {
                 Log.d("Teamcode", "pub 1 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 robot.transfer.next();
                 if (pathState == 6) {
-                    robot.transfer.intake.turnWristManualRight();
+                    intake.turnWristManualRight();
                     Thread.sleep(500);
-                    robot.transfer.intake.setClaw(Intake.IntakeConsts.CLAW_CLOSE);
+                    intake.setClaw(Consts.I_CLAW_CLOSE);
                     Thread.sleep(500);
                 }
                 Log.d("Teamcode", "pub 2 - Expected: HOVERG; Actual: " + robot.transfer.stateMachine.getCurrentState());
@@ -108,13 +112,13 @@ public class Sample_1_3_Park extends OpMode {
                         @Override
                         public void run() {
                             try {
-                                robot.transfer.ee.setBigPivot(EndEffector.EEConsts.BIG_SAMPLE);
-                                robot.transfer.ee.setLittlePivot(EndEffector.EEConsts.LITTLE_SAMPLE);
-                                robot.transfer.intake.setWrist(Intake.WristPosConsts.NORTH);
-                                robot.transfer.intake.setPivot(Intake.IntakeConsts.PIVOT_TRANSFER);
+                                ee.setBigPivot(Consts.BIG_SAMPLE);
+                                ee.setLittlePivot(Consts.LITTLE_SAMPLE);
+                                intake.alignWrist();
+                                intake.setPivot(Consts.PIVOT_TRANSFER);
                                 Log.d("Teamcode", "p2b in progress...");
                                 Thread.sleep(2000);
-                                robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_OPEN);
+                                ee.setClaw(Consts.E_CLAW_OPEN);
                                 Thread.sleep(1250);
                                 Log.d("Teamcode", "p2b finished");
                             } catch (InterruptedException err) {
@@ -356,7 +360,9 @@ public class Sample_1_3_Park extends OpMode {
         follower.setStartingPose(startPose);
         buildPaths();
 
-        robot.transfer.ee.setClaw(EndEffector.EEConsts.CLAW_CLOSE);
+        intake = robot.transfer.intake; ee = robot.transfer.ee;
+
+        ee.setClaw(Consts.E_CLAW_CLOSE);
     }
 
     /**
