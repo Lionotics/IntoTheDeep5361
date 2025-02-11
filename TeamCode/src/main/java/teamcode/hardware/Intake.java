@@ -1,10 +1,7 @@
 package teamcode.hardware;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-
-import teamcode.helpers.HardwareMonitor;
 
 public class Intake {
     Servo claw, wrist, pivot;

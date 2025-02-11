@@ -1,16 +1,13 @@
 package teamcode.testing;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import teamcode.hardware.Consts;
 import teamcode.hardware.EndEffector;
-import teamcode.hardware.Intake;
 import teamcode.hardware.Robot;
-import teamcode.hardware.Transfer;
 import teamcode.helpers.GamepadEx;
 
 @TeleOp(name="End Effector Testing", group = "Testing")
@@ -56,9 +53,9 @@ public class EndEffectorTesting extends LinearOpMode {
                 ee.setLittlePivot(Consts.LITTLE_SPECIMEN);
             }
 
-            telemetry.addData("claw",ee.clawPos());
-            telemetry.addData("big",ee.bigPos());
-            telemetry.addData("little",ee.littlePos());
+            telemetry.addData("claw",ee.getClawPos());
+            telemetry.addData("big",ee.getBigPos());
+            telemetry.addData("little",ee.getLittlePos());
             telemetry.update();
             gp1.update(gamepad1);
         }

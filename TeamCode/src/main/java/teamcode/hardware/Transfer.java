@@ -1,6 +1,7 @@
 package teamcode.hardware;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.slf4j.Logger;
@@ -24,12 +25,22 @@ public class Transfer {
             case START:
                 break;
             case BARRIER:
-                ee.setClaw(Consts.E_CLAW_OPEN);
-                ee.setBigPivot(Consts.BIG_TRANSFER);
-                ee.setLittlePivot(Consts.LITTLE_TRANSFER);
                 intake.alignWrist();
                 intake.setClaw(Consts.I_CLAW_OPEN);
                 intake.setPivot(Consts.PIVOT_BARRIER);
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(250);
+                        } catch (InterruptedException e) {
+                            log.error("Failed to handle multi threading{}", Arrays.toString(e.getStackTrace()));
+                        }
+                    }
+                }.start();
+                ee.setClaw(Consts.E_CLAW_OPEN);
+                ee.setBigPivot(Consts.BIG_TRANSFER);
+                ee.setLittlePivot(Consts.LITTLE_TRANSFER);
                 break;
             case HOVERG:
                 ee.setClaw(Consts.E_CLAW_OPEN);
