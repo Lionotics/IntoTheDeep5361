@@ -21,10 +21,10 @@ public class Consts {
     // EndEffector
     public static double E_CLAW_CLOSE = 0;
     public static double E_CLAW_OPEN = .2;
-    public static double BIG_GRAB = .1;
+    public static double BIG_GRAB = .9;
     public static double BIG_SPECIMEN = 0;
-    public static double BIG_TRANSFER = 0.03;
-    public static double BIG_SAMPLE = 0.45;
+    public static double BIG_TRANSFER = 1;
+    public static double BIG_SAMPLE = 0.3;
     public static double BIG_WALL = 0.725;
     public static double LITTLE_SPECIMEN = 0.15;
     public static double LITTLE_TRANSFER = 0.515;

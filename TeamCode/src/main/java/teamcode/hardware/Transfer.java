@@ -32,7 +32,7 @@ public class Transfer {
                     @Override
                     public void run() {
                         try {
-                            Thread.sleep(250);
+                            Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             log.error("Failed to handle multi threading{}", Arrays.toString(e.getStackTrace()));
                         }
@@ -80,7 +80,6 @@ public class Transfer {
                                     ee.setClaw(Consts.E_CLAW_CLOSE);
                                     Thread.sleep(500);
                                     intake.setClaw(Consts.I_CLAW_OPEN);
-                                    Thread.sleep(750);
                                     ee.setBigPivot(Consts.BIG_SAMPLE);
                                     ee.setLittlePivot(Consts.LITTLE_SAMPLE);
                                     intake.alignWrist();

@@ -25,7 +25,9 @@ public class HSlides {
     public void setPower(double power) {
         power *= MAX_SPEED;
         power = clamp(power, -MAX_SPEED, MAX_SPEED);
-        hSlide.setPower(power);
+        hSlide.setPower(-power);
     }
-     public void hold() { hSlide.setPower(HOLD_POWER); }
+    public void hold() { hSlide.setPower(HOLD_POWER); }
+
+    public double getPosition() {return hSlide.getCurrentPosition();}
 }

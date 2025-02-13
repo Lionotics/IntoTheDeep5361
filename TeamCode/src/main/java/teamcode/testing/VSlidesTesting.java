@@ -2,7 +2,6 @@ package teamcode.testing;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,8 +12,8 @@ import teamcode.hardware.VSlides;
 import teamcode.helpers.GamepadEx;
 
 
-@TeleOp(name="Slides Testing", group="Testing")
-public class SlidesTesting extends LinearOpMode {
+@TeleOp(name="VSlides Testing", group="Testing")
+public class VSlidesTesting extends LinearOpMode {
 
 
     Robot robot = Robot.getInstance();
@@ -42,14 +41,6 @@ public class SlidesTesting extends LinearOpMode {
             // Give our custom gamepads the values from the real gamepads
             gp1.update(gamepad1);
             gp2.update(gamepad2);
-
-            if (gp1.dpad_left.isCurrentlyPressed()) {
-                robot.hSlides.setPower(1);
-            } else if (gp1.dpad_right.isCurrentlyPressed()){
-                robot.hSlides.setPower(-1);
-            } else {
-                robot.hSlides.setPower(0);
-            }
 
             if (gp2.dpad_up.isCurrentlyPressed()) {
                 robot.vSlides.manualUp();
