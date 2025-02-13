@@ -101,9 +101,9 @@ public class Teleop extends LinearOpMode {
             }
 
             if (gp1.dpad_right.isCurrentlyPressed() || gp2.dpad_right.isCurrentlyPressed()) {
-                robot.hSlides.setPower(1);
+                robot.hSlides.manualOut();
             } else if (gp1.dpad_left.isCurrentlyPressed() || gp2.dpad_left.isCurrentlyPressed()) {
-                robot.hSlides.setPower(-1);
+                robot.hSlides.manualIn();
             } else {
                 robot.hSlides.hold();
             }
@@ -111,6 +111,7 @@ public class Teleop extends LinearOpMode {
             robot.driveTrain.drive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, 0);
 
             robot.vSlides.loop();
+            robot.hSlides.loop();
 
             telemetry.addData("State", state.name());
             telemetry.addData("Linecap", lineCap.name());

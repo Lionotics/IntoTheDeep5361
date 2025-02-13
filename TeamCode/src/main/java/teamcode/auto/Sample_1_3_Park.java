@@ -337,7 +337,9 @@ public class Sample_1_3_Park extends OpMode {
 
         StateMachine.State state = robot.transfer.stateMachine.getCurrentState();
 
-        robot.hSlides.setPower(.5);
+        robot.hSlides.hold();
+        robot.hSlides.loop();
+
         // Feedback to Driver Hub
         telemetry.addData("path state", pathState);
         telemetry.addData("State", state.name());
