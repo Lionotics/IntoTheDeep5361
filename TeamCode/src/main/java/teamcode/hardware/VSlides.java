@@ -4,7 +4,6 @@ package teamcode.hardware;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -68,10 +67,10 @@ public class VSlides {
             case AUTO_MOVE:
                 pidLoop();
                 break;
-            case MANUAL_DOWN:
+            case MANUAL_IN:
                 slideDown();
                 break;
-            case MANUAL_UP:
+            case MANUAL_OUT:
                 slideUp();
                 break;
             case HOLDING:
@@ -95,11 +94,11 @@ public class VSlides {
     // Notice there is no method to move the slides to AUTO_MOVE state
     // This is because the moveToPosition method should be used to move the slides to a target position which will set the liftState to AUTO_MOVE
     public void manualUp() {
-        setLiftState(LiftState.MANUAL_UP);
+        setLiftState(LiftState.MANUAL_OUT);
     }
 
     public void manualDown() {
-        setLiftState(LiftState.MANUAL_DOWN);
+        setLiftState(LiftState.MANUAL_IN);
     }
 
     public void hold() {
@@ -165,7 +164,7 @@ public class VSlides {
 
     // Possible states for the vertical slides
     public enum LiftState {
-        AUTO_MOVE, MANUAL_UP, MANUAL_DOWN, HOLDING, FREE_FALL
+        AUTO_MOVE, MANUAL_OUT, MANUAL_IN, HOLDING, FREE_FALL
     }
 
     // Position constants for the slides to move to (in encoder ticks)
