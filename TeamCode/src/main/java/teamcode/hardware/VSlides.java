@@ -1,6 +1,8 @@
 package teamcode.hardware;
 
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.rowanmcalpin.nextftc.core.Subsystem;
 import com.rowanmcalpin.nextftc.core.command.Command;
@@ -40,7 +42,9 @@ public class VSlides extends Subsystem {
         controller.setOutputBounds(0, MAX_SLIDE_HEIGHT);
     }
 
-    public Command defaultCommand() {
+    @NonNull
+    @Override
+    public Command getDefaultCommand() {
         return new HoldPosition(vSlides,
                 controller,
                 this);

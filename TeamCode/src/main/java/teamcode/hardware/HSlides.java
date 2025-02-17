@@ -1,5 +1,7 @@
 package teamcode.hardware;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.rowanmcalpin.nextftc.core.Subsystem;
 import com.rowanmcalpin.nextftc.core.command.Command;
@@ -30,7 +32,9 @@ public class HSlides extends Subsystem {
         //TODO: Set output bounds
     }
 
-    public Command defaultCommand() {
+    @NonNull
+    @Override
+    public Command getDefaultCommand() {
         return new HoldPosition(hSlide,
                 controller,
                 this);

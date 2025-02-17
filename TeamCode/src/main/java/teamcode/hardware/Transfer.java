@@ -1,162 +1,141 @@
 package teamcode.hardware;
 
-import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.rowanmcalpin.nextftc.core.SubsystemGroup;
+import com.rowanmcalpin.nextftc.core.command.Command;
+import com.rowanmcalpin.nextftc.core.command.groups.ParallelGroup;
+import com.rowanmcalpin.nextftc.core.command.groups.SequentialGroup;
+import com.rowanmcalpin.nextftc.core.command.utility.conditionals.BlockingSwitchCommand;
+import com.rowanmcalpin.nextftc.core.command.utility.delays.Delay;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import kotlin.Pair;
 
-public class Transfer {
+public class Transfer extends SubsystemGroup {
     private static final Logger log = LoggerFactory.getLogger(Transfer.class);
-    public StateMachine stateMachine = new StateMachine();
-    public EndEffector ee = new EndEffector();
-    public Intake intake = new Intake();
+    private static final Transfer INSTANCE = new Transfer();
+    public final StateMachine stateMachine = new StateMachine();
+    public final Intake intake;
+    public final EndEffector ee;
 
-    public void init(HardwareMap hwMap) {
-        intake.init(hwMap);
-        ee.init(hwMap);
+    private Transfer() {
+        super(Intake.INSTANCE, EndEffector.INSTANCE);
+        this.intake = Intake.INSTANCE;
+        this.ee = EndEffector.INSTANCE;
     }
 
-    private void transition(StateMachine.State fromState, StateMachine.State toState) {
-        switch (toState) {
-            case START:
-                break;
-            case BARRIER:
-                intake.alignWrist();
-                intake.setClaw(Consts.I_CLAW_OPEN);
-                intake.setPivot(Consts.PIVOT_BARRIER);
-                new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            log.error("Failed to handle multi threading{}", Arrays.toString(e.getStackTrace()));
-                        }
-                    }
-                }.start();
-                ee.setClaw(Consts.E_CLAW_OPEN);
-                ee.setBigPivot(Consts.BIG_TRANSFER);
-                ee.setLittlePivot(Consts.LITTLE_TRANSFER);
-                break;
-            case HOVERG:
-                ee.setClaw(Consts.E_CLAW_OPEN);
-                ee.setBigPivot(Consts.BIG_TRANSFER);
-                ee.setLittlePivot(Consts.LITTLE_TRANSFER);
-                intake.alignWrist();
-                intake.setClaw(Consts.I_CLAW_OPEN);
-                intake.setPivot(Consts.PIVOT_GRAB);
-                break;
-            case GRABG:
-                ee.setClaw(Consts.E_CLAW_OPEN);
-                ee.setBigPivot(Consts.BIG_GRAB);
-                ee.setLittlePivot(Consts.LITTLE_TRANSFER);
-                intake.setClaw(Consts.I_CLAW_CLOSE);
-                intake.setPivot(Consts.PIVOT_GRAB);
-                break;
-            case TRANSFER:
-                ee.setClaw(Consts.E_CLAW_OPEN);
-                ee.setLittlePivot(Consts.LITTLE_TRANSFER);
-                ee.setBigPivot(Consts.BIG_GRAB);
-                intake.currentWristState = Intake.WristState.NORTH;
-                intake.alignWrist();
-                intake.setPivot(Consts.PIVOT_TRANSFER);
-                intake.setClaw(Consts.I_CLAW_CLOSE);
-                break;
-            case SAMPLESCORE:
-                switch (fromState) {
-                    case TRANSFER:
-                        ee.setBigPivot(Consts.BIG_TRANSFER);
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    while (!ee.bigMonitor.isWithinThreshold(Consts.BIG_TRANSFER)) {
-                                        Thread.sleep(10);
-                                    }
-                                    ee.setClaw(Consts.E_CLAW_CLOSE);
-                                    Thread.sleep(500);
-                                    intake.setClaw(Consts.I_CLAW_OPEN);
-                                    ee.setBigPivot(Consts.BIG_SAMPLE);
-                                    ee.setLittlePivot(Consts.LITTLE_SAMPLE);
-                                    intake.alignWrist();
-                                    intake.setPivot(Consts.PIVOT_TRANSFER);
-                                } catch (InterruptedException e) {
-                                    log.error("Failed to handle multi threading{}", Arrays.toString(e.getStackTrace()));
-                                }
-                            }
-                        }.start();
-                        break;
-                    case BARRIER:
-                        ee.setClaw(Consts.E_CLAW_CLOSE);
-                        ee.setBigPivot(Consts.BIG_SAMPLE);
-                        ee.setLittlePivot(Consts.LITTLE_SAMPLE);
-                        intake.alignWrist();
-                        intake.setClaw(Consts.I_CLAW_OPEN);
-                        intake.setPivot(Consts.PIVOT_TRANSFER);
-                        break;
-                }
-                break;
-            case HOVERW:
-                ee.setClaw(Consts.E_CLAW_OPEN);
-                ee.setBigPivot(Consts.BIG_WALL);
-                ee.setLittlePivot(Consts.LITTLE_WALL);
-                intake.alignWrist();
-                intake.setClaw(Consts.I_CLAW_CLOSE);
-                intake.setPivot(Consts.PIVOT_TRANSFER);
-                break;
-            case GRABW:
-                ee.setClaw(Consts.E_CLAW_CLOSE);
-                ee.setBigPivot(Consts.BIG_WALL);
-                ee.setLittlePivot(Consts.LITTLE_WALL);
-                intake.alignWrist();
-                intake.setClaw(Consts.I_CLAW_OPEN);
-                intake.setPivot(Consts.PIVOT_TRANSFER);
-                break;
-            case SPECIMENSCORE:
-                // Can only come from GRABW
-                ee.setClaw(Consts.E_CLAW_CLOSE);
-                ee.setBigPivot(Consts.BIG_SPECIMEN);
-                ee.setLittlePivot(Consts.LITTLE_SPECIMEN);
-                intake.alignWrist();
-                intake.setClaw(Consts.I_CLAW_OPEN);
-                intake.setPivot(Consts.PIVOT_TRANSFER);
-                break;
-        }
+    public void initialize() {
+        intake.initialize();
+        ee.initialize();
     }
 
-    public void next() {
+    private Command transition(StateMachine.State fromState, StateMachine.State toState) {
+        return new BlockingSwitchCommand(
+                () -> toState,
+                new Pair[]{
+                        new Pair<>(StateMachine.State.BARRIER,
+                                new ParallelGroup(
+                                        intake.setIntake(Consts.I_CLAW_OPEN, Consts.PIVOT_BARRIER, Intake.WristState.NORTH),
+                                        new SequentialGroup(
+                                                new Delay(1.0),
+                                                ee.setEE(Consts.E_CLAW_OPEN, Consts.BIG_TRANSFER, Consts.LITTLE_TRANSFER)
+                                        )
+                                )
+                        ),
+                        new Pair<>(StateMachine.State.HOVERG,
+                                new ParallelGroup(
+                                        ee.setEE(Consts.E_CLAW_OPEN, Consts.BIG_TRANSFER, Consts.LITTLE_TRANSFER),
+                                        intake.setIntake(Consts.I_CLAW_OPEN, Consts.PIVOT_GRAB, Intake.WristState.NORTH)
+                                )
+                        ),
+                        new Pair<>(StateMachine.State.GRABG,
+                                new ParallelGroup(
+                                        ee.setEE(Consts.E_CLAW_OPEN, Consts.BIG_GRAB, Consts.LITTLE_TRANSFER),
+                                        intake.setIntake(Consts.I_CLAW_CLOSE, Consts.PIVOT_GRAB, Intake.WristState.NORTH)
+                                )
+                        ),
+                        new Pair<>(StateMachine.State.TRANSFER,
+                                new ParallelGroup(
+                                        ee.setEE(Consts.E_CLAW_OPEN, Consts.BIG_GRAB, Consts.LITTLE_TRANSFER),
+                                        intake.setIntake(Consts.I_CLAW_CLOSE, Consts.PIVOT_TRANSFER, Intake.WristState.NORTH)
+                                )
+                        ),
+                        new Pair<>(StateMachine.State.SAMPLESCORE,
+                                new BlockingSwitchCommand(
+                                        () -> fromState,
+                                        new Pair[]{
+                                                new Pair<>(StateMachine.State.TRANSFER,
+                                                        new SequentialGroup(
+                                                                ee.setBigPivot(Consts.BIG_TRANSFER),
+                                                                ee.setClaw(Consts.E_CLAW_CLOSE),
+                                                                new Delay(0.5),
+                                                                new ParallelGroup(
+                                                                        intake.setClaw(Consts.I_CLAW_OPEN),
+                                                                        ee.setBigPivot(Consts.BIG_SAMPLE),
+                                                                        ee.setLittlePivot(Consts.LITTLE_SAMPLE),
+                                                                        intake.setIntake(Consts.I_CLAW_OPEN, Consts.PIVOT_TRANSFER, Intake.WristState.NORTH)
+                                                                )
+                                                        )
+                                                ),
+                                                new Pair<>(StateMachine.State.BARRIER,
+                                                        new ParallelGroup(
+                                                                ee.setEE(Consts.E_CLAW_CLOSE, Consts.BIG_SAMPLE, Consts.LITTLE_SAMPLE),
+                                                                intake.setIntake(Consts.I_CLAW_OPEN, Consts.PIVOT_TRANSFER, Intake.WristState.NORTH)
+                                                        )
+                                                )}, null
+                                )
+                        ),
+                        new Pair<>(StateMachine.State.HOVERW,
+                                new ParallelGroup(
+                                        ee.setEE(Consts.E_CLAW_OPEN, Consts.BIG_WALL, Consts.LITTLE_WALL),
+                                        intake.setIntake(Consts.I_CLAW_CLOSE, Consts.PIVOT_TRANSFER, Intake.WristState.NORTH)
+                                )
+                        ),
+                        new Pair<>(StateMachine.State.GRABW,
+                                new ParallelGroup(
+                                        ee.setEE(Consts.E_CLAW_CLOSE, Consts.BIG_WALL, Consts.LITTLE_WALL),
+                                        intake.setIntake(Consts.I_CLAW_OPEN, Consts.PIVOT_TRANSFER, Intake.WristState.NORTH)
+                                )
+                        ),
+                        new Pair<>(StateMachine.State.SPECIMENSCORE,
+                                new ParallelGroup(
+                                        ee.setEE(Consts.E_CLAW_CLOSE, Consts.BIG_SPECIMEN, Consts.LITTLE_SPECIMEN),
+                                        intake.setIntake(Consts.I_CLAW_OPEN, Consts.PIVOT_TRANSFER, Intake.WristState.NORTH)
+                                )
+                        )}, null
+        );
+    }
+
+    public Command next() {
         StateMachine.State fromState = stateMachine.getCurrentState();
         stateMachine.next();
         StateMachine.State toState = stateMachine.getCurrentState();
-        transition(fromState, toState);
+        return transition(fromState, toState);
     }
 
-    public void previous() {
+    public Command previous() {
         StateMachine.State fromState = stateMachine.getCurrentState();
         stateMachine.previous();
         StateMachine.State toState = stateMachine.getCurrentState();
-        transition(fromState, toState);
+        return transition(fromState, toState);
     }
 
-    public void switchToSpecimen() {
+    public Command switchToSpecimen() {
         StateMachine.State fromState = stateMachine.getCurrentState();
         stateMachine.switchToSpecimen();
         StateMachine.State toState = stateMachine.getCurrentState();
-        transition(fromState, toState);
+        return transition(fromState, toState);
     }
 
-    public void switchToSample() {
+    public Command switchToSample() {
         StateMachine.State fromState = stateMachine.getCurrentState();
         stateMachine.switchToSample();
         StateMachine.State toState = stateMachine.getCurrentState();
-        transition(fromState, toState);
+        return transition(fromState, toState);
     }
 
     public void flush() {
-        stateMachine = new StateMachine();
+        stateMachine.flush();
     }
 }

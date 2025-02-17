@@ -11,14 +11,14 @@ import com.rowanmcalpin.nextftc.ftc.hardware.ServoToPosition;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 
 public class EndEffector extends Subsystem {
-    EndEffector instance = new EndEffector();
-
+    public static final EndEffector INSTANCE = new EndEffector();
     Servo claw, bigPivot, littlePivot;
     AnalogInput bigAnalog;
+    private EndEffector() {
+    }
 
     public void initialize() {
         claw = OpModeData.INSTANCE.getHardwareMap().get(Servo.class, "outtakeClaw");

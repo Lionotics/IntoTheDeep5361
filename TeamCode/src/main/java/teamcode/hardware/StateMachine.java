@@ -43,6 +43,12 @@ public class StateMachine {
         return currentLine;
     }
 
+    public void flush() {
+        currentIndex = -1;
+        currentState = State.START;
+        currentLine = sampleLine;
+    }
+
     public enum State {
         START, BARRIER, HOVERG, GRABG, TRANSFER, SAMPLESCORE, HOVERW, GRABW, SPECIMENSCORE
     }
