@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import teamcode.hardware.Consts;
 import teamcode.hardware.EndEffector;
 import teamcode.hardware.Intake;
-import teamcode.hardware.Robot;
 import teamcode.hardware.StateMachine;
 import teamcode.hardware.VSlides;
 import teamcode.helpers.GamepadEx;

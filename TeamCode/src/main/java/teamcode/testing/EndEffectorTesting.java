@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import teamcode.hardware.Consts;
 import teamcode.hardware.EndEffector;
-import teamcode.hardware.Robot;
 import teamcode.helpers.GamepadEx;
 
 @TeleOp(name="End Effector Testing", group = "Testing")

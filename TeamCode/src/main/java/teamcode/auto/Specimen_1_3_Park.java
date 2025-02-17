@@ -20,7 +20,6 @@ import pedroPathing.constants.LConstants;
 import teamcode.hardware.Consts;
 import teamcode.hardware.HSlides;
 import teamcode.hardware.Intake;
-import teamcode.hardware.Robot;
 import teamcode.hardware.StateMachine;
 import teamcode.hardware.VSlides;
 

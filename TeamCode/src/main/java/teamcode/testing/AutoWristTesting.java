@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import teamcode.vision.BrickAngleDetector;
-import teamcode.hardware.Robot;
+
 import org.firstinspires.ftc.vision.VisionPortal;
 
 @TeleOp(name = "Auto Wrist Testing", group = "Testing")

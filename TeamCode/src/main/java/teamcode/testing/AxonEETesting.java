@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.util.List;
 
-import teamcode.hardware.Robot;
 import teamcode.hardware.StateMachine;
 import teamcode.helpers.GamepadEx;
 

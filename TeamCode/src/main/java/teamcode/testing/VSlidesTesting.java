@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
-import teamcode.hardware.Robot;
 import teamcode.hardware.VSlides;
 import teamcode.helpers.GamepadEx;
 
