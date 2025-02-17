@@ -1,85 +1,41 @@
 package teamcode.hardware;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.rowanmcalpin.nextftc.core.Subsystem;
+import com.rowanmcalpin.nextftc.core.command.Command;
+import com.rowanmcalpin.nextftc.core.command.groups.ParallelGroup;
+import com.rowanmcalpin.nextftc.core.command.utility.NullCommand;
+import com.rowanmcalpin.nextftc.ftc.OpModeData;
+import com.rowanmcalpin.nextftc.ftc.hardware.MultipleServosToSeperatePositions;
+import com.rowanmcalpin.nextftc.ftc.hardware.ServoToPosition;
 
-public class Intake {
+import java.util.HashMap;
+import java.util.Map;
+
+public class Intake extends Subsystem {
+    public static final Intake INSTANCE = new Intake();
+    public WristState currentWristState = WristState.NORTH;
     Servo claw, wrist, pivot;
 
-    public void init(HardwareMap hwMap) {
-        claw = hwMap.get(Servo.class, "intakeClaw");
-        wrist = hwMap.get(Servo.class, "intakeWrist");
-        pivot = hwMap.get(Servo.class, "intakePivot");
+    private Intake() {
     }
 
-    public void setClaw(double pos) {
-        claw.setPosition(pos);
+    public void initialize() {
+        claw = OpModeData.INSTANCE.getHardwareMap().get(Servo.class, "intakeClaw");
+        wrist = OpModeData.INSTANCE.getHardwareMap().get(Servo.class, "intakeWrist");
+        pivot = OpModeData.INSTANCE.getHardwareMap().get(Servo.class, "intakePivot");
     }
 
-    public void setPivot(double pos) {
-        pivot.setPosition(pos);
+    public Command setClaw(double pos) {
+        return new ServoToPosition(claw, pos, this);
     }
 
-    public void setWrist(double pos) {
-        wrist.setPosition(pos);
+    public Command setPivot(double pos) {
+        return new ServoToPosition(pivot, pos, this);
     }
 
-
-    public enum WristState {
-        WEST, NORTHWEST, NORTH, NORTHEAST, EAST
-    }
-
-    public WristState currentWristState = WristState.NORTH;
-
-    public void alignWrist() {
-        setWrist(Consts.W_NORTH);
-        currentWristState = WristState.NORTH;
-    }
-
-    public void turnWristManualRight() {
-        switch (currentWristState) {
-            case WEST:
-                setWrist(Consts.W_NORTHWEST);
-                currentWristState = WristState.NORTHWEST;
-                break;
-            case NORTHWEST:
-                setWrist(Consts.W_NORTH);
-                currentWristState = WristState.NORTH;
-                break;
-            case NORTH:
-                setWrist(Consts.W_NORTHEAST);
-                currentWristState = WristState.NORTHEAST;
-                break;
-            case NORTHEAST:
-                setWrist(Consts.W_EAST);
-                currentWristState = WristState.EAST;
-                break;
-            default:
-                break;
-        }
-    }
-
-    public void turnWristManualLeft() {
-        switch (currentWristState) {
-            case EAST:
-                setWrist(Consts.W_NORTHEAST);
-                currentWristState = WristState.NORTHEAST;
-                break;
-            case NORTHEAST:
-                setWrist(Consts.W_NORTH);
-                currentWristState = WristState.NORTH;
-                break;
-            case NORTH:
-                setWrist(Consts.W_NORTHWEST);
-                currentWristState = WristState.NORTHWEST;
-                break;
-            case NORTHWEST:
-                setWrist(Consts.W_WEST);
-                currentWristState = WristState.WEST;
-                break;
-            default:
-                break;
-        }
+    public Command setIntake(double clawPos, double pivotPos, WristState wristPos) {
+        return new ParallelGroup(new MultipleServosToSeperatePositions(new HashMap<>(Map.of(claw, clawPos, pivot, pivotPos)), this), turnWristTo(wristPos));
     }
 
     public double clawPos() {
@@ -92,5 +48,60 @@ public class Intake {
 
     public double pivotPos() {
         return pivot.getPosition();
+    }
+
+    public Command turnWristManualRight() {
+        switch (currentWristState) {
+            case WEST:
+                return turnWristTo(WristState.NORTHWEST);
+            case NORTHWEST:
+                return turnWristTo(WristState.NORTH);
+            case NORTH:
+                return turnWristTo(WristState.NORTHEAST);
+            case NORTHEAST:
+                return turnWristTo(WristState.EAST);
+        }
+        return new NullCommand();
+    }
+
+    public Command turnWristManualLeft() {
+        switch (currentWristState) {
+            case EAST:
+                return turnWristTo(WristState.NORTHEAST);
+            case NORTHEAST:
+                return turnWristTo(WristState.NORTH);
+            case NORTH:
+                return turnWristTo(WristState.NORTHWEST);
+            case NORTHWEST:
+                return turnWristTo(WristState.WEST);
+        }
+        return new NullCommand();
+    }
+
+    public Command turnWristTo(WristState direction) {
+        currentWristState = direction;
+        double pos = 0;
+        switch (direction) {
+            case EAST:
+                pos = Consts.W_EAST;
+                break;
+            case NORTHEAST:
+                pos = Consts.W_NORTHEAST;
+                break;
+            case NORTH:
+                pos = Consts.W_NORTH;
+                break;
+            case NORTHWEST:
+                pos = Consts.W_NORTHWEST;
+                break;
+            case WEST:
+                pos = Consts.W_WEST;
+                break;
+        }
+        return new ServoToPosition(wrist, pos, this);
+    }
+
+    public enum WristState {
+        WEST, NORTHWEST, NORTH, NORTHEAST, EAST
     }
 }

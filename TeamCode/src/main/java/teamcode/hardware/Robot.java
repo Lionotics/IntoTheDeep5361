@@ -8,10 +8,10 @@ import teamcode.hardware.VSlides;
 
 public class Robot {
     private static Robot instance = new Robot();
-    public DriveTrain driveTrain = new DriveTrain();
-    public HSlides hSlides = new HSlides();
-    public VSlides vSlides = new VSlides();
-    public Transfer transfer = new Transfer();
+    public DriveTrain driveTrain;
+    public HSlides hSlides;
+    public VSlides vSlides;
+    public Transfer transfer;
 
     private Robot() {
         // Private to prevent instantiation
@@ -29,8 +29,8 @@ public class Robot {
 
     public void init(HardwareMap hwMap) {
         driveTrain.init(hwMap);
-        vSlides.init(hwMap);
+        vSlides = VSlides.INSTANCE;
         transfer.init(hwMap);
-        hSlides.init(hwMap);
+        hSlides = HSlides.INSTANCE;
     }
 }

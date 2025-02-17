@@ -1,110 +1,56 @@
 package teamcode.hardware;
 
 import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.rowanmcalpin.nextftc.core.Subsystem;
+import com.rowanmcalpin.nextftc.core.command.Command;
+import com.rowanmcalpin.nextftc.core.command.groups.ParallelGroup;
+import com.rowanmcalpin.nextftc.ftc.OpModeData;
+import com.rowanmcalpin.nextftc.ftc.hardware.MultipleServosToSeperatePositions;
+import com.rowanmcalpin.nextftc.ftc.hardware.ServoToPosition;
 
-import teamcode.helpers.HardwareMonitor;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 
-public class EndEffector {
+public class EndEffector extends Subsystem {
+    EndEffector instance = new EndEffector();
 
     Servo claw, bigPivot, littlePivot;
     AnalogInput bigAnalog;
-    public HardwareMonitor bigMonitor;
 
-    public void init(HardwareMap hwMap) {
-        claw = hwMap.get(Servo.class, "outtakeClaw");
-        bigPivot = hwMap.get(Servo.class, "bigPivot");
-        littlePivot = hwMap.get(Servo.class, "littlePivot");
-        bigAnalog = hwMap.get(AnalogInput.class, "bigAnalog");
-
-        bigMonitor = new HardwareMonitor(bigPivot, Consts.BIG_THRESH);
+    public void initialize() {
+        claw = OpModeData.INSTANCE.getHardwareMap().get(Servo.class, "outtakeClaw");
+        bigPivot = OpModeData.INSTANCE.getHardwareMap().get(Servo.class, "bigPivot");
+        littlePivot = OpModeData.INSTANCE.getHardwareMap().get(Servo.class, "littlePivot");
+        bigAnalog = OpModeData.INSTANCE.getHardwareMap().get(AnalogInput.class, "bigAnalog");
     }
 
-    public void setClaw(double pos) {
-        claw.setPosition(pos);
+    public Command setClaw(double pos) {
+        return new ServoToPosition(claw, pos, this);
     }
 
-    public void setBigPivot(double pos) {
-        bigPivot.setPosition(pos);
-    }
-    public void setLittlePivot(double pos) {
-        littlePivot.setPosition(pos);
+    public Command setBigPivot(double pos) {
+        return new AxonServoToPosition(bigPivot, pos, bigAnalog, this);
     }
 
-    //TODO: FIX ACTIONS
-    /*public Action openClaw() {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                open();
-                packet.put("Claw State", "Open");
-                return false;
-            }
-        };
+    public Command setLittlePivot(double pos) {
+        return new ServoToPosition(littlePivot, pos, this);
     }
 
-    public Action closeClaw() {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                close();
-                packet.put("Claw State", "Open");
-                return false;
-            }
-        };
+    public Command setEE(double clawPos, double bigPos, double littlePos) {
+        return new ParallelGroup(new MultipleServosToSeperatePositions(new HashMap<>(Map.of(claw, clawPos, littlePivot, littlePos)), this), setBigPivot(bigPos));
     }
-
-    public Action rotateUpBig() {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                bigUp();
-                packet.put("Wrist State", "Up");
-                return false;
-            }
-        };
-    }
-
-    public Action rotateDownBig() {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                bigDown();
-                packet.put("Wrist State", "Down");
-                return false;
-            }
-        };
-    }
-    public Action rotateUpLittle() {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                littleUp();
-                packet.put("Wrist State", "Up");
-                return false;
-            }
-        };
-    }
-
-    public Action rotateDownLittle() {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                littleDown();
-                packet.put("Wrist State", "Down");
-                return false;
-            }
-        };
-    }*/
 
     public double getClawPos() {
         return claw.getPosition();
     }
 
     // Values are given by bigAnalog.getVoltage() / 3.3 from 0 - 1. This sets is from -1 - 1
-    public double getBigPos() { return (bigAnalog.getVoltage() / 3.3);}
+    public double getBigPos() {
+        return (bigAnalog.getVoltage() / 3.3);
+    }
 
     public double getLittlePos() {
         return littlePivot.getPosition();

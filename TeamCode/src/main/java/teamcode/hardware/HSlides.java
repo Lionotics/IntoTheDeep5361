@@ -1,152 +1,61 @@
 package teamcode.hardware;
 
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import teamcode.helpers.PIDController;
+import com.rowanmcalpin.nextftc.core.Subsystem;
+import com.rowanmcalpin.nextftc.core.command.Command;
+import com.rowanmcalpin.nextftc.core.control.coefficients.PIDCoefficients;
+import com.rowanmcalpin.nextftc.core.control.controllers.PIDFController;
+import com.rowanmcalpin.nextftc.ftc.hardware.controllables.HoldPosition;
+import com.rowanmcalpin.nextftc.ftc.hardware.controllables.MotorEx;
+import com.rowanmcalpin.nextftc.ftc.hardware.controllables.RunToPosition;
 
 
 @Config
-public class HSlides {
-    // PID constants kP, kI, and kD
-    public static double kP = 0.5;
-    public static double kI = 0;
-    public static double kD = 0;
-    public static int THRESHOLD = 5; // If the slides are within this threshold of the target position, they are considered to be at the target position
-    private PIDController controller; // The PID controller for the slides
-    public static HSlides.SlideState slideState = HSlides.SlideState.HOLDING; // The current state of the slides
-    private DcMotor hSlide;
+public class HSlides extends Subsystem {
+    public static final HSlides INSTANCE = new HSlides();
+
+    public static double OUT = 140;
+    public static double IN = -10;
+    public PIDFController controller = new PIDFController(new PIDCoefficients(.5, 0.0, 0.0));
+    private MotorEx hSlide;
+
+    private HSlides() {
+    }
 
     // Initializes the hardware
-    public void init(@NonNull HardwareMap hwMap) {
-        hSlide = hwMap.get(DcMotor.class, "hSlide");
-        hSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        hSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    public void initialize() {
+        hSlide = new MotorEx("hSlide");
+        hSlide.reverse();
 
-        controller = new PIDController(kP, kI, kD);
-        controller.setTolerance(THRESHOLD);
-    }
-    private void setPower(double power) {
-        hSlide.setPower(-power);
+        //TODO: Set output bounds
     }
 
-    // A method that gets run each cycle in the opmode
-    // It runs the appropriate method based on the liftState
-    public void loop() {
-        switch (slideState) {
-            case AUTO_MOVE:
-                pidLoop();
-                break;
-            case MANUAL_IN:
-                slideIn();
-                break;
-            case MANUAL_OUT:
-                Log.d("Teamcode", "loop ran");
-                slideOut();
-                break;
-            case HOLDING:
-                horizontalHold();
-                break;
-        }
+    public Command defaultCommand() {
+        return new HoldPosition(hSlide,
+                controller,
+                this);
     }
 
-    // Sets a target position for the vertical slides to move to
-    // Public because we should be able to move the slides to a target position from other classes
-    public void moveToPosition(HSlides.SlidePositions position) {
-        controller.setSetPoint(position.pos); // Set the target position for the PID controller
-        setSlideState(SlideState.AUTO_MOVE);
+    public Command slideIn() {
+        return new RunToPosition(hSlide,
+                IN,
+                controller,
+                this);
     }
 
-    // Setters for the liftState
-    // These are the methods that the teleop will call to move the slides
-    // Notice there is no method to move the slides to AUTO_MOVE state
-    // This is because the moveToPosition method should be used to move the slides to a target position which will set the liftState to AUTO_MOVE
-    public void manualOut() {
-        setSlideState(SlideState.MANUAL_OUT);
-        Log.d("Teamcode", "Sate set");
-    }
-
-    public void manualIn() {
-        setSlideState(SlideState.MANUAL_IN);
-    }
-
-    public void hold() {
-        if (slideState != SlideState.AUTO_MOVE || controller.atSetPoint()) {
-            setSlideState(SlideState.HOLDING);
-        }
-    }
-
-    // Set the power for the vertical slides
-    // Private because this should only be called by loop method
-    private void slideIn() {
-        setPower(-1);
-    }
-
-    private void slideOut() {
-        setPower(1);
-        Log.d("Teamcode", "Power set");
-    }
-
-    // The method that gets run each cycle in the opmode (while the slides are in AUTO_MOVE state)
-    private void pidLoop() {
-        controller.setPID(kP, kI, kD);
-        controller.setTolerance(THRESHOLD);
-        double pow = getPidPower();
-        setPower(pow);
-    }
-
-    // Sets a small power to the slides to counteract gravity
-    // Private because this should only be called by loop method
-    private void horizontalHold() {
-        if (getPos() > SlidePositions.IN.pos - THRESHOLD) {
-            setPower(.2);
-        } else {
-            setPower(-.5);
-        }
+    public Command slideOut() {
+        return new RunToPosition(hSlide,
+                OUT,
+                controller,
+                this);
     }
 
     public double getTargetPos() {
-        return controller.getSetPoint();
-    }
-
-    public HSlides.SlideState getSlideState() {
-        return slideState;
-    }
-
-    // Setter for the liftState
-    // Private because no other class should be setting the liftState directly
-    private void setSlideState(HSlides.SlideState state) {
-        slideState = state;
-    }
-
-    public double getPidPower() {
-        double position = getPos();
-        double pow = controller.calculate(position);
-        return pow;
+        return controller.getTarget();
     }
 
     public double getPos() {
-        return -hSlide.getCurrentPosition();
+        return hSlide.getCurrentPosition();
     }
 
-    // Possible states for the vertical slides
-    public enum SlideState {
-        AUTO_MOVE, MANUAL_IN, MANUAL_OUT, HOLDING
-    }
-
-    // Position constants for the slides to move to (in encoder ticks)
-    public enum SlidePositions {
-        OUT(140), IN(-10);
-
-        public final int pos;
-
-        SlidePositions(int pos) {
-            this.pos = pos;
-        }
-    }
 }
