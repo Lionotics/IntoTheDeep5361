@@ -14,7 +14,7 @@ import kotlin.Pair;
 
 public class Transfer extends SubsystemGroup {
     private static final Logger log = LoggerFactory.getLogger(Transfer.class);
-    private static final Transfer INSTANCE = new Transfer();
+    public static final Transfer INSTANCE = new Transfer();
     public final StateMachine stateMachine = new StateMachine();
     public final Intake intake;
     public final EndEffector ee;

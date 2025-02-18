@@ -3,121 +3,80 @@ package teamcode.teleop;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import teamcode.hardware.Consts;
-import teamcode.hardware.EndEffector;
-import teamcode.hardware.Intake;
-import teamcode.hardware.StateMachine;
-import teamcode.hardware.VSlides;
-import teamcode.helpers.GamepadEx;
+import com.rowanmcalpin.nextftc.core.command.Command;
+import com.rowanmcalpin.nextftc.ftc.NextFTCOpMode;
+import com.rowanmcalpin.nextftc.ftc.gamepad.GamepadEx;
 
 import java.util.List;
 
+import teamcode.hardware.Consts;
+import teamcode.hardware.DriveTrain;
+import teamcode.hardware.HSlides;
+import teamcode.hardware.StateMachine;
+import teamcode.hardware.Transfer;
+import teamcode.hardware.VSlides;
+
 @Config
 @TeleOp(name = "Teleop", group = "Teleop")
-public class Teleop extends LinearOpMode {
+public class Teleop extends NextFTCOpMode {
 
-    Robot robot = Robot.getInstance();
-    GamepadEx gp1 = new GamepadEx(), gp2 = new GamepadEx();
+    public Command driverControlled;
 
-    //private BrickAngleDetector bad;
-    private Intake intake; private EndEffector ee;
+    public Teleop() {
+        super(Transfer.INSTANCE, VSlides.INSTANCE, HSlides.INSTANCE, DriveTrain.INSTANCE);
+    }
 
     @Override
-    public void runOpMode() {
-        // TODO: Implement vision with automatic pivot
-
+    public void onStartButtonPressed() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        //bad = new BrickAngleDetector(true,telemetry);
-        waitForStart();
+        Transfer.INSTANCE.flush();
 
-        robot.init(hardwareMap);
+        driverControlled = DriveTrain.INSTANCE.Drive(gamepadManager.getGamepad1(), true);
+        driverControlled.invoke();
+        GamepadEx gp1 = gamepadManager.getGamepad1();
+        GamepadEx gp2 = gamepadManager.getGamepad2();
 
-        intake = robot.transfer.intake; ee = robot.transfer.ee;
+        gp1.getRightBumper().setPressedCommand(Transfer.INSTANCE::next);
+        gp1.getLeftBumper().setPressedCommand(Transfer.INSTANCE::previous);
 
-        robot.transfer.flush();
+        // The triggers pass floats to the command, so we need to use lambdas
+        gp1.getRightTrigger().setPressedCommand(value -> Transfer.INSTANCE.switchToSpecimen());
+        gp1.getLeftTrigger().setPressedCommand(value -> Transfer.INSTANCE.switchToSample());
 
-        while (opModeIsActive()) {
-            gp1.update(gamepad1);
-            gp2.update(gamepad2);
+        gp1.getX().setPressedCommand(Transfer.INSTANCE.intake::turnWristManualLeft);
+        gp1.getB().setPressedCommand(Transfer.INSTANCE.intake::turnWristManualRight);
 
-            StateMachine.State state = robot.transfer.stateMachine.getCurrentState();
-            List<StateMachine.State> line = robot.transfer.stateMachine.getCurrentLine();
-            StateMachine.State lineCap = line.get(line.size() - 1);
-
-//            double angle = bad.getAngle();
-//            if (Double.isNaN(angle) || angle == 0 || angle == 90 || angle == 180) {continue;}
-//            angle = angle/90 - 1;
-
-            if (gp1.rightBumper.isNewlyPressed()) {
-                robot.transfer.next();
-            } else if (gp1.leftBumper.isNewlyPressed()) {
-                robot.transfer.previous();
-            }
-
-            if (gp1.right_trigger > 0.5) {
-                robot.transfer.switchToSpecimen();
-            } else if (gp1.left_trigger > 0.5) {
-                robot.transfer.switchToSample();
-            }
-
-           if (gp1.x.isNewlyPressed()) {
-                intake.turnWristManualLeft();
-           } else if (gp1.b.isNewlyPressed()) {
-                intake.turnWristManualRight();
-           }
-           /*else {
-               if (Double.isNaN(angle)) {
-                   robot.transfer.intake.setWrist(angle);
-               }
-           }*/
+        gp1.getA().setPressedCommand(() -> Transfer.INSTANCE.intake.setClaw(Consts.I_CLAW_OPEN));
 
 
-            if (gp1.a.isNewlyPressed()) {
-                ee.setClaw(Consts.E_CLAW_OPEN);
-            }
+        gp1.getDpadUp().setHeldCommand(() -> VSlides.INSTANCE.setPower(1));
+        gp1.getDpadDown().setHeldCommand(() -> VSlides.INSTANCE.setPower(-1));
 
-            if (gp1.dpad_up.isCurrentlyPressed() || gp2.dpad_up.isCurrentlyPressed()) {
-                robot.vSlides.manualUp();
-            } else if (gp1.dpad_down.isCurrentlyPressed() || gp2.dpad_down.isCurrentlyPressed()) {
-                robot.vSlides.manualDown();
-            } else {
-                robot.vSlides.hold();
-            }
+        gp2.getRightBumper().setPressedCommand(VSlides.INSTANCE::moveToTopBucket);
+        gp2.getLeftBumper().setPressedCommand(VSlides.INSTANCE::moveToTopChamber);
+        gp2.getB().setPressedCommand(VSlides.INSTANCE::moveToBottomBucket);
+        gp2.getY().setPressedCommand(VSlides.INSTANCE::moveToBottomChamber);
+        gp2.getA().setPressedCommand(VSlides.INSTANCE::moveToBottom);
 
-            if (gp2.rightBumper.isNewlyPressed()) {
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
-            } else if (gp2.b.isNewlyPressed()) {
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_BUCKET);
-            } else if (gp2.leftBumper.isNewlyPressed()) {
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_CHAMBER);
-            } else if (gp2.y.isNewlyPressed()) {
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_CHAMBER);
-            } else if (gp2.a.isNewlyPressed()) {
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
-            }
+        gp1.getDpadRight().setPressedCommand(HSlides.INSTANCE::slideOut);
+        gp1.getDpadLeft().setPressedCommand(HSlides.INSTANCE::slideIn);
 
-            if (gp1.dpad_right.isCurrentlyPressed() || gp2.dpad_right.isCurrentlyPressed()) {
-                robot.hSlides.manualOut();
-            } else if (gp1.dpad_left.isCurrentlyPressed() || gp2.dpad_left.isCurrentlyPressed()) {
-                robot.hSlides.manualIn();
-            } else {
-                robot.hSlides.hold();
-            }
+        gp2.getDpadRight().setPressedCommand(HSlides.INSTANCE::slideOut);
+        gp2.getDpadLeft().setPressedCommand(HSlides.INSTANCE::slideIn);
+    }
 
-            robot.driveTrain.drive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, 0);
+    @Override
+    public void onUpdate() {
+        StateMachine.State state = Transfer.INSTANCE.stateMachine.getCurrentState();
+        List<StateMachine.State> line = Transfer.INSTANCE.stateMachine.getCurrentLine();
+        StateMachine.State lineCap = line.get(line.size() - 1);
 
-            robot.vSlides.loop();
-            robot.hSlides.loop();
-
-            telemetry.addData("State", state.name());
-            telemetry.addData("Linecap", lineCap.name());
-            telemetry.addData("Wrist", robot.transfer.intake.currentWristState.name());
-            telemetry.addData("Slides", robot.vSlides.getPos());
-            telemetry.update();
-        }
+        telemetry.addData("State", state.name());
+        telemetry.addData("Linecap", lineCap.name());
+        telemetry.addData("Wrist", Transfer.INSTANCE.intake.currentWristState.name());
+        telemetry.addData("Slides", VSlides.INSTANCE.getPos());
+        telemetry.update();
     }
 
 }
