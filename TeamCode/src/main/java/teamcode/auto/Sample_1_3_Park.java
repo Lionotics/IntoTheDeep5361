@@ -1,7 +1,5 @@
 package teamcode.auto;
 
-import android.util.Log;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -13,16 +11,19 @@ import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.rowanmcalpin.nextftc.core.command.Command;
 import com.rowanmcalpin.nextftc.core.command.CommandManager;
+import com.rowanmcalpin.nextftc.core.command.groups.ParallelGroup;
 import com.rowanmcalpin.nextftc.core.command.groups.SequentialGroup;
+import com.rowanmcalpin.nextftc.core.command.utility.NullCommand;
+import com.rowanmcalpin.nextftc.core.command.utility.delays.Delay;
 import com.rowanmcalpin.nextftc.pedro.FollowPath;
 import com.rowanmcalpin.nextftc.pedro.PedroOpMode;
-
-import java.util.Arrays;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import teamcode.hardware.Consts;
+import teamcode.hardware.EndEffector;
 import teamcode.hardware.HSlides;
+import teamcode.hardware.Intake;
 import teamcode.hardware.StateMachine;
 import teamcode.hardware.Transfer;
 import teamcode.hardware.VSlides;
@@ -37,66 +38,10 @@ public class Sample_1_3_Park extends PedroOpMode {
     public static Pose botBackup = new Pose(120, 10, Math.toRadians(230));
     public static Pose park1 = new Pose(83, 12, Math.toRadians(90));
     public static Pose park2 = new Pose(83, 45, Math.toRadians(90));
-    private final Thread placeInBucket = new Thread() {
-        @Override
-        public void run() {
-            try {
-                Log.d("Teamcode", "pib 1 - Expected: TRANSFER; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                robot.transfer.next();
-                while (ee.bigMonitor.isWithinThreshold(Consts.BIG_TRANSFER)) {
-                    Thread.sleep(10);
-                }
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
-                robot.vSlides.loop();
-                Thread.sleep(1500);
-                ee.setClaw(Consts.E_CLAW_OPEN);
-                Thread.sleep(1000);
-                Log.d("Teamcode", "pib 2 - Expected: SAMPLESCORE; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                robot.transfer.next();
-                Log.d("Teamcode", "pib 3 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                Log.i("Teamcode", "placeInBucket finished");
-                synchronized (lock) {
-                    lock.notify();
-                }
-            } catch (InterruptedException err) {
-                Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
-            }
-        }
-    }, pickUpBlock = new Thread() {
-
-        @Override
-        public void run() {
-            try {
-                robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
-                robot.vSlides.loop();
-                Thread.sleep(1500);
-                Log.d("Teamcode", "pub 1 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                robot.transfer.next();
-                if (pathState == 6) {
-                    intake.turnWristManualRight();
-                    Thread.sleep(500);
-                    intake.setClaw(Consts.I_CLAW_CLOSE);
-                    Thread.sleep(500);
-                }
-                Log.d("Teamcode", "pub 2 - Expected: HOVERG; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                Thread.sleep(500);
-                robot.transfer.next();
-                Log.d("Teamcode", "pub 3 - Expected: GRABG; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                Thread.sleep(750);
-                robot.transfer.next();
-                Log.d("Teamcode", "pub 4 - Expected: TRANSFER; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                Thread.sleep(750);
-                Log.i("Teamcode", "pickUpBlock finished");
-                synchronized (lock) {
-                    lock.notify();
-                }
-            } catch (InterruptedException err) {
-                Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
-            }
-        }
-    };
     private PathChain preload2basket, basket2top, top2basket, basket2mid, mid2basket, basket2bot,
             bot2basket, basket2park, park2start;
+    private boolean shouldRestart = false;
+
     public Sample_1_3_Park() {
         super(Transfer.INSTANCE, VSlides.INSTANCE, HSlides.INSTANCE);
     }
@@ -108,82 +53,41 @@ public class Sample_1_3_Park extends PedroOpMode {
         preload2basket = follower.pathBuilder()
                 .addPath(new Path(new BezierLine(new Point(startPose), new Point(basket))))
                 .setLinearHeadingInterpolation(startPose.getHeading(), basket.getHeading())
-                .addParametricCallback(0, () -> {
-                    Log.d("Teamcode", "p2b started");
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            try {
-                                ee.setBigPivot(Consts.BIG_SAMPLE);
-                                ee.setLittlePivot(Consts.LITTLE_SAMPLE);
-                                intake.alignWrist();
-                                intake.setPivot(Consts.PIVOT_TRANSFER);
-                                Log.d("Teamcode", "p2b in progress...");
-                                Thread.sleep(2000);
-                                ee.setClaw(Consts.E_CLAW_OPEN);
-                                Thread.sleep(1250);
-                                Log.d("Teamcode", "p2b finished");
-                            } catch (InterruptedException err) {
-                                Log.e("Failed to handle multi threading{}", Arrays.toString(err.getStackTrace()));
-                            }
-                            synchronized (lock) {
-                                lock.notify();
-                            }
-                        }
-                    }.start();
-                })
                 .build();
 
         basket2top = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(basket), new Point(topSample)))
                 .setLinearHeadingInterpolation(basket.getHeading(), topSample.getHeading())
-                .addParametricCallback(0, () -> {
-                    Log.d("Teamcode", "b2t 1 - Expected: START; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                    robot.transfer.next(); // Move from START to BARRIER
-                    Log.d("Teamcode", "b2t 2 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                    pickUpBlock.start(); // Go to TRANSFER
-                })
                 .build();
 
         top2basket = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(topSample), new Point(basket)))
                 .setLinearHeadingInterpolation(topSample.getHeading(), basket.getHeading())
-                .addParametricCallback(0, placeInBucket::start)
                 .build();
 
         basket2mid = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(basket), new Point(midSample)))
                 .setLinearHeadingInterpolation(basket.getHeading(), midSample.getHeading())
-                .addParametricCallback(0, pickUpBlock::start)
                 .build();
 
         mid2basket = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(midSample), new Point(basket)))
                 .setLinearHeadingInterpolation(midSample.getHeading(), basket.getHeading())
-                .addParametricCallback(0, placeInBucket::start)
                 .build();
 
         basket2bot = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(basket), new Point(botSample)))
                 .setLinearHeadingInterpolation(basket.getHeading(), botSample.getHeading())
-                .addParametricCallback(0, pickUpBlock::start)
                 .build();
-
         bot2basket = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(botSample), new Point(botBackup)))
                 .setLinearHeadingInterpolation(botSample.getHeading(), botBackup.getHeading())
                 .addPath(new BezierLine(new Point(botBackup), new Point(basket)))
                 .setLinearHeadingInterpolation(botBackup.getHeading(), basket.getHeading())
-                .addParametricCallback(0, placeInBucket::start)
                 .build();
 
         basket2park = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(basket), new Point(topSample)))
-                .addParametricCallback(0, () -> {
-                    robot.transfer.next();
-                    robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
-                    robot.vSlides.loop();
-                })
                 .setLinearHeadingInterpolation(basket.getHeading(), topSample.getHeading())
 //                .addPath(new BezierCurve(new Point(park1), new Point(park2)))
 //                .setLinearHeadingInterpolation(park1.getHeading(), park2.getHeading())
@@ -198,17 +102,90 @@ public class Sample_1_3_Park extends PedroOpMode {
     }
 
     public Command routine() {
+        Command start = new NullCommand();
+        if (shouldRestart) {
+            start = new FollowPath(park2start, true);
+        }
         return new SequentialGroup(
-                new FollowPath(preload2basket),
-                new FollowPath(basket2top, true),
-                new FollowPath(top2basket, true),
-                new FollowPath(basket2mid, true),
-                new FollowPath(mid2basket, true),
-                new FollowPath(basket2bot, true),
-                new FollowPath(bot2basket, true),
-                new FollowPath(basket2park, true),
-                new FollowPath(park2start, true),
-                );
+                new ParallelGroup(
+                        new FollowPath(preload2basket),
+                        new SequentialGroup(
+                                new ParallelGroup(
+                                        EndEffector.INSTANCE.setBigPivot(Consts.BIG_SAMPLE),
+                                        EndEffector.INSTANCE.setLittlePivot(Consts.LITTLE_SAMPLE),
+                                        Intake.INSTANCE.turnWristTo(Intake.WristState.NORTH),
+                                        Intake.INSTANCE.setPivot(Consts.PIVOT_TRANSFER)
+                                ),
+                                new Delay(2), //TODO: This is way too high because this is two after big finishes
+                                EndEffector.INSTANCE.setClaw(Consts.E_CLAW_OPEN),
+                                new Delay(1.25)
+                        )
+                ),
+                new ParallelGroup(
+                        new FollowPath(basket2top, true),
+                        pickUpBlock(false)
+                ),
+                new ParallelGroup(
+                        new FollowPath(top2basket, true),
+                        placeInBucket()
+                ),
+                new ParallelGroup(
+                        new FollowPath(basket2mid, true),
+                        pickUpBlock(false)
+                ),
+                new ParallelGroup(
+                        new FollowPath(mid2basket, true),
+                        placeInBucket()
+                ),
+                new ParallelGroup(
+                        new FollowPath(basket2bot, true),
+                        pickUpBlock(true)
+                ),
+                new ParallelGroup(
+                        new FollowPath(bot2basket, true),
+                        placeInBucket()
+                ),
+                new ParallelGroup(
+                        new FollowPath(basket2park, true),
+                        Transfer.INSTANCE.next(),
+                        VSlides.INSTANCE.moveToBottom()
+                ),
+                start
+        );
+    }
+
+    // Transfer to Barrier
+    private Command placeInBucket() {
+        return new SequentialGroup(
+                Transfer.INSTANCE.next(), // Move from TRANSFER to SAMPLESCORE
+                VSlides.INSTANCE.moveToTopBucket(),
+                EndEffector.INSTANCE.setClaw(Consts.E_CLAW_OPEN),
+                new Delay(1),
+                Transfer.INSTANCE.next() // Move from SAMPLESCORE to BARRIER
+        );
+    }
+
+    // Barrier to Transfer
+    private Command pickUpBlock(boolean turnedRight) {
+        Command turn = new NullCommand();
+        if (turnedRight) {
+            turn = new SequentialGroup(
+                    Intake.INSTANCE.turnWristManualRight(),
+                    new Delay(0.5),
+                    Intake.INSTANCE.setClaw(Consts.I_CLAW_CLOSE),
+                    new Delay(.5)
+            );
+        }
+        return new SequentialGroup(
+                VSlides.INSTANCE.moveToBottom(),
+                Transfer.INSTANCE.next(), // Move from BARRIER to HOVERG
+                turn,
+                new Delay(.5),
+                Transfer.INSTANCE.next(), // Move from HOVERG to GRABG
+                new Delay(.75),
+                Transfer.INSTANCE.next(), // Move from GRABG to TRANSFER
+                new Delay(.75)
+        );
     }
 
     @Override
@@ -231,6 +208,7 @@ public class Sample_1_3_Park extends PedroOpMode {
         follower = new Follower(hardwareMap);
         follower.setStartingPose(new Pose(0, 0, 0));
         buildPaths();
+        Transfer.INSTANCE.startAuto().invoke();
     }
 
     /**
@@ -239,6 +217,13 @@ public class Sample_1_3_Park extends PedroOpMode {
      **/
     @Override
     public void onWaitForStart() {
+        if (gamepad1.a) {
+            shouldRestart = true;
+        } else if (gamepad1.b) {
+            shouldRestart = false;
+        }
+        telemetry.addData("Restart a/b", shouldRestart);
+        telemetry.update();
     }
 
     /**

@@ -49,6 +49,12 @@ public class StateMachine {
         currentLine = sampleLine;
     }
 
+    public void startAuto() {
+        currentLine = sampleLine;
+        currentState = currentLine.get(3);
+        currentIndex = 3;
+    }
+
     public enum State {
         START, BARRIER, HOVERG, GRABG, TRANSFER, SAMPLESCORE, HOVERW, GRABW, SPECIMENSCORE
     }

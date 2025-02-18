@@ -135,6 +135,14 @@ public class Transfer extends SubsystemGroup {
         return transition(fromState, toState);
     }
 
+    public Command startAuto() {
+        stateMachine.startAuto();
+        return new ParallelGroup(
+                ee.setEE(Consts.E_CLAW_CLOSE, Consts.BIG_TRANSFER, Consts.LITTLE_TRANSFER),
+                intake.setIntake(Consts.I_CLAW_OPEN, Consts.PIVOT_TRANSFER, Intake.WristState.NORTH)
+        );
+    }
+
     public void flush() {
         stateMachine.flush();
     }
