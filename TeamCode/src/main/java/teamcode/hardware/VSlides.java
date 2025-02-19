@@ -40,7 +40,7 @@ public class VSlides extends Subsystem {
         vSlides = new MotorGroup(vSlideLeft, vSlideRight);
 
         controller.setSetPointTolerance(THRESHOLD);
-        controller.setOutputBounds(0, MAX_SLIDE_HEIGHT);
+        controller.setOutputBounds(0, MAX_SLIDE_HEIGHT); //TODO: This is maybe power
     }
 
     @NonNull

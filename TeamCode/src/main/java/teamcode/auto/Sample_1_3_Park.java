@@ -162,6 +162,7 @@ public class Sample_1_3_Park extends PedroOpMode {
                 EndEffector.INSTANCE.setClaw(Consts.E_CLAW_OPEN),
                 new Delay(1),
                 Transfer.INSTANCE.next() // Move from SAMPLESCORE to BARRIER
+                //TODO: Move slides down
         );
     }
 
