@@ -19,8 +19,7 @@ class AxonServoToPosition @JvmOverloads constructor(
         analogInput: AnalogInput,
         subsystem: Subsystem,
         tolerance: Double = DEFAULT_TOLERANCE
-    ) :
-            this(servo, targetPosition, analogInput, setOf(subsystem), tolerance)
+    ) : this(servo, targetPosition, analogInput, setOf(subsystem), tolerance)
 
     constructor(
         servo: Servo,
