@@ -20,7 +20,7 @@ public class Transfer {
         ee.init(hwMap);
     }
 
-    private void transition(StateMachine.State fromState, StateMachine.State toState) {
+    private void transition(StateMachine.State fromState, StateMachine.State toState, Boolean isAuto) {
         switch (toState) {
             case START:
                 break;
@@ -74,12 +74,13 @@ public class Transfer {
                             @Override
                             public void run() {
                                 try {
-                                    while (!ee.bigMonitor.isWithinThreshold(Consts.BIG_TRANSFER)) {
+                                    /*while (!ee.bigMonitor.isWithinThreshold(Consts.BIG_TRANSFER)) {
                                         Thread.sleep(10);
-                                    }
+                                    }*/
                                     ee.setClaw(Consts.E_CLAW_CLOSE);
                                     Thread.sleep(500);
                                     intake.setClaw(Consts.I_CLAW_OPEN);
+                                    if (isAuto) { Thread.sleep(1000); }
                                     ee.setBigPivot(Consts.BIG_SAMPLE);
                                     ee.setLittlePivot(Consts.LITTLE_SAMPLE);
                                     intake.alignWrist();
@@ -128,32 +129,32 @@ public class Transfer {
         }
     }
 
-    public void next() {
+    public void next(Boolean isAuto) {
         StateMachine.State fromState = stateMachine.getCurrentState();
         stateMachine.next();
         StateMachine.State toState = stateMachine.getCurrentState();
-        transition(fromState, toState);
+        transition(fromState, toState, isAuto);
     }
 
-    public void previous() {
+    public void previous(Boolean isAuto) {
         StateMachine.State fromState = stateMachine.getCurrentState();
         stateMachine.previous();
         StateMachine.State toState = stateMachine.getCurrentState();
-        transition(fromState, toState);
+        transition(fromState, toState, isAuto);
     }
 
-    public void switchToSpecimen() {
+    public void switchToSpecimen(Boolean isAuto) {
         StateMachine.State fromState = stateMachine.getCurrentState();
         stateMachine.switchToSpecimen();
         StateMachine.State toState = stateMachine.getCurrentState();
-        transition(fromState, toState);
+        transition(fromState, toState, isAuto);
     }
 
-    public void switchToSample() {
+    public void switchToSample(Boolean isAuto) {
         StateMachine.State fromState = stateMachine.getCurrentState();
         stateMachine.switchToSample();
         StateMachine.State toState = stateMachine.getCurrentState();
-        transition(fromState, toState);
+        transition(fromState, toState, isAuto);
     }
 
     public void flush() {

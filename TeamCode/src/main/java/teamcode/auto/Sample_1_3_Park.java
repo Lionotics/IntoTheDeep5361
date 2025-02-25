@@ -46,17 +46,18 @@ public class Sample_1_3_Park extends OpMode {
         public void run() {
             try {
                 Log.d("Teamcode", "pib 1 - Expected: TRANSFER; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                robot.transfer.next();
-                while (ee.bigMonitor.isWithinThreshold(Consts.BIG_TRANSFER)) {
-                    Thread.sleep(10);
-                }
+                robot.transfer.next(true);
+//                while (ee.bigMonitor.isWithinThreshold(Consts.BIG_TRANSFER)) {
+//                    Thread.sleep(10);
+//                }
+                Thread.sleep(500);
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_BUCKET);
                 robot.vSlides.loop();
-                Thread.sleep(1500);
+                Thread.sleep(2000); //This could lose a little if needed
                 ee.setClaw(Consts.E_CLAW_OPEN);
                 Thread.sleep(1000);
                 Log.d("Teamcode", "pib 2 - Expected: SAMPLESCORE; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                robot.transfer.next();
+                robot.transfer.next(true);
                 Log.d("Teamcode", "pib 3 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 Log.i("Teamcode", "placeInBucket finished");
                 synchronized (lock) {
@@ -75,7 +76,7 @@ public class Sample_1_3_Park extends OpMode {
                 robot.vSlides.loop();
                 Thread.sleep(1500);
                 Log.d("Teamcode", "pub 1 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                robot.transfer.next();
+                robot.transfer.next(true);
                 if (pathState == 6) {
                     intake.turnWristManualRight();
                     Thread.sleep(500);
@@ -84,10 +85,10 @@ public class Sample_1_3_Park extends OpMode {
                 }
                 Log.d("Teamcode", "pub 2 - Expected: HOVERG; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(500);
-                robot.transfer.next();
+                robot.transfer.next(true);
                 Log.d("Teamcode", "pub 3 - Expected: GRABG; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(750);
-                robot.transfer.next();
+                robot.transfer.next(true);
                 Log.d("Teamcode", "pub 4 - Expected: TRANSFER; Actual: " + robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(750);
                 Log.i("Teamcode", "pickUpBlock finished");
@@ -137,7 +138,7 @@ public class Sample_1_3_Park extends OpMode {
                 .addPath(new BezierLine(new Point(basket), new Point(topSample)))
                 .addParametricCallback(0, () -> {
                     Log.d("Teamcode", "b2t 1 - Expected: START; Actual: " + robot.transfer.stateMachine.getCurrentState());
-                    robot.transfer.next(); // Move from START to BARRIER
+                    robot.transfer.next(true); // Move from START to BARRIER
                     Log.d("Teamcode", "b2t 2 - Expected: BARRIER; Actual: " + robot.transfer.stateMachine.getCurrentState());
                     pickUpBlock.start(); // Go to TRANSFER
                 })
@@ -179,7 +180,7 @@ public class Sample_1_3_Park extends OpMode {
         basket2park = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(basket), new Point(topSample)))
                 .addParametricCallback(0, () -> {
-                   robot.transfer.next(); robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
+                   robot.transfer.next(true); robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM);
                     robot.vSlides.loop();
                 })
                 .setLinearHeadingInterpolation(basket.getHeading(), topSample.getHeading())

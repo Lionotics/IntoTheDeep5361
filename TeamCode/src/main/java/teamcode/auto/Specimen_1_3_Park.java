@@ -46,15 +46,15 @@ public class Specimen_1_3_Park extends OpMode {
     private Runnable pickUpBlock() {
         return () -> {
             try {
-                robot.transfer.switchToSample();
+                robot.transfer.switchToSample(true);
                 Log.d("Teamcode", "pub 1 - Expected: BARRIER; Actual: " +
                         robot.transfer.stateMachine.getCurrentState());
-                robot.transfer.next();
+                robot.transfer.next(true);
                 intake.turnWristManualLeft();
                 Log.d("Teamcode", "pub 2 - Expected: HOVERG; Actual: " +
                         robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(500);
-                robot.transfer.next();
+                robot.transfer.next(true);
                 Log.d("Teamcode", "pub 3 - Expected: GRABG; Actual: " +
                         robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(500);
@@ -68,7 +68,7 @@ public class Specimen_1_3_Park extends OpMode {
         return () -> {
             try {
                 Thread.sleep(500);
-                robot.transfer.switchToSpecimen();
+                robot.transfer.switchToSpecimen(true);
                 Log.d("Teamcode", "dp 1 - Expected: HOVERW; Actual: " +
                         robot.transfer.stateMachine.getCurrentState());
                 Thread.sleep(250);
@@ -83,7 +83,7 @@ public class Specimen_1_3_Park extends OpMode {
             try {
                 Log.d("Teamcode", "pob 1 - Expected: GRABW, Actual: " +
                         robot.transfer.stateMachine.getCurrentState());
-                robot.transfer.next();
+                robot.transfer.next(true);
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.TOP_CHAMBER);
                 robot.vSlides.loop();
                 Log.d("Teamcode", "pob 2 - Expected: SPECIMENSCORE, Actual: " +
@@ -91,7 +91,7 @@ public class Specimen_1_3_Park extends OpMode {
                 Thread.sleep(1500);
                 robot.vSlides.moveToPosition(VSlides.LiftPositions.BOTTOM_BUCKET);
                 robot.vSlides.loop();
-                robot.transfer.next();
+                robot.transfer.next(true);
                 Log.d("Teamcode", "pob 3 - Expected: HOVERW, Actual: " +
                         robot.transfer.stateMachine.getCurrentState());
             } catch (InterruptedException err) {

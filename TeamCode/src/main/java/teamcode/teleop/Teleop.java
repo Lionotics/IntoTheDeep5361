@@ -53,15 +53,15 @@ public class Teleop extends LinearOpMode {
 //            angle = angle/90 - 1;
 
             if (gp1.rightBumper.isNewlyPressed()) {
-                robot.transfer.next();
+                robot.transfer.next(true);
             } else if (gp1.leftBumper.isNewlyPressed()) {
-                robot.transfer.previous();
+                robot.transfer.previous(true);
             }
 
             if (gp1.right_trigger > 0.5) {
-                robot.transfer.switchToSpecimen();
+                robot.transfer.switchToSpecimen(true);
             } else if (gp1.left_trigger > 0.5) {
-                robot.transfer.switchToSample();
+                robot.transfer.switchToSample(true);
             }
 
            if (gp1.x.isNewlyPressed()) {

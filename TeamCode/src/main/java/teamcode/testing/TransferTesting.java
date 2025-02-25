@@ -33,13 +33,13 @@ public class TransferTesting extends LinearOpMode {
             gp1.update(gamepad1);
 
             if (gp1.rightBumper.isNewlyPressed()) {
-                robot.transfer.next();
+                robot.transfer.next(true);
             } else if (gp1.leftBumper.isNewlyPressed()) {
-                robot.transfer.previous();
+                robot.transfer.previous(true);
             } else if (gp1.a.isNewlyPressed()) {
-                robot.transfer.switchToSpecimen();
+                robot.transfer.switchToSpecimen(true);
             } else if (gp1.b.isNewlyPressed()) {
-                robot.transfer.switchToSample();
+                robot.transfer.switchToSample(true);
             }
 
             telemetry.addData("State", state.name());

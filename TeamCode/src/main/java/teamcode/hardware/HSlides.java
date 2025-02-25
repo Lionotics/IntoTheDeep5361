@@ -50,6 +50,7 @@ public class HSlides {
                 slideOut();
                 break;
             case HOLDING:
+                Log.d("Teamcode", "holding in");
                 horizontalHold();
                 break;
         }
@@ -103,8 +104,8 @@ public class HSlides {
     // Sets a small power to the slides to counteract gravity
     // Private because this should only be called by loop method
     private void horizontalHold() {
-        if (getPos() > SlidePositions.IN.pos - THRESHOLD) {
-            setPower(.2);
+        if (getPos() > 50) {
+            setPower(0.2);
         } else {
             setPower(-.5);
         }
