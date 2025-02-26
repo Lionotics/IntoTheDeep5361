@@ -26,7 +26,13 @@ public class StateMachine {
 
         currentState = currentLine.get(0);
         currentIndex = 0;
+    }
 
+    public void switchToSpecimenscore() {
+        currentLine = specimenLine;
+
+        currentState = currentLine.get(2);
+        currentIndex = 2;
     }
 
     public void switchToSample() {

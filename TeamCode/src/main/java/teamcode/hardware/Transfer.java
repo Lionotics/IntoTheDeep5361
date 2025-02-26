@@ -150,6 +150,13 @@ public class Transfer {
         transition(fromState, toState, isAuto);
     }
 
+    public void switchToSpecimenscore() {
+        StateMachine.State fromState = stateMachine.getCurrentState();
+        stateMachine.switchToSpecimen();
+        StateMachine.State toState = stateMachine.getCurrentState();
+        transition(fromState, toState, true);
+    }
+
     public void switchToSample(Boolean isAuto) {
         StateMachine.State fromState = stateMachine.getCurrentState();
         stateMachine.switchToSample();
