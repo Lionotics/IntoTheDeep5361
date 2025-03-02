@@ -3,6 +3,7 @@ package teamcode.testing;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,7 +12,7 @@ import teamcode.hardware.Robot;
 import teamcode.hardware.VSlides;
 import teamcode.helpers.GamepadEx;
 
-
+@Disabled
 @TeleOp(name="VSlides Testing", group="Testing")
 public class VSlidesTesting extends LinearOpMode {
 

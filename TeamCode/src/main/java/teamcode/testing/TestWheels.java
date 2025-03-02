@@ -2,10 +2,12 @@ package teamcode.testing;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import teamcode.hardware.Robot;
+@Disabled
 @TeleOp(name = "Wheels Testing", group = "Testing")
 public class TestWheels extends LinearOpMode {
     Robot robot = Robot.getInstance();

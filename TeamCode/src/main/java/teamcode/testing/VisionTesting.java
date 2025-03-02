@@ -4,6 +4,7 @@ import android.util.Size;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -13,6 +14,7 @@ import teamcode.vision.BrickAngleDetector.AngleData;
 import teamcode.helpers.GamepadEx;
 import org.firstinspires.ftc.vision.VisionPortal;
 
+@Disabled
 @TeleOp(name="Vision Testing", group = "Testing")
 public class VisionTesting extends LinearOpMode {
 

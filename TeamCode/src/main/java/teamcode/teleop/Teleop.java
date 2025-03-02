@@ -1,5 +1,7 @@
 package teamcode.teleop;
 
+import static teamcode.hardware.StateMachine.State.SPECIMENSCORE;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -104,7 +106,7 @@ public class Teleop extends LinearOpMode {
                 robot.hSlides.manualOut();
             } else if (gp1.dpad_left.isCurrentlyPressed() || gp2.dpad_left.isCurrentlyPressed()) {
                 robot.hSlides.manualIn();
-            } else {
+            } else if ((gp1.dpad_left.wasPreviouslyPressed() || gp2.dpad_left.wasPreviouslyPressed()) && lineCap == SPECIMENSCORE) {
                 robot.hSlides.hold();
             }
 

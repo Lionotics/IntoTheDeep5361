@@ -4,6 +4,7 @@ import android.util.Size;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,6 +13,7 @@ import teamcode.vision.BrickAngleDetector;
 import teamcode.hardware.Robot;
 import org.firstinspires.ftc.vision.VisionPortal;
 
+@Disabled
 @TeleOp(name = "Auto Wrist Testing", group = "Testing")
 public class AutoWristTesting extends LinearOpMode {
     VisionPortal visionPortal;

@@ -8,17 +8,9 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import teamcode.helpers.PIDController;
-
 
 @Config
 public class HSlides {
-    // PID constants kP, kI, and kD
-    public static double kP = 0.5;
-    public static double kI = 0;
-    public static double kD = 0;
-    public static int THRESHOLD = 5; // If the slides are within this threshold of the target position, they are considered to be at the target position
-    private PIDController controller; // The PID controller for the slides
     public static HSlides.SlideState slideState = HSlides.SlideState.HOLDING; // The current state of the slides
     private DcMotor hSlide;
 
@@ -27,10 +19,8 @@ public class HSlides {
         hSlide = hwMap.get(DcMotor.class, "hSlide");
         hSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        controller = new PIDController(kP, kI, kD);
-        controller.setTolerance(THRESHOLD);
     }
+
     private void setPower(double power) {
         hSlide.setPower(-power);
     }
@@ -39,9 +29,6 @@ public class HSlides {
     // It runs the appropriate method based on the liftState
     public void loop() {
         switch (slideState) {
-            case AUTO_MOVE:
-                pidLoop();
-                break;
             case MANUAL_IN:
                 slideIn();
                 break;
@@ -54,13 +41,6 @@ public class HSlides {
                 horizontalHold();
                 break;
         }
-    }
-
-    // Sets a target position for the vertical slides to move to
-    // Public because we should be able to move the slides to a target position from other classes
-    public void moveToPosition(HSlides.SlidePositions position) {
-        controller.setSetPoint(position.pos); // Set the target position for the PID controller
-        setSlideState(SlideState.AUTO_MOVE);
     }
 
     // Setters for the liftState
@@ -77,9 +57,7 @@ public class HSlides {
     }
 
     public void hold() {
-        if (slideState != SlideState.AUTO_MOVE || controller.atSetPoint()) {
-            setSlideState(SlideState.HOLDING);
-        }
+        setSlideState(SlideState.HOLDING);
     }
 
     // Set the power for the vertical slides
@@ -93,27 +71,12 @@ public class HSlides {
         Log.d("Teamcode", "Power set");
     }
 
-    // The method that gets run each cycle in the opmode (while the slides are in AUTO_MOVE state)
-    private void pidLoop() {
-        controller.setPID(kP, kI, kD);
-        controller.setTolerance(THRESHOLD);
-        double pow = getPidPower();
-        setPower(pow);
-    }
-
     // Sets a small power to the slides to counteract gravity
     // Private because this should only be called by loop method
     private void horizontalHold() {
-        if (getPos() > 50) {
-            setPower(0.2);
-        } else {
-            setPower(-.5);
-        }
+        setPower(-.3);
     }
 
-    public double getTargetPos() {
-        return controller.getSetPoint();
-    }
 
     public HSlides.SlideState getSlideState() {
         return slideState;
@@ -125,19 +88,13 @@ public class HSlides {
         slideState = state;
     }
 
-    public double getPidPower() {
-        double position = getPos();
-        double pow = controller.calculate(position);
-        return pow;
-    }
-
     public double getPos() {
         return -hSlide.getCurrentPosition();
     }
 
     // Possible states for the vertical slides
     public enum SlideState {
-        AUTO_MOVE, MANUAL_IN, MANUAL_OUT, HOLDING
+        MANUAL_IN, MANUAL_OUT, HOLDING
     }
 
     // Position constants for the slides to move to (in encoder ticks)

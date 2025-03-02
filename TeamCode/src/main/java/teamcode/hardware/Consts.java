@@ -8,8 +8,8 @@ public class Consts {
     public static double I_CLAW_CLOSE = 0.1;
     public static double I_CLAW_OPEN = .6;
     public static double PIVOT_BARRIER = 0.7;
-    public static double PIVOT_GRAB = 0.92;
-    public static double PIVOT_TRANSFER = 0.4;
+    public static double PIVOT_GRAB = 0.568;
+    public static double PIVOT_TRANSFER = 1;
 
     // Wrist
     public static double W_WEST = 0.6;
@@ -26,10 +26,10 @@ public class Consts {
     public static double BIG_TRANSFER = 0.723;
     public static double BIG_SAMPLE = 0.35;
     public static double BIG_WALL = 0.11;
-    public static double LITTLE_SPECIMEN = 0.15;
-    public static double LITTLE_TRANSFER = 0.515;
-    public static double LITTLE_SAMPLE = 0;
-    public static double LITTLE_WALL = 0.16;
+    public static double LITTLE_SPECIMEN = 0.8;
+    public static double LITTLE_TRANSFER = 0;
+    public static double LITTLE_SAMPLE = 1;
+    public static double LITTLE_WALL = 0.85;
 
     // Monitor Thresholds
     public static double BIG_THRESH = 0.05;

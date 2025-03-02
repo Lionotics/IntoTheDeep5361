@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,6 +12,7 @@ import teamcode.hardware.HSlides;
 import teamcode.hardware.Robot;
 import teamcode.helpers.GamepadEx;
 
+@Disabled
 @TeleOp(name = "HSlides Testing", group = "Testing")
 public class HSlidesTesting extends LinearOpMode {
 
@@ -37,12 +39,6 @@ public class HSlidesTesting extends LinearOpMode {
                 robot.hSlides.manualIn();
             }
 
-            if (gp1.a.isNewlyPressed()) {
-                robot.hSlides.moveToPosition(HSlides.SlidePositions.OUT);
-            } else if (gp1.b.isNewlyPressed()) {
-                robot.hSlides.moveToPosition(HSlides.SlidePositions.IN);
-            }
-
             if (isNoButtonPressed()) {
                 robot.hSlides.hold();
             }
@@ -51,8 +47,6 @@ public class HSlidesTesting extends LinearOpMode {
 
             telemetry.addData("Slide Mode",robot.hSlides.getSlideState().name());
             telemetry.addData("Horizontal Pos", robot.hSlides.getPos());
-            telemetry.addData("Horizontal Target", robot.hSlides.getTargetPos());
-            telemetry.addData("PID Output", robot.hSlides.getPidPower());
             telemetry.update();
         }
     }

@@ -2,6 +2,7 @@ package teamcode.testing;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,6 +11,7 @@ import teamcode.hardware.EndEffector;
 import teamcode.hardware.Robot;
 import teamcode.helpers.GamepadEx;
 
+@Disabled
 @TeleOp(name="End Effector Testing", group = "Testing")
 public class EndEffectorTesting extends LinearOpMode {
     Robot robot = Robot.getInstance();

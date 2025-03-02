@@ -3,6 +3,7 @@ package teamcode.testing;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,6 +13,7 @@ import teamcode.helpers.GamepadEx;
 
 import java.util.List;
 
+@Disabled
 @TeleOp(name = "Transfer Testing", group = "Testing")
 public class TransferTesting extends LinearOpMode {
     Robot robot = Robot.getInstance();

@@ -11,6 +11,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import java.util.Arrays;
@@ -27,6 +28,7 @@ import teamcode.hardware.Robot;
 import teamcode.hardware.StateMachine;
 import teamcode.hardware.VSlides;
 
+@Disabled
 @Autonomous(name = "Specimen 1+3 Park", group = "Red")
 public class Specimen_1_3_Park extends OpMode {
     public static Pose startPose = new Pose(135.75, 88, Math.toRadians(0));
